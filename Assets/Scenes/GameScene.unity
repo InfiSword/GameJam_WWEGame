@@ -997,6 +997,7 @@ MonoBehaviour:
   m_cardSetupObj_2: {fileID: 1666066464}
   m_cardSetupObj_3: {fileID: 2089829543}
   m_cardManager: {fileID: 1946775266}
+  m_stackOffset: {x: 0.2, y: 0.2, z: 0.1}
 --- !u!4 &776736996
 Transform:
   m_ObjectHideFlags: 0
@@ -1313,7 +1314,6 @@ MonoBehaviour:
   m_maxFanAngle: 60
   m_cardSpacing: 1.5
   m_maxHandSize: 10
-  m_drawDuration: 0.5
   m_drawStartOffset: {x: 0, y: -5, z: 0}
   m_repositionDuration: 0.3
 --- !u!4 &1946775267

@@ -1,9 +1,9 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections.Generic; 
 
 public class TestCardGame : MonoBehaviour
 {
-    [Header("UI Buttons")]
     [SerializeField] private Button m_setupButton;
     [SerializeField] private Button m_drawButton;
 
@@ -12,13 +12,19 @@ public class TestCardGame : MonoBehaviour
     [SerializeField] private GameObject m_cardSetupObj_2;
     [SerializeField] private GameObject m_cardSetupObj_3;
 
-    [Header("Manager Reference")]
     [SerializeField] private CardManager m_cardManager;
 
-    private WWECard[] m_setupCards = new WWECard[3];
+    private List<WWECard>[] m_setupCardStacks = new List<WWECard>[3];    
+    [SerializeField] private Vector3 m_stackOffset = new Vector3(0.2f, 0.2f, 0.1f);
 
     private void Start()
     {
+        // 슬롯별 카드 스택 초기화
+        for (int i = 0; i < m_setupCardStacks.Length; i++)
+        {
+            m_setupCardStacks[i] = new List<WWECard>();
+        }
+        
         // 버튼 이벤트 연결
         if (m_setupButton != null)
         {
@@ -51,49 +57,88 @@ public class TestCardGame : MonoBehaviour
     {
         if (card == null) return;
 
-        // 빈 슬롯 찾기
-        int emptySlotIndex = -1;
-        for (int i = 0; i < m_setupCards.Length; i++)
-        {
-            if (m_setupCards[i] == null)
-            {
-                emptySlotIndex = i;
-                break;
-            }
-        }
-
-        if (emptySlotIndex == -1)
-        {
-            Debug.Log("모든 셋업 슬롯이 가득 찼습니다!");
-            return;
-        }
-
-        // 카드를 셋업 슬롯에 배치
-        GameObject setupSlot = GetSetupSlot(emptySlotIndex);
+        int targetSlotIndex = GetNextSlotIndex();
+        
+        int originalHandIndex = m_cardManager.GetCardIndexInHand(card);
+    
+        GameObject setupSlot = GetSetupSlot(targetSlotIndex);
         if (setupSlot != null)
         {
-            card.SetupCard(setupSlot.transform, emptySlotIndex);
-            m_setupCards[emptySlotIndex] = card;
-            m_cardManager.SetupCard(card, emptySlotIndex);
+            int stackCount = m_setupCardStacks[targetSlotIndex].Count;
+            Vector3 offset = m_stackOffset * stackCount;
+            
+            card.SetupCard(setupSlot.transform, targetSlotIndex, originalHandIndex, offset);
+            m_setupCardStacks[targetSlotIndex].Add(card);
+            m_cardManager.SetupCard(card, targetSlotIndex);
 
-            Debug.Log($"카드를 슬롯 {emptySlotIndex + 1}에 배치했습니다. ({GetSetupCount()}/3)");
+            Debug.Log($"카드를 슬롯 {targetSlotIndex + 1}에 배치했습니다. (스택: {stackCount + 1}장)");
         }
     }
+    
+    // 다음 슬롯 인덱스를 라운드 로빈으로 반환
+    private int GetNextSlotIndex()
+    {
+        int minCount = int.MaxValue;
+        int targetIndex = 0;
+        
+        for (int i = 0; i < m_setupCardStacks.Length; i++)
+        {
+            if (m_setupCardStacks[i].Count < minCount)
+            {
+                minCount = m_setupCardStacks[i].Count;
+                targetIndex = i;
+            }
+        }
+        
+        return targetIndex;
+    }
 
-    // 셋업 슬롯에서 카드 제거
-    public void RemoveCardFromSetup(WWECard card)
+    // 셋업 슬롯에서 카드 제거 (내부용)
+    private void RemoveCardFromSetup(WWECard card)
     {
         if (card == null) return;
 
         int slotIndex = card.SetupSlotIndex;
-        if (slotIndex >= 0 && slotIndex < m_setupCards.Length)
+        if (slotIndex >= 0 && slotIndex < m_setupCardStacks.Length)
         {
-            if (m_setupCards[slotIndex] == card)
+            if (m_setupCardStacks[slotIndex].Contains(card))
             {
-                m_setupCards[slotIndex] = null;
+                m_setupCardStacks[slotIndex].Remove(card);
+                
+                // 남은 카드들의 위치 재조정
+                RepositionStackCards(slotIndex);
 
                 m_cardManager.ReleaseCardFromSetup(card);
                 card.ReleaseSetup();
+            }
+        }
+    }
+    
+    // 특정 슬롯의 가장 위(처음) 카드 제거 - 스택의 맨 위 카드 제거
+    public void RemoveTopCardFromSlot(int slotIndex)
+    {
+        if (slotIndex < 0 || slotIndex >= m_setupCardStacks.Length) return;
+        
+        if (m_setupCardStacks[slotIndex].Count > 0)
+        {
+            // 스택의 첫 번째 카드(가장 위에 보이는 카드) 제거
+            WWECard topCard = m_setupCardStacks[slotIndex][0];
+            RemoveCardFromSetup(topCard);
+        }
+    }
+
+    // 특정 슬롯의 카드들 위치 재조정
+    private void RepositionStackCards(int slotIndex)
+    {
+        if (slotIndex < 0 || slotIndex >= m_setupCardStacks.Length) return;
+        
+        for (int i = 0; i < m_setupCardStacks[slotIndex].Count; i++)
+        {
+            WWECard card = m_setupCardStacks[slotIndex][i];
+            if (card != null)
+            {
+                Vector3 offset = m_stackOffset * i;
+                card.transform.localPosition = offset;
             }
         }
     }
@@ -110,29 +155,20 @@ public class TestCardGame : MonoBehaviour
         }
     }
 
-    // 현재 셋업된 카드 개수
-    private int GetSetupCount()
-    {
-        int count = 0;
-        foreach (var card in m_setupCards)
-        {
-            if (card != null) count++;
-        }
-        return count;
-    }
-
     // 셋업된 카드들을 사용하는 메서드 (추후 구현용)
     public void ExecuteSetupCards()
     {
-        for (int i = 0; i < m_setupCards.Length; i++)
+        for (int i = 0; i < m_setupCardStacks.Length; i++)
         {
-            if (m_setupCards[i] != null)
+            foreach (var card in m_setupCardStacks[i])
             {
-                // 여기서 카드 사용 로직 구현
+                if (card != null)
+                {
+                    // 여기서 카드 사용 로직 구현
+                }
             }
         }
     }
-
     private void OnDestroy()
     {
         // 버튼 이벤트 해제

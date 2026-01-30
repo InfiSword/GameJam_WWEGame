@@ -12,7 +12,6 @@ public class CardManager : MonoBehaviour
     [SerializeField] private float m_cardSpacing = 1.5f;
     [SerializeField] private int m_maxHandSize = 10;
 
-    [SerializeField] private float m_drawDuration = 0.5f;
     [SerializeField] private Vector3 m_drawStartOffset = new Vector3(0f, -5f, 0f);
     [SerializeField] private float m_repositionDuration = 0.3f;
 
@@ -24,7 +23,12 @@ public class CardManager : MonoBehaviour
     private Coroutine m_currentRepositionCoroutine = null;
 
     private List<CardData> m_availableCards = new List<CardData>();
-
+    
+    public int GetCardIndexInHand(WWECard card)
+    {
+        return m_hand.IndexOf(card);
+    }
+    
     public void Init()
     {
         m_cardPrefab = Resources.Load<GameObject>("Prefabs/Card");
@@ -63,7 +67,8 @@ public class CardManager : MonoBehaviour
 
     public void DrawCard()
     {
-        if (m_hand.Count >= m_maxHandSize)
+        // 손패 + 셋업된 카드의 총 개수가 최대치를 넘으면 드로우 불가
+        if (m_hand.Count + m_setupCards.Count >= m_maxHandSize)
         {
             return;
         }
@@ -87,17 +92,15 @@ public class CardManager : MonoBehaviour
         wweCard.Init(cardData);
         m_hand.Add(wweCard);
 
-        // 시작 위치 설정 (화면 아래쪽)
+        // 시작 위치 설정
         cardObj.transform.localPosition = m_drawStartOffset;
         cardObj.transform.localRotation = Quaternion.identity;
 
-        // 기존 재배치 코루틴이 실행중이면 중단하고 새로 시작
         if (m_currentRepositionCoroutine != null)
         {
             StopCoroutine(m_currentRepositionCoroutine);
         }
 
-        // 재배치 코루틴 시작 - 이 코루틴은 새 카드를 포함한 모든 카드를 올바른 위치로 이동
         m_currentRepositionCoroutine = StartCoroutine(RepositionAllCardsCoroutine());
 
         yield break;
@@ -113,7 +116,7 @@ public class CardManager : MonoBehaviour
             m_hand.Remove(card);
             m_setupCards.Add(card);
 
-            // 손패 재정렬
+            // 손패 재배치
             RepositionHandCards();
         }
     }
@@ -126,19 +129,20 @@ public class CardManager : MonoBehaviour
         if (m_setupCards.Contains(card))
         {
             m_setupCards.Remove(card);
-            m_hand.Add(card);
+            
+            // 원래 인덱스 위치에 삽입
+            int originalIndex = card.OriginalHandIndex;
+            if (originalIndex >= 0 && originalIndex <= m_hand.Count)
+            {
+                m_hand.Insert(originalIndex, card);
+            }
+            else
+            {
+                m_hand.Add(card);
+            }
 
-            // 손패 재정렬
+            // 손패 재배치
             RepositionHandCards();
-        }
-    }
-
-    public void RemoveCardFromSetup(WWECard card)
-    {
-        TestCardGame testGame = FindFirstObjectByType<TestCardGame>();
-        if (testGame != null)
-        {
-            testGame.RemoveCardFromSetup(card);
         }
     }
 

@@ -1,27 +1,36 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class WWECard : MonoBehaviour, IPointerClickHandler
 {
     private CardData m_cardData;
     public CardData GetCardData => m_cardData;
-    public Canvas m_cardCanvas;
     
+    public Canvas m_cardCanvas;
+    public Image m_cardImage;
+    public TextMeshProUGUI m_cardDescr;    
+    public TextMeshProUGUI m_cardName;
+    public TextMeshProUGUI m_cardCost;
+
     private bool m_isSetup = false;
     public bool IsSetup => m_isSetup;
     
     private int m_setupSlotIndex = -1;
     public int SetupSlotIndex => m_setupSlotIndex;
     
+    private int m_originalHandIndex = -1;
+    public int OriginalHandIndex => m_originalHandIndex;
+    
     private Transform m_originalParent;
     
     public void Init(CardData _cardData)
     {
-        m_cardData = _cardData;
-        m_cardCanvas = GetComponentInChildren<Canvas>();
+        m_cardData = _cardData;        
         m_cardCanvas.worldCamera = Camera.main;
+        m_cardDescr.text = m_cardData.m_description;
     }
-
     void Update()
     {
 
@@ -30,11 +39,11 @@ public class WWECard : MonoBehaviour, IPointerClickHandler
     {
         if (m_isSetup)
         {
-            // 셋업된 카드를 클릭하면 해제
-            CardManager cardManager = GameManager.CardManager;
-            if (cardManager != null)
+            // 셋업된 카드를 클릭하면 - 같은 슬롯의 가장 위(마지막) 카드만 제거
+            TestCardGame testGame = FindFirstObjectByType<TestCardGame>();
+            if (testGame != null)
             {
-                cardManager.RemoveCardFromSetup(this);
+                testGame.RemoveTopCardFromSlot(m_setupSlotIndex);
             }
         }
         else
@@ -48,22 +57,26 @@ public class WWECard : MonoBehaviour, IPointerClickHandler
         }
     }
     
-    public void SetupCard(Transform setupParent, int slotIndex)
+    public void SetupCard(Transform setupParent, int slotIndex, int originalHandIndex, Vector3 offset)
     {
         m_isSetup = true;
-        m_setupSlotIndex = slotIndex;        
+        m_setupSlotIndex = slotIndex;
+        m_originalHandIndex = originalHandIndex;
         m_originalParent = transform.parent;
                 
         transform.SetParent(setupParent);
-        transform.localPosition = Vector3.zero;
+        transform.localPosition = offset;
         transform.localRotation = Quaternion.identity;
         transform.localScale = Vector3.one;
+        
+        transform.SetAsFirstSibling();
     }
     
     public void ReleaseSetup()
     {
         m_isSetup = false;
         m_setupSlotIndex = -1;
+        m_originalHandIndex = -1;
         
         if (m_originalParent != null)
         {
