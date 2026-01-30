@@ -14,6 +14,9 @@ public class WWECard : MonoBehaviour, IPointerClickHandler
     public TextMeshProUGUI m_cardName;
     public TextMeshProUGUI m_cardCost;
 
+    private bool m_isPreview = false;
+    public bool IsPreview => m_isPreview;
+
     private bool m_isSetup = false;
     public bool IsSetup => m_isSetup;
     
@@ -25,35 +28,41 @@ public class WWECard : MonoBehaviour, IPointerClickHandler
     
     private Transform m_originalParent;
     
-    public void Init(CardData _cardData)
+    public void Init(CardData _cardData, bool isPreview = false)
     {
         m_cardData = _cardData;        
         m_cardCanvas.worldCamera = Camera.main;
         m_cardDescr.text = m_cardData.m_description;
+        m_isPreview = isPreview;
+        
+        if (m_isPreview)
+        {
+            m_cardCanvas.sortingOrder = 100;
+        }
     }
-    void Update()
-    {
 
-    }    
+    public void UpdateCardData(CardData _cardData)
+    {
+        m_cardData = _cardData;
+        m_cardDescr.text = m_cardData.m_description;
+    }
+    
     public void OnPointerClick(PointerEventData eventData)
     {
-        if (m_isSetup)
+        TestCardGame testGame = FindFirstObjectByType<TestCardGame>();
+        if (testGame == null) return;
+
+        if (m_isPreview)
         {
-            // 셋업된 카드를 클릭하면 - 같은 슬롯의 가장 위(마지막) 카드만 제거
-            TestCardGame testGame = FindFirstObjectByType<TestCardGame>();
-            if (testGame != null)
-            {
-                testGame.RemoveTopCardFromSlot(m_setupSlotIndex);
-            }
+            testGame.OnPreviewCardClicked();
+        }
+        else if (m_isSetup)
+        {
+            testGame.RemoveTopCardFromSlot(m_setupSlotIndex);
         }
         else
         {
-            // 손패의 카드를 클릭하면 셋업
-            TestCardGame testGame = FindFirstObjectByType<TestCardGame>();
-            if (testGame != null)
-            {
-                testGame.OnCardClicked(this);
-            }
+            testGame.OnHandCardClicked(this);
         }
     }
     
@@ -68,8 +77,7 @@ public class WWECard : MonoBehaviour, IPointerClickHandler
         transform.localPosition = offset;
         transform.localRotation = Quaternion.identity;
         transform.localScale = Vector3.one;
-        
-        transform.SetAsFirstSibling();
+        transform.SetAsLastSibling();
     }
     
     public void ReleaseSetup()
@@ -84,13 +92,10 @@ public class WWECard : MonoBehaviour, IPointerClickHandler
         }
     }
 
-    // 카드 사용 시 호출되는 핵심 메서드
     public void UseCard(TargetState target)
     {
-        float finalDamage = 0f;
-        finalDamage = m_cardData.m_damageCalculator(m_cardData, target);
+        float finalDamage = m_cardData.m_damageCalculator(m_cardData, target);
         target.m_currentHealth -= finalDamage;
-
         m_cardData.m_abilityTrigger(m_cardData, target);
     }
 }

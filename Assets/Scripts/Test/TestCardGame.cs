@@ -12,10 +12,16 @@ public class TestCardGame : MonoBehaviour
     [SerializeField] private GameObject m_cardSetupObj_2;
     [SerializeField] private GameObject m_cardSetupObj_3;
 
+    [Header("Background Panel")]
+    [SerializeField] private GameObject m_backgroundPanel;
+    [SerializeField] private Button m_backgroundButton;
+
     [SerializeField] private CardManager m_cardManager;
 
     private List<WWECard>[] m_setupCardStacks = new List<WWECard>[3];    
     [SerializeField] private Vector3 m_stackOffset = new Vector3(0.2f, 0.2f, 0.1f);
+
+    private WWECard m_currentPreviewOriginalCard;
 
     private void Start()
     {
@@ -35,6 +41,23 @@ public class TestCardGame : MonoBehaviour
         {
             m_drawButton.onClick.AddListener(OnDrawButtonClicked);
         }
+
+        // 백그라운드 버튼 이벤트 연결
+        if (m_backgroundButton != null)
+        {
+            m_backgroundButton.onClick.AddListener(OnBackgroundClicked);
+        }
+
+        // 백그라운드 패널 초기 비활성화
+        if (m_backgroundPanel != null)
+        {
+            m_backgroundPanel.SetActive(false);
+        }
+    }
+
+    private void OnBackgroundClicked()
+    {
+        CloseCardPreview();
     }
 
     // Setup 버튼 클릭 이벤트
@@ -42,8 +65,6 @@ public class TestCardGame : MonoBehaviour
     {
         m_cardManager.Init();
         m_cardManager.StartGame();
-
-        Debug.Log("초기 손패 생성 중");
     }
 
     // Draw 버튼 클릭 이벤트
@@ -52,14 +73,57 @@ public class TestCardGame : MonoBehaviour
         m_cardManager.DrawCard();
     }
 
-    // 카드가 클릭되었을 때 호출되는 메서드
-    public void OnCardClicked(WWECard card)
+    // 손패 카드가 클릭되었을 때
+    public void OnHandCardClicked(WWECard card)
     {
         if (card == null) return;
 
+        WWECard previewCard = m_cardManager.GetPreviewCard();
+
+        // 미리보기가 이미 활성화되어 있는 경우
+        if (m_currentPreviewOriginalCard != null && previewCard != null && previewCard.gameObject.activeSelf)
+        {
+            // 같은 카드를 클릭한 경우 - 셋업으로 이동
+            if (m_currentPreviewOriginalCard == card)
+            {
+                OnPreviewCardClicked();
+            }
+            // 다른 카드를 클릭한 경우 - 새 카드 미리보기 표시
+            else
+            {
+                ShowCardPreview(card);
+            }
+            return;
+        }
+
+        // 미리보기가 없는 상태에서 카드 클릭 - 미리보기 표시
+        ShowCardPreview(card);
+    }
+
+    // 카드 미리보기 표시
+    private void ShowCardPreview(WWECard originalCard)
+    {
+        WWECard previewCard = m_cardManager.GetPreviewCard();
+        if (previewCard == null) return;
+
+        previewCard.UpdateCardData(originalCard.GetCardData);
+        previewCard.gameObject.SetActive(true);
+
+        if (m_backgroundPanel != null)
+        {
+            m_backgroundPanel.SetActive(true);
+        }
+
+        m_currentPreviewOriginalCard = originalCard;        
+    }
+
+    // 미리보기 카드가 클릭되었을 때 - 셋업 진행
+    public void OnPreviewCardClicked()
+    {
+        if (m_currentPreviewOriginalCard == null) return;
+
         int targetSlotIndex = GetNextSlotIndex();
-        
-        int originalHandIndex = m_cardManager.GetCardIndexInHand(card);
+        int originalHandIndex = m_cardManager.GetCardIndexInHand(m_currentPreviewOriginalCard);
     
         GameObject setupSlot = GetSetupSlot(targetSlotIndex);
         if (setupSlot != null)
@@ -67,12 +131,29 @@ public class TestCardGame : MonoBehaviour
             int stackCount = m_setupCardStacks[targetSlotIndex].Count;
             Vector3 offset = m_stackOffset * stackCount;
             
-            card.SetupCard(setupSlot.transform, targetSlotIndex, originalHandIndex, offset);
-            m_setupCardStacks[targetSlotIndex].Add(card);
-            m_cardManager.SetupCard(card, targetSlotIndex);
-
-            Debug.Log($"카드를 슬롯 {targetSlotIndex + 1}에 배치했습니다. (스택: {stackCount + 1}장)");
+            m_currentPreviewOriginalCard.SetupCard(setupSlot.transform, targetSlotIndex, originalHandIndex, offset);
+            m_setupCardStacks[targetSlotIndex].Add(m_currentPreviewOriginalCard);
+            m_cardManager.SetupCard(m_currentPreviewOriginalCard, targetSlotIndex);
         }
+
+        CloseCardPreview();
+    }
+
+    // 카드 미리보기 닫기
+    private void CloseCardPreview()
+    {
+        WWECard previewCard = m_cardManager.GetPreviewCard();
+        if (previewCard != null)
+        {
+            previewCard.gameObject.SetActive(false);
+        }
+
+        if (m_backgroundPanel != null)
+        {
+            m_backgroundPanel.SetActive(false);
+        }
+
+        m_currentPreviewOriginalCard = null;
     }
     
     // 다음 슬롯 인덱스를 라운드 로빈으로 반환
@@ -114,15 +195,16 @@ public class TestCardGame : MonoBehaviour
         }
     }
     
-    // 특정 슬롯의 가장 위(처음) 카드 제거 - 스택의 맨 위 카드 제거
+    // 특정 슬롯의 가장 위(마지막) 카드 제거 - 스택의 맨 위 카드 제거
     public void RemoveTopCardFromSlot(int slotIndex)
     {
         if (slotIndex < 0 || slotIndex >= m_setupCardStacks.Length) return;
         
         if (m_setupCardStacks[slotIndex].Count > 0)
         {
-            // 스택의 첫 번째 카드(가장 위에 보이는 카드) 제거
-            WWECard topCard = m_setupCardStacks[slotIndex][0];
+            // 스택의 마지막 카드(가장 위에 보이는 카드) 제거
+            int lastIndex = m_setupCardStacks[slotIndex].Count - 1;
+            WWECard topCard = m_setupCardStacks[slotIndex][lastIndex];
             RemoveCardFromSetup(topCard);
         }
     }
@@ -137,8 +219,7 @@ public class TestCardGame : MonoBehaviour
             WWECard card = m_setupCardStacks[slotIndex][i];
             if (card != null)
             {
-                Vector3 offset = m_stackOffset * i;
-                card.transform.localPosition = offset;
+                card.transform.localPosition = m_stackOffset * i;
             }
         }
     }
@@ -169,6 +250,7 @@ public class TestCardGame : MonoBehaviour
             }
         }
     }
+    
     private void OnDestroy()
     {
         // 버튼 이벤트 해제
@@ -180,6 +262,11 @@ public class TestCardGame : MonoBehaviour
         if (m_drawButton != null)
         {
             m_drawButton.onClick.RemoveListener(OnDrawButtonClicked);
+        }
+
+        if (m_backgroundButton != null)
+        {
+            m_backgroundButton.onClick.RemoveListener(OnBackgroundClicked);
         }
     }
 }

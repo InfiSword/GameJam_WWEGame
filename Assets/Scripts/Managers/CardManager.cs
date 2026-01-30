@@ -15,24 +15,45 @@ public class CardManager : MonoBehaviour
     [SerializeField] private Vector3 m_drawStartOffset = new Vector3(0f, -5f, 0f);
     [SerializeField] private float m_repositionDuration = 0.3f;
 
+    [SerializeField] private Vector3 m_previewCardPosition = new Vector3(0f, 0f, 0f);
+    [SerializeField] private float m_previewCardScale = 3.0f;
+
     private List<WWECard> m_hand = new List<WWECard>();
     private List<WWECard> m_setupCards = new List<WWECard>();
 
     private int m_initialHandSize = 5;
 
     private Coroutine m_currentRepositionCoroutine = null;
-
     private List<CardData> m_availableCards = new List<CardData>();
-    
-    public int GetCardIndexInHand(WWECard card)
-    {
-        return m_hand.IndexOf(card);
-    }
-    
+    private WWECard m_previewCard;
+
+    public WWECard GetPreviewCard() => m_previewCard;
+    public int GetCardIndexInHand(WWECard card) => m_hand.IndexOf(card);
+    public int GetHandCount() => m_hand.Count;
+    public List<WWECard> GetHand() => m_hand;
+
     public void Init()
     {
         m_cardPrefab = Resources.Load<GameObject>("Prefabs/Card");
         InitializeCardPool();
+        InitializePreviewCard();
+    }
+
+    private void InitializePreviewCard()
+    {
+        if (m_cardPrefab == null) return;
+
+        GameObject previewObj = Instantiate(m_cardPrefab);
+        m_previewCard = previewObj.GetComponent<WWECard>();
+
+        if (m_previewCard != null)
+        {
+            m_previewCard.Init(CardDatabase.Chop, true);
+            previewObj.transform.position = m_previewCardPosition;
+            previewObj.transform.localScale = Vector3.one * m_previewCardScale;
+            previewObj.transform.rotation = Quaternion.identity;
+            previewObj.gameObject.SetActive(false);
+        }
     }
 
     public void StartGame()
@@ -43,16 +64,13 @@ public class CardManager : MonoBehaviour
     private void InitializeCardPool()
     {
         m_availableCards.Clear();
-
         m_availableCards.Add(CardDatabase.Chop);
         m_availableCards.Add(CardDatabase.LowKick);
         m_availableCards.Add(CardDatabase.Jab);
         m_availableCards.Add(CardDatabase.Headbutt);
-
         m_availableCards.Add(CardDatabase.RearNakedChoke);
         m_availableCards.Add(CardDatabase.HeartPunch);
         m_availableCards.Add(CardDatabase.Superkick);
-
         m_availableCards.Add(CardDatabase.RKO);
     }
 
@@ -68,19 +86,13 @@ public class CardManager : MonoBehaviour
     public void DrawCard()
     {
         // 손패 + 셋업된 카드의 총 개수가 최대치를 넘으면 드로우 불가
-        if (m_hand.Count + m_setupCards.Count >= m_maxHandSize)
-        {
-            return;
-        }
-
-        if (m_availableCards.Count == 0)
+        if (m_hand.Count + m_setupCards.Count >= m_maxHandSize || m_availableCards.Count == 0)
         {
             return;
         }
 
         int randomIndex = Random.Range(0, m_availableCards.Count);
         CardData randomCard = m_availableCards[randomIndex];
-
         StartCoroutine(CreateCardWithAnimationCoroutine(randomCard));
     }
 
@@ -102,7 +114,6 @@ public class CardManager : MonoBehaviour
         }
 
         m_currentRepositionCoroutine = StartCoroutine(RepositionAllCardsCoroutine());
-
         yield break;
     }
 
@@ -129,7 +140,7 @@ public class CardManager : MonoBehaviour
         if (m_setupCards.Contains(card))
         {
             m_setupCards.Remove(card);
-            
+
             // 원래 인덱스 위치에 삽입
             int originalIndex = card.OriginalHandIndex;
             if (originalIndex >= 0 && originalIndex <= m_hand.Count)
@@ -165,13 +176,10 @@ public class CardManager : MonoBehaviour
         }
 
         float angle = normalizedIndex * (m_maxFanAngle * 0.5f);
-
         float totalWidth = (totalCardCount - 1) * m_cardSpacing;
         float x = index * m_cardSpacing - totalWidth * 0.5f;
 
-        float z = 0f;
-
-        localPosition = new Vector3(x, 0f, z);
+        localPosition = new Vector3(x, 0f, 0f);
         localRotation = Quaternion.Euler(0f, 0f, -angle);
     }
 
@@ -196,7 +204,6 @@ public class CardManager : MonoBehaviour
             CalculateCardTransform(i, totalCards, out targetPos, out targetRot);
             targetPositions.Add(targetPos);
             targetRotations.Add(targetRot);
-
         }
 
         float elapsedTime = 0f;
@@ -205,7 +212,6 @@ public class CardManager : MonoBehaviour
         {
             elapsedTime += Time.deltaTime;
             float t = elapsedTime / m_repositionDuration;
-
             float easedT = 1f - (1f - t) * (1f - t);
 
             for (int i = 0; i < m_hand.Count && i < startPositions.Count; i++)
@@ -225,11 +231,8 @@ public class CardManager : MonoBehaviour
 
             m_hand[i].transform.localPosition = targetPositions[i];
             m_hand[i].transform.localRotation = targetRotations[i];
-
         }
+        
         m_currentRepositionCoroutine = null;
     }
-
-    public int GetHandCount() => m_hand.Count;
-    public List<WWECard> GetHand() => m_hand;
 }
