@@ -1,16 +1,14 @@
 using UnityEngine;
 
-public class PlayerData : MonoBehaviour
+public class PlayerData
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    // 플레이어 스탯
+    public float maxHealth = 100;
+    public float currentHealth = 100;
+    
+    // 생성자
+    public PlayerData()
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        currentHealth = maxHealth;
     }
 }
