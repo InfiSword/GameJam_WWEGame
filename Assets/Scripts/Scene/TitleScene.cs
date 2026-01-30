@@ -10,7 +10,7 @@ public class TitleScene : MonoBehaviour
     {
         m_startButton.onClick.AddListener(() =>
         {
-            SceneManager.LoadScene("GameScene");
+            SceneManager.LoadScene("CardSelectScene");
         });
     }
 

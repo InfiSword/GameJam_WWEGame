@@ -2,11 +2,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic; 
 
-public class TestCardGame : MonoBehaviour
+public class WWEMainGame : MonoBehaviour
 {
-    [SerializeField] private Button m_setupButton;
-    [SerializeField] private Button m_drawButton;
-
     [Header("Setup Slots")]
     [SerializeField] private GameObject m_cardSetupObj_1;
     [SerializeField] private GameObject m_cardSetupObj_2;
@@ -23,24 +20,13 @@ public class TestCardGame : MonoBehaviour
 
     private WWECard m_currentPreviewOriginalCard;
 
-    private void Start()
+    public void Init()
     {
         // 슬롯별 카드 스택 초기화
         for (int i = 0; i < m_setupCardStacks.Length; i++)
         {
             m_setupCardStacks[i] = new List<WWECard>();
-        }
-        
-        // 버튼 이벤트 연결
-        if (m_setupButton != null)
-        {
-            m_setupButton.onClick.AddListener(OnSetupButtonClicked);
-        }
-
-        if (m_drawButton != null)
-        {
-            m_drawButton.onClick.AddListener(OnDrawButtonClicked);
-        }
+        }      
 
         // 백그라운드 버튼 이벤트 연결
         if (m_backgroundButton != null)
@@ -58,19 +44,6 @@ public class TestCardGame : MonoBehaviour
     private void OnBackgroundClicked()
     {
         CloseCardPreview();
-    }
-
-    // Setup 버튼 클릭 이벤트
-    private void OnSetupButtonClicked()
-    {
-        m_cardManager.Init();
-        m_cardManager.StartGame();
-    }
-
-    // Draw 버튼 클릭 이벤트
-    private void OnDrawButtonClicked()
-    {
-        m_cardManager.DrawCard();
     }
 
     // 손패 카드가 클릭되었을 때
@@ -123,7 +96,6 @@ public class TestCardGame : MonoBehaviour
         if (m_currentPreviewOriginalCard == null) return;
 
         int targetSlotIndex = GetNextSlotIndex();
-        int originalHandIndex = m_cardManager.GetCardIndexInHand(m_currentPreviewOriginalCard);
     
         GameObject setupSlot = GetSetupSlot(targetSlotIndex);
         if (setupSlot != null)
@@ -131,7 +103,7 @@ public class TestCardGame : MonoBehaviour
             int stackCount = m_setupCardStacks[targetSlotIndex].Count;
             Vector3 offset = m_stackOffset * stackCount;
             
-            m_currentPreviewOriginalCard.SetupCard(setupSlot.transform, targetSlotIndex, originalHandIndex, offset);
+            m_currentPreviewOriginalCard.SetupCard(setupSlot.transform, targetSlotIndex, offset);
             m_setupCardStacks[targetSlotIndex].Add(m_currentPreviewOriginalCard);
             m_cardManager.SetupCard(m_currentPreviewOriginalCard, targetSlotIndex);
         }
@@ -252,18 +224,7 @@ public class TestCardGame : MonoBehaviour
     }
     
     private void OnDestroy()
-    {
-        // 버튼 이벤트 해제
-        if (m_setupButton != null)
-        {
-            m_setupButton.onClick.RemoveListener(OnSetupButtonClicked);
-        }
-
-        if (m_drawButton != null)
-        {
-            m_drawButton.onClick.RemoveListener(OnDrawButtonClicked);
-        }
-
+    {     
         if (m_backgroundButton != null)
         {
             m_backgroundButton.onClick.RemoveListener(OnBackgroundClicked);

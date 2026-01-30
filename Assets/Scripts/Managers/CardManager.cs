@@ -22,6 +22,7 @@ public class CardManager : MonoBehaviour
     private List<WWECard> m_setupCards = new List<WWECard>();
 
     private int m_initialHandSize = 5;
+    private int m_nextDrawOrderId = 0;
 
     private Coroutine m_currentRepositionCoroutine = null;
     private List<CardData> m_availableCards = new List<CardData>();
@@ -102,6 +103,7 @@ public class CardManager : MonoBehaviour
         WWECard wweCard = cardObj.GetComponent<WWECard>();
 
         wweCard.Init(cardData);
+        wweCard.SetDrawOrderId(m_nextDrawOrderId++);
         m_hand.Add(wweCard);
 
         // 시작 위치 설정
@@ -141,16 +143,18 @@ public class CardManager : MonoBehaviour
         {
             m_setupCards.Remove(card);
 
-            // 원래 인덱스 위치에 삽입
-            int originalIndex = card.OriginalHandIndex;
-            if (originalIndex >= 0 && originalIndex <= m_hand.Count)
+            // DrawOrderId 기준으로 올바른 위치 찾기
+            int insertIndex = m_hand.Count;
+            for (int i = 0; i < m_hand.Count; i++)
             {
-                m_hand.Insert(originalIndex, card);
+                if (m_hand[i].DrawOrderId > card.DrawOrderId)
+                {
+                    insertIndex = i;
+                    break;
+                }
             }
-            else
-            {
-                m_hand.Add(card);
-            }
+
+            m_hand.Insert(insertIndex, card);
 
             // 손패 재배치
             RepositionHandCards();

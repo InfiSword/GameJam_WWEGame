@@ -23,8 +23,8 @@ public class WWECard : MonoBehaviour, IPointerClickHandler
     private int m_setupSlotIndex = -1;
     public int SetupSlotIndex => m_setupSlotIndex;
     
-    private int m_originalHandIndex = -1;
-    public int OriginalHandIndex => m_originalHandIndex;
+    private int m_drawOrderId = -1;
+    public int DrawOrderId => m_drawOrderId;
     
     private Transform m_originalParent;
     
@@ -41,6 +41,11 @@ public class WWECard : MonoBehaviour, IPointerClickHandler
         }
     }
 
+    public void SetDrawOrderId(int orderId)
+    {
+        m_drawOrderId = orderId;
+    }
+
     public void UpdateCardData(CardData _cardData)
     {
         m_cardData = _cardData;
@@ -49,7 +54,7 @@ public class WWECard : MonoBehaviour, IPointerClickHandler
     
     public void OnPointerClick(PointerEventData eventData)
     {
-        TestCardGame testGame = FindFirstObjectByType<TestCardGame>();
+        WWEMainGame testGame = FindFirstObjectByType<WWEMainGame>();
         if (testGame == null) return;
 
         if (m_isPreview)
@@ -66,11 +71,10 @@ public class WWECard : MonoBehaviour, IPointerClickHandler
         }
     }
     
-    public void SetupCard(Transform setupParent, int slotIndex, int originalHandIndex, Vector3 offset)
+    public void SetupCard(Transform setupParent, int slotIndex, Vector3 offset)
     {
         m_isSetup = true;
         m_setupSlotIndex = slotIndex;
-        m_originalHandIndex = originalHandIndex;
         m_originalParent = transform.parent;
                 
         transform.SetParent(setupParent);
@@ -84,7 +88,6 @@ public class WWECard : MonoBehaviour, IPointerClickHandler
     {
         m_isSetup = false;
         m_setupSlotIndex = -1;
-        m_originalHandIndex = -1;
         
         if (m_originalParent != null)
         {
