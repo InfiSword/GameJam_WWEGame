@@ -1,11 +1,12 @@
 using UnityEngine;
 
 public class GameScene : MonoBehaviour
-{
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+{    
     void Start()
     {
-        
+        GameManager.Instance.EnterGameScene();
+        GameManager.CardManager.Init();
+        GameManager.CardManager.StartGame();
     }
 
     // Update is called once per frame
