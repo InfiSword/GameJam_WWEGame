@@ -1,18 +1,18 @@
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class GameManager : MonoBehaviour
+public class YaCht_GameManager : MonoBehaviour
 {
     #region Manager
-    static GameManager m_instance;
-    public static GameManager Instance { get { Init(); return m_instance; } }
+    static YaCht_GameManager m_instance;
+    public static YaCht_GameManager Instance { get { Init(); return m_instance; } }
 
-    public CardManager m_cardManager;
-    public static CardManager CardManager { get { return Instance.m_cardManager; } }
+    public YaCht_CardManager m_cardManager;
+    public static YaCht_CardManager CardManager { get { return Instance.m_cardManager; } }
 
     #endregion
 
-    public static PlayerData nowPlayerData = new PlayerData();
+    public static YaCht_PlayerData nowPlayerData = new YaCht_PlayerData();
     static void Init()
     {
         if (m_instance == null)
@@ -22,18 +22,18 @@ public class GameManager : MonoBehaviour
             if (go == null)
             {
                 go = new GameObject { name = "@Managers" };
-                go.AddComponent<GameManager>();
+                go.AddComponent<YaCht_GameManager>();
 
                 if (cardObj == null)
                 {
                     cardObj = new GameObject { name = "@CardManager" };
-                    cardObj.AddComponent<CardManager>();
+                    cardObj.AddComponent<YaCht_CardManager>();
                 }          
             }            
             
             DontDestroyOnLoad(go);
-            m_instance = go.GetComponent<GameManager>();
-            m_instance.m_cardManager = cardObj.GetComponent<CardManager>();
+            m_instance = go.GetComponent<YaCht_GameManager>();
+            m_instance.m_cardManager = cardObj.GetComponent<YaCht_CardManager>();
             cardObj.transform.SetParent(m_instance.transform);
             m_instance.m_cardManager.Init();
         }

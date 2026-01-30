@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class CardSelectScene : MonoBehaviour
+public class YaCht_CardSelectScene : MonoBehaviour
 {
     [Header("UI References")]
     [SerializeField] private Button m_startButton;
@@ -15,11 +15,11 @@ public class CardSelectScene : MonoBehaviour
     [SerializeField] private float m_swapCardSpacing = 200f;
     [SerializeField] private int m_swapCardCount = 2;
     
-    private List<WWESelectCard> m_ownedCardObjects = new List<WWESelectCard>();
-    private List<WWESelectCard> m_swapCardObjects = new List<WWESelectCard>();
+    private List<YaCht_WWESelectCard> m_ownedCardObjects = new List<YaCht_WWESelectCard>();
+    private List<YaCht_WWESelectCard> m_swapCardObjects = new List<YaCht_WWESelectCard>();
     
-    private WWESelectCard m_selectedOwnedCard = null;
-    private WWESelectCard m_selectedSwapCard = null;
+    private YaCht_WWESelectCard m_selectedOwnedCard = null;
+    private YaCht_WWESelectCard m_selectedSwapCard = null;
     private int m_selectedOwnedIndex = -1;
     
     void Start()
@@ -37,11 +37,11 @@ public class CardSelectScene : MonoBehaviour
     {
         ClearCardList(m_ownedCardObjects);
         
-        int deckCount = GameManager.nowPlayerData.playerDeck.Count;
+        int deckCount = YaCht_GameManager.nowPlayerData.playerDeck.Count;
         for (int i = 0; i < deckCount; i++)
         {
-            WWESelectCard card = CreateSelectCard(
-                GameManager.nowPlayerData.playerDeck[i],
+            YaCht_WWESelectCard card = CreateSelectCard(
+                YaCht_GameManager.nowPlayerData.playerDeck[i],
                 m_ownedCardsParent,
                 i,
                 deckCount,
@@ -55,12 +55,12 @@ public class CardSelectScene : MonoBehaviour
     {
         ClearCardList(m_swapCardObjects);
         
-        List<CardData> m_availableCardsPool = GameManager.CardManager.GetAvailableCardsPool();
+        List<YaCht_CardData> m_availableCardsPool = YaCht_GameManager.CardManager.GetAvailableCardsPool();
         for (int i = 0; i < m_swapCardCount; i++)
         {            
-            CardData randomCard = m_availableCardsPool[Random.Range(0, m_availableCardsPool.Count)];
+            YaCht_CardData randomCard = m_availableCardsPool[Random.Range(0, m_availableCardsPool.Count)];
             
-            WWESelectCard card = CreateSelectCard(
+            YaCht_WWESelectCard card = CreateSelectCard(
                 randomCard,
                 m_swapCardsParent,
                 i,
@@ -71,10 +71,10 @@ public class CardSelectScene : MonoBehaviour
         }
     }
     
-    private WWESelectCard CreateSelectCard(CardData cardData, Transform parent, int index, int totalCount, float spacing)
+    private YaCht_WWESelectCard CreateSelectCard(YaCht_CardData cardData, Transform parent, int index, int totalCount, float spacing)
     {
         GameObject cardObj = Instantiate(m_selectCardPrefab, parent);
-        WWESelectCard card = cardObj.GetComponent<WWESelectCard>();
+        YaCht_WWESelectCard card = cardObj.GetComponent<YaCht_WWESelectCard>();
         card.Init(cardData);
         
         RectTransform rectTransform = cardObj.GetComponent<RectTransform>();
@@ -85,7 +85,7 @@ public class CardSelectScene : MonoBehaviour
         return card;
     }
     
-    private void ClearCardList(List<WWESelectCard> cardList)
+    private void ClearCardList(List<YaCht_WWESelectCard> cardList)
     {
         foreach (var card in cardList)
         {
@@ -97,7 +97,7 @@ public class CardSelectScene : MonoBehaviour
         cardList.Clear();
     }
     
-    public void OnCardClicked(WWESelectCard card)
+    public void OnCardClicked(YaCht_WWESelectCard card)
     {
         int ownedIndex = m_ownedCardObjects.IndexOf(card);
         if (ownedIndex >= 0)
@@ -114,7 +114,7 @@ public class CardSelectScene : MonoBehaviour
         }
     }
     
-    private void OnOwnedCardClicked(WWESelectCard card, int index)
+    private void OnOwnedCardClicked(YaCht_WWESelectCard card, int index)
     {
         if (m_selectedOwnedCard != null)
         {
@@ -138,7 +138,7 @@ public class CardSelectScene : MonoBehaviour
         }
     }
     
-    private void OnSwapCardClicked(WWESelectCard card)
+    private void OnSwapCardClicked(YaCht_WWESelectCard card)
     {
         if (m_selectedSwapCard != null)
         {
@@ -167,7 +167,7 @@ public class CardSelectScene : MonoBehaviour
             return;
         }
         
-        GameManager.nowPlayerData.playerDeck[m_selectedOwnedIndex] = m_selectedSwapCard.GetCardData;
+        YaCht_GameManager.nowPlayerData.playerDeck[m_selectedOwnedIndex] = m_selectedSwapCard.GetCardData;
         m_ownedCardObjects[m_selectedOwnedIndex].UpdateCardData(m_selectedSwapCard.GetCardData);
         
         ClearSelection();

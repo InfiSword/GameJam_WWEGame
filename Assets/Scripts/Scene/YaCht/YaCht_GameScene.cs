@@ -1,11 +1,11 @@
 using UnityEngine;
 
-public class GameScene : MonoBehaviour
+public class YaCht_GameScene : MonoBehaviour
 {
-    [SerializeField] private WWEMainGame wwe;
+    [SerializeField] private YaCht_WWEMainGame wwe;
     void Start()
     {
-        GameManager.CardManager.StartGame();
+        YaCht_GameManager.CardManager.StartGame();
         wwe.Init();
     }
 

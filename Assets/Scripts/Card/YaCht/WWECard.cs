@@ -3,10 +3,10 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class WWECard : MonoBehaviour, IPointerClickHandler
+public class YaCht_WWECard : MonoBehaviour, IPointerClickHandler
 {
-    private CardData m_cardData;
-    public CardData GetCardData => m_cardData;
+    private YaCht_CardData m_cardData;
+    public YaCht_CardData GetCardData => m_cardData;
     
     public Canvas m_cardCanvas;
     public Image m_cardImage;
@@ -28,7 +28,7 @@ public class WWECard : MonoBehaviour, IPointerClickHandler
     
     private Transform m_originalParent;
     
-    public void Init(CardData _cardData, bool isPreviewCard = false)
+    public void Init(YaCht_CardData _cardData, bool isPreviewCard = false)
     {
         m_cardData = _cardData;        
         m_cardCanvas.worldCamera = Camera.main;
@@ -48,7 +48,7 @@ public class WWECard : MonoBehaviour, IPointerClickHandler
         m_drawOrderId = orderId;
     }
 
-    public void UpdateCardData(CardData _cardData)
+    public void UpdateCardData(YaCht_CardData _cardData)
     {
         m_cardData = _cardData;
         m_cardDescr.text = m_cardData.m_description;
@@ -58,7 +58,7 @@ public class WWECard : MonoBehaviour, IPointerClickHandler
     
     public void OnPointerClick(PointerEventData eventData)
     {
-        WWEMainGame testGame = FindFirstObjectByType<WWEMainGame>();
+        YaCht_WWEMainGame testGame = FindFirstObjectByType<YaCht_WWEMainGame>();
         if (testGame == null) return;
 
         if (m_isPreviewCard)
@@ -99,7 +99,7 @@ public class WWECard : MonoBehaviour, IPointerClickHandler
         }
     }
 
-    public void UseCard(TargetState target)
+    public void UseCard(YaCht_TargetState target)
     {
         float finalDamage = m_cardData.m_damageCalculator(m_cardData, target);
         target.m_currentHealth -= finalDamage;

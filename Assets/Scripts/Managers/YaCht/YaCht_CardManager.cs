@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-public class CardManager : MonoBehaviour
+public class YaCht_CardManager : MonoBehaviour
 {
     private GameObject m_cardPrefab;
 
@@ -18,23 +18,23 @@ public class CardManager : MonoBehaviour
     [SerializeField] private Vector3 m_previewCardPosition = new Vector3(0f, 0f, 0f);
     [SerializeField] private float m_previewCardScale = 3.0f;
 
-    private List<WWECard> m_hand = new List<WWECard>();
-    private List<WWECard> m_setupCards = new List<WWECard>();
+    private List<YaCht_WWECard> m_hand = new List<YaCht_WWECard>();
+    private List<YaCht_WWECard> m_setupCards = new List<YaCht_WWECard>();
 
     private int m_initialHandSize = 5;
     private int m_nextDrawOrderId = 0;
 
     private Coroutine m_currentRepositionCoroutine = null;
 
-    private List<CardData> m_availableCardsPool = new List<CardData>();
-    public List<CardData> GetAvailableCardsPool() => m_availableCardsPool;
-    private List<CardData> m_playerDeck = new List<CardData>();
-    private WWECard m_previewCard;
+    private List<YaCht_CardData> m_availableCardsPool = new List<YaCht_CardData>();
+    public List<YaCht_CardData> GetAvailableCardsPool() => m_availableCardsPool;
+    private List<YaCht_CardData> m_playerDeck = new List<YaCht_CardData>();
+    private YaCht_WWECard m_previewCard;
 
-    public WWECard GetPreviewCard() => m_previewCard;
-    public int GetCardIndexInHand(WWECard card) => m_hand.IndexOf(card);
+    public YaCht_WWECard GetPreviewCard() => m_previewCard;
+    public int GetCardIndexInHand(YaCht_WWECard card) => m_hand.IndexOf(card);
     public int GetHandCount() => m_hand.Count;
-    public List<WWECard> GetHand() => m_hand;
+    public List<YaCht_WWECard> GetHand() => m_hand;
 
     public void Init()
     {
@@ -47,21 +47,21 @@ public class CardManager : MonoBehaviour
     private void InitializeAvailableCardsPool()
     {
         m_availableCardsPool.Clear();
-        m_availableCardsPool.Add(CardDatabase.Chop);
-        m_availableCardsPool.Add(CardDatabase.LowKick);
-        m_availableCardsPool.Add(CardDatabase.Jab);
-        m_availableCardsPool.Add(CardDatabase.Headbutt);
-        m_availableCardsPool.Add(CardDatabase.RearNakedChoke);
-        m_availableCardsPool.Add(CardDatabase.HeartPunch);
-        m_availableCardsPool.Add(CardDatabase.Superkick);
-        m_availableCardsPool.Add(CardDatabase.RKO);
+        m_availableCardsPool.Add(YaCht_CardDatabase.Chop);
+        m_availableCardsPool.Add(YaCht_CardDatabase.LowKick);
+        m_availableCardsPool.Add(YaCht_CardDatabase.Jab);
+        m_availableCardsPool.Add(YaCht_CardDatabase.Headbutt);
+        m_availableCardsPool.Add(YaCht_CardDatabase.RearNakedChoke);
+        m_availableCardsPool.Add(YaCht_CardDatabase.HeartPunch);
+        m_availableCardsPool.Add(YaCht_CardDatabase.Superkick);
+        m_availableCardsPool.Add(YaCht_CardDatabase.RKO);
     }
     private void InitializePreviewCard()
     {
         if (m_cardPrefab == null || m_playerDeck.Count == 0) return;
 
         GameObject previewObj = Instantiate(m_cardPrefab);
-        m_previewCard = previewObj.GetComponent<WWECard>();
+        m_previewCard = previewObj.GetComponent<YaCht_WWECard>();
 
         if (m_previewCard != null)
         {
@@ -82,7 +82,7 @@ public class CardManager : MonoBehaviour
     private void InitializePlayerDeck()
     {
         m_playerDeck.Clear();
-        m_playerDeck.AddRange(GameManager.nowPlayerData.playerDeck);
+        m_playerDeck.AddRange(YaCht_GameManager.nowPlayerData.playerDeck);
     }
 
     private IEnumerator DrawInitialHandCoroutine()
@@ -102,14 +102,14 @@ public class CardManager : MonoBehaviour
         }
 
         int randomIndex = Random.Range(0, m_playerDeck.Count);
-        CardData randomCard = m_playerDeck[randomIndex];
+        YaCht_CardData randomCard = m_playerDeck[randomIndex];
         StartCoroutine(CreateCardWithAnimationCoroutine(randomCard));
     }
 
-    private IEnumerator CreateCardWithAnimationCoroutine(CardData cardData)
+    private IEnumerator CreateCardWithAnimationCoroutine(YaCht_CardData cardData)
     {
         GameObject cardObj = Instantiate(m_cardPrefab, m_handTransform);
-        WWECard wweCard = cardObj.GetComponent<WWECard>();
+        YaCht_WWECard wweCard = cardObj.GetComponent<YaCht_WWECard>();
 
         wweCard.Init(cardData);
         wweCard.SetDrawOrderId(m_nextDrawOrderId++);
@@ -127,7 +127,7 @@ public class CardManager : MonoBehaviour
         yield break;
     }
 
-    public void SetupCard(WWECard card, int slotIndex)
+    public void SetupCard(YaCht_WWECard card, int slotIndex)
     {
         if (card == null) return;
 
@@ -140,7 +140,7 @@ public class CardManager : MonoBehaviour
         }
     }
 
-    public void ReleaseCardFromSetup(WWECard card)
+    public void ReleaseCardFromSetup(YaCht_WWECard card)
     {
         if (card == null) return;
 
