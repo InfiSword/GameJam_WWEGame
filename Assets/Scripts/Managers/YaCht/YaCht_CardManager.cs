@@ -44,6 +44,19 @@ public class YaCht_CardManager : MonoBehaviour
 
     public YaCht_WWECard GetPreviewCard() => m_previewCard;
 
+    // 손패에서 특정 카드 데이터와 일치하는 카드 찾기
+    public YaCht_WWECard FindCardInHand(YaCht_CardData cardData)
+    {
+        foreach (var card in m_hand)
+        {
+            if (card.GetCardData.m_name == cardData.m_name)
+            {
+                return card;
+            }
+        }
+        return null;
+    }
+
     public void Init()
     {
         m_cardPrefab = Resources.Load<GameObject>("Prefabs/Card");
@@ -66,7 +79,22 @@ public class YaCht_CardManager : MonoBehaviour
 
     private void InitializePreviewCard()
     {
-        if (m_cardPrefab == null || YaCht_GameManager.nowPlayerData.playerDeck.Count == 0) return;
+        if (m_cardPrefab == null)
+        {
+            Debug.LogError("[CardManager] 카드 프리팹이 없습니다!");
+            return;
+        }
+
+        if (YaCht_GameManager.nowPlayerData.playerDeck.Count == 0)
+        {
+            return;
+        }
+
+        // 기존 프리뷰 카드가 있으면 삭제
+        if (m_previewCard != null)
+        {
+            Destroy(m_previewCard.gameObject);
+        }
 
         GameObject previewObj = Instantiate(m_cardPrefab);
         m_previewCard = previewObj.GetComponent<YaCht_WWECard>();
@@ -93,6 +121,12 @@ public class YaCht_CardManager : MonoBehaviour
         {
             GameObject machineObj = GameObject.Find("CardMachineSpawnPoint");
             if (machineObj) m_machineSpawnPoint = machineObj.transform;
+        }
+
+        // 프리뷰 카드가 없으면 다시 초기화 시도
+        if (m_previewCard == null && YaCht_GameManager.nowPlayerData.playerDeck.Count > 0)
+        {
+            InitializePreviewCard();
         }
 
         StartCoroutine(StartNewRound());
@@ -278,24 +312,35 @@ public class YaCht_CardManager : MonoBehaviour
         return false;
     }
 
-    // 등급별 확률 반환
+    // 등급별 확률 반환 (유물 효과 적용)
     private float GetRarityChance(YaCht_CardRarity rarity)
     {
+        float baseChance;
+        
         switch (rarity)
         {
             case YaCht_CardRarity.S:
-                return 10f; // 10%
+                baseChance = 10f; // 10%
+                break;
             case YaCht_CardRarity.A:
-                return 20f; // 20%
+                baseChance = 20f; // 20%
+                break;
             case YaCht_CardRarity.B:
-                return 30f; // 30%
+                baseChance = 30f; // 30%
+                break;
             case YaCht_CardRarity.C:
-                return 40f; // 40%
+                baseChance = 40f; // 40%
+                break;
             case YaCht_CardRarity.D:
-                return 50f; // 50%
+                baseChance = 50f; // 50%
+                break;
             default:
-                return 50f;
+                baseChance = 50f;
+                break;
         }
+
+        // 유물 효과 적용 (도박사의 가면 1, 2)
+        return YaCht_GameManager.RelicManager.ModifyRarityChance(rarity, baseChance);
     }
 
     public void SetupCard(YaCht_WWECard card, int slotIndex)

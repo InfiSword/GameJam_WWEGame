@@ -4,8 +4,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class YaCht_CardSelectScene : MonoBehaviour
-{
-    [Header("UI References")]
+{    
     [SerializeField] private Button m_johnCenaSetButton;
     [SerializeField] private Button m_undertakerSetButton;
     [SerializeField] private Button m_testSetButton;
@@ -28,8 +27,11 @@ public class YaCht_CardSelectScene : MonoBehaviour
         m_startGameButton.onClick.AddListener(() =>
         {
             if (m_currentSelectedSet != null)
-                SceneManager.LoadScene("YaCht_GameScene");
-            
+            {
+                // 덱 선택 후 유물 씬으로 이동
+                YaCht_GameManager.SetRelicSceneFromDeckSelection();
+                SceneManager.LoadScene("YaCht_RelicScene");
+            }
         });
 
         m_cancelButton.onClick.AddListener(() =>

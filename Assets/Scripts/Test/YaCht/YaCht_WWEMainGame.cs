@@ -2,13 +2,19 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class YaCht_WWEMainGame : MonoBehaviour
 {
     [Header("Setup Area")]
-    [SerializeField] private Transform m_setupArea;
+    [SerializeField] private Transform m_setupArea;    
     [SerializeField] private int m_maxSetupCards = 6;
     [SerializeField] private float m_setupCardSpacing = 1.5f;
+
+    [Header("Enemy System")]
+    [SerializeField] private Transform m_enemySpawnPosition;
+    [SerializeField] private GameObject m_enemyPrefab;
+    private YaCht_Enemy m_currentEnemy;
 
     [Header("UI Elements")]
     [SerializeField] private GameObject m_backgroundPanel;
@@ -17,51 +23,188 @@ public class YaCht_WWEMainGame : MonoBehaviour
     [SerializeField] private Button m_rerollButton;
     [SerializeField] private TextMeshProUGUI m_comboInfoText;
     [SerializeField] private TextMeshProUGUI m_roundText;
-    [SerializeField] private TextMeshProUGUI m_enemyHealthText;
     [SerializeField] private TextMeshProUGUI m_rerollCountText;
+    [SerializeField] private TextMeshProUGUI m_stageInfoText;
 
     [Header("Reroll Settings")]
     [SerializeField] private int m_maxRerollCount = 3;
+
+    [Header("Victory Panel")]
+    [SerializeField] private GameObject m_victoryPanel;
+    [SerializeField] private TextMeshProUGUI m_victoryText;
+    [SerializeField] private Button m_nextStageButton;
 
     [SerializeField] private YaCht_ComboGuideUI m_comboGuideUI;
     private YaCht_CardManager m_cardManager;
 
     private List<YaCht_WWECard> m_setupCards = new List<YaCht_WWECard>();
     private List<Transform> m_setupSlots = new List<Transform>();
-
-    private YaCht_WWECard m_currentPreviewOriginalCard;
-
+    private YaCht_WWECard m_currentPreviewOriginalCard;   
     private int m_currentRerollCount;
+    private bool m_isBattleEnded = false;
 
     public void Init()
     {
-        // 셋업 카드 리스트 초기화
         m_setupCards.Clear();
-
-        // 셋업 슬롯 Transform 생성
         CreateSetupSlots();
-
-        // 리롤 카운트 초기화
         m_currentRerollCount = m_maxRerollCount;
 
         m_backgroundButton.onClick.AddListener(OnBackgroundClicked);
-
         m_fightButton.onClick.AddListener(OnFightButtonClicked);
-
         m_rerollButton.onClick.AddListener(OnRerollButtonClicked);
-
         m_backgroundPanel.SetActive(false);
+
+        if (m_victoryPanel != null)
+        {
+            m_victoryPanel.SetActive(false);
+        }
+
+        if (m_nextStageButton != null)
+        {
+            m_nextStageButton.onClick.AddListener(OnNextStageButtonClicked);
+        }
 
         m_cardManager = YaCht_GameManager.CardManager;
         m_comboGuideUI.Initialize(YaCht_GameManager.nowPlayerData.GetWrestlerType());
 
+        // 적 스폰
+        SpawnEnemy();
+
+        m_isBattleEnded = false;
         UpdateUI();
     }
 
-    // 셋업 슬롯 Transform 생성
+    private void OnDestroy()
+    {
+        if (m_currentEnemy != null)
+        {
+            m_currentEnemy.OnDeath -= OnEnemyDeath;
+        }
+
+        if (m_nextStageButton != null)
+        {
+            m_nextStageButton.onClick.RemoveListener(OnNextStageButtonClicked);
+        }
+    }
+
+    // 적 스폰
+    private void SpawnEnemy()
+    {
+        // 기존 적 제거
+        if (m_currentEnemy != null)
+        {
+            Destroy(m_currentEnemy.gameObject);
+            m_currentEnemy = null;
+        }
+
+        // 새 적 생성
+        if (m_enemyPrefab != null && m_enemySpawnPosition != null && YaCht_GameManager.StageManager != null)
+        {
+            GameObject enemyObj = Instantiate(m_enemyPrefab, m_enemySpawnPosition);
+            m_currentEnemy = enemyObj.GetComponent<YaCht_Enemy>();
+
+            if (m_currentEnemy != null)
+            {
+                YaCht_EnemyData currentEnemyData = YaCht_GameManager.StageManager.CurrentEnemy;
+                m_currentEnemy.Initialize(currentEnemyData, m_enemySpawnPosition);
+                m_currentEnemy.SetHealth(YaCht_GameManager.enemyHealth, YaCht_GameManager.enemyMaxHealth);
+
+                // 이벤트 구독
+                m_currentEnemy.OnDeath += OnEnemyDeath;
+
+                Debug.Log($"[WWEMainGame] 적 스폰 완료: {currentEnemyData.m_name} (스테이지 {currentEnemyData.m_stageNumber})");
+            }
+            else
+            {
+                Debug.LogError("[WWEMainGame] Enemy Prefab에 YaCht_Enemy 컴포넌트가 없습니다!");
+            }
+        }
+        else
+        {
+            Debug.LogError("[WWEMainGame] Enemy Prefab 또는 Spawn Position이 설정되지 않았습니다!");
+        }
+    }
+    
+    // 적 사망 시 호출
+    private void OnEnemyDeath()
+    {
+        if (m_currentEnemy == null) return;
+
+        bool isBoss = m_currentEnemy.IsBoss;
+        
+        if (isBoss)
+        {
+            OnBossDefeated();
+        }
+        else
+        {
+            OnNormalEnemyDefeated();
+        }
+    }
+
+    private void OnBossDefeated()
+    {
+        m_isBattleEnded = true;
+        ShowVictoryPanel("보스 처치! 유물을 선택하세요!");
+    }
+
+    private void OnNormalEnemyDefeated()
+    {
+        m_isBattleEnded = true;
+        ShowVictoryPanel("승리! 다음 스테이지로 진행하세요!");
+    }
+
+    private void ShowVictoryPanel(string message)
+    {
+        if (m_victoryPanel != null)
+        {
+            m_victoryPanel.SetActive(true);
+        }
+
+        if (m_victoryText != null)
+        {
+            m_victoryText.text = message;
+        }
+
+        if (m_fightButton != null)
+        {
+            m_fightButton.interactable = false;
+        }
+
+        if (m_rerollButton != null)
+        {
+            m_rerollButton.interactable = false;
+        }
+    }
+
+    private void OnNextStageButtonClicked()
+    {
+        // YaCht_StageDatabase를 통해 보스전 확인
+        bool isBoss = YaCht_GameManager.IsCurrentStageBoss();
+        
+        if (isBoss)
+        {
+            Debug.Log("[WWEMainGame] 보스 처치! 유물 선택 씬으로 이동");
+            YaCht_GameManager.SetRelicSceneFromBossDefeat();
+            SceneManager.LoadScene("YaCht_RelicScene");
+        }
+        else
+        {
+            bool success = YaCht_GameManager.MoveToNextStage();
+            if (success)
+            {
+                Debug.Log("[WWEMainGame] 다음 스테이지 로드");
+                SceneManager.LoadScene("YaCht_GameScene");
+            }
+            else
+            {
+                Debug.LogError("[WWEMainGame] 다음 스테이지로 이동 실패!");
+            }
+        }
+    }
+
     private void CreateSetupSlots()
     {
-        // 기존 슬롯 정리
         foreach (var slot in m_setupSlots)
         {
             if (slot != null)
@@ -73,7 +216,6 @@ public class YaCht_WWEMainGame : MonoBehaviour
 
         if (m_setupArea == null) return;
 
-        // m_maxSetupCards 개수만큼 슬롯 생성
         float totalWidth = (m_maxSetupCards - 1) * m_setupCardSpacing;
         float startX = -totalWidth * 0.5f;
 
@@ -94,7 +236,6 @@ public class YaCht_WWEMainGame : MonoBehaviour
 
     private void Update()
     {
-        // 실시간 조합 정보 업데이트
         if (m_comboInfoText != null)
         {
             string comboInfo = m_cardManager.GetCurrentComboInfo();
@@ -104,28 +245,29 @@ public class YaCht_WWEMainGame : MonoBehaviour
 
     private void UpdateUI()
     {
-        // 라운드 정보 업데이트
         if (m_roundText != null)
         {
             m_roundText.text = $"라운드: {YaCht_GameManager.currentRound} / 4";
         }
 
-        // 적 체력 업데이트
-        if (m_enemyHealthText != null)
+        if (m_stageInfoText != null && YaCht_GameManager.StageManager != null)
         {
-            m_enemyHealthText.text = $"적 체력: {YaCht_GameManager.enemyHealth:F0} / {YaCht_GameManager.enemyMaxHealth:F0}";
+            m_stageInfoText.text = YaCht_GameManager.StageManager.GetStageInfoString();
         }
 
-        // 리롤 카운트 업데이트
         if (m_rerollCountText != null)
         {
             m_rerollCountText.text = $"리롤: {m_currentRerollCount} / {m_maxRerollCount}";
         }
 
-        // 리롤 버튼 활성화/비활성화
         if (m_rerollButton != null)
         {
-            m_rerollButton.interactable = m_currentRerollCount > 0;
+            m_rerollButton.interactable = m_currentRerollCount > 0 && !m_isBattleEnded;
+        }
+
+        if (m_fightButton != null)
+        {
+            m_fightButton.interactable = !m_isBattleEnded;
         }
     }
 
@@ -134,22 +276,28 @@ public class YaCht_WWEMainGame : MonoBehaviour
         CloseCardPreview();
     }
 
-    // 손패 카드가 클릭되었을 때
     public void OnHandCardClicked(YaCht_WWECard card)
     {
         if (card == null) return;
 
+        if (m_isBattleEnded)
+        {
+            return;
+        }
+
+        if (m_cardManager.IsProcessing)
+        {
+            return;
+        }
+
         YaCht_WWECard previewCard = m_cardManager.GetPreviewCard();
 
-        // 프리뷰가 이미 활성화되어 있는 경우
         if (m_currentPreviewOriginalCard != null && previewCard != null && previewCard.gameObject.activeSelf)
         {
-            // 같은 카드를 클릭한 경우 - 셋업으로 이동
             if (m_currentPreviewOriginalCard == card)
             {
                 OnPreviewCardClicked();
             }
-            // 다른 카드를 클릭한 경우 - 새 카드 프리뷰 표시
             else
             {
                 ShowCardPreview(card);
@@ -157,11 +305,9 @@ public class YaCht_WWEMainGame : MonoBehaviour
             return;
         }
 
-        // 프리뷰가 없는 상태에서 카드 클릭 - 프리뷰 표시
         ShowCardPreview(card);
     }
 
-    // 카드 프리뷰 표시
     private void ShowCardPreview(YaCht_WWECard originalCard)
     {
         YaCht_WWECard previewCard = m_cardManager.GetPreviewCard();
@@ -178,12 +324,10 @@ public class YaCht_WWEMainGame : MonoBehaviour
         m_currentPreviewOriginalCard = originalCard;
     }
 
-    // 프리뷰 카드가 클릭되었을 때 - 셋업 진행
     public void OnPreviewCardClicked()
     {
         if (m_currentPreviewOriginalCard == null) return;
 
-        // 셋업 카드 최대치 체크
         if (m_setupCards.Count >= m_maxSetupCards)
         {
             CloseCardPreview();
@@ -203,7 +347,6 @@ public class YaCht_WWEMainGame : MonoBehaviour
         CloseCardPreview();
     }
 
-    // 카드 프리뷰 닫기
     private void CloseCardPreview()
     {
         YaCht_WWECard previewCard = m_cardManager.GetPreviewCard();
@@ -220,7 +363,6 @@ public class YaCht_WWEMainGame : MonoBehaviour
         m_currentPreviewOriginalCard = null;
     }
 
-    // 셋업 슬롯에서 카드 제거
     public void RemoveTopCardFromSlot(int slotIndex)
     {
         if (slotIndex < 0 || slotIndex >= m_setupCards.Count) return;
@@ -231,11 +373,9 @@ public class YaCht_WWEMainGame : MonoBehaviour
         m_cardManager.ReleaseCardFromSetup(cardToRemove);
         cardToRemove.ReleaseSetup();
 
-        // 남은 카드들을 다음 슬롯으로 이동
         RepositionSetupCards();
     }
 
-    // 셋업 카드들을 슬롯 순서대로 재정렬
     private void RepositionSetupCards()
     {
         for (int i = 0; i < m_setupCards.Count; i++)
@@ -247,12 +387,16 @@ public class YaCht_WWEMainGame : MonoBehaviour
         }
     }
 
-    // 리롤 버튼 클릭 시
     private void OnRerollButtonClicked()
     {
         if (m_currentRerollCount <= 0)
         {
             Debug.Log("리롤 횟수가 부족합니다!");
+            return;
+        }
+
+        if (m_isBattleEnded)
+        {
             return;
         }
 
@@ -263,7 +407,6 @@ public class YaCht_WWEMainGame : MonoBehaviour
         Debug.Log($"리롤 사용! 남은 횟수: {m_currentRerollCount}");
     }
 
-    // 싸우기 버튼 클릭 시
     private void OnFightButtonClicked()
     {
         if (m_setupCards.Count == 0)
@@ -272,7 +415,11 @@ public class YaCht_WWEMainGame : MonoBehaviour
             return;
         }
 
-        // 카드 프리뷰 닫기
+        if (m_isBattleEnded)
+        {
+            return;
+        }
+
         CloseCardPreview();
 
         List<YaCht_CardData> setupCardData = new List<YaCht_CardData>();
@@ -283,77 +430,108 @@ public class YaCht_WWEMainGame : MonoBehaviour
 
         YaCht_WrestlerType wrestlerType = YaCht_GameManager.nowPlayerData.wrestlerType;
         YaCht_ComboType combo = YaCht_ComboChecker.CheckCombo(setupCardData, wrestlerType);
-        float totalDamage = YaCht_ComboChecker.CalculateComboDamage(setupCardData, wrestlerType, combo);
+        
+        YaCht_GameManager.RelicManager.OnCardsUsed(setupCardData);
+        float baseDamage = YaCht_ComboChecker.CalculateComboDamage(setupCardData, wrestlerType, combo);
+        float finalDamage = YaCht_GameManager.RelicManager.CalculateFinalDamage(baseDamage, setupCardData);
+        
+        float enemyHealthPercent = (YaCht_GameManager.enemyHealth / YaCht_GameManager.enemyMaxHealth) * 100f;
+        bool instantKill = YaCht_GameManager.RelicManager.CheckRestTombstoneInstantKill(setupCardData, enemyHealthPercent);
+        
+        if (instantKill)
+        {
+            if (m_currentEnemy != null)
+            {
+                m_currentEnemy.TakeDamage(m_currentEnemy.CurrentHealth, true);
+            }
+            YaCht_GameManager.DamageEnemy(YaCht_GameManager.enemyHealth);
+            Debug.Log("[유물] 안식의 비석 발동! 즉시 처치!");
+        }
+        else
+        {
+            if (m_currentEnemy != null)
+            {
+                m_currentEnemy.TakeDamage(finalDamage, true);
+            }
+            YaCht_GameManager.DamageEnemy(finalDamage);
+        }
+        
+        Debug.Log($"=== 전투 결과 ===");
+        Debug.Log($"기본 데미지: {baseDamage}");
+        Debug.Log($"최종 데미지: {finalDamage}");
 
-        Debug.Log($"=== 전투 시작 ===");
-        Debug.Log(m_cardManager.GetCurrentComboInfo());
-        Debug.Log($"총 데미지: {totalDamage}");
-
-        // 적에게 데미지 적용
-        YaCht_GameManager.DamageEnemy(totalDamage);
-
-        // 점수 추가
+        if (combo != YaCht_ComboType.None)
+        {
+            YaCht_GameManager.RelicManager.OnComboAchieved();
+        }
+        
         YaCht_ComboData comboData = YaCht_ComboDatabase.GetComboData(wrestlerType, combo);
+        if (comboData.comboLevel == YaCht_ComboLevel.Combo3 || 
+            comboData.comboLevel == YaCht_ComboLevel.Combo4)
+        {
+            YaCht_GameManager.RelicManager.OnEasyNormalComboSuccess();
+        }
+
         YaCht_GameManager.AddScore(comboData.scoreMultiplier);
 
-        // 셋업 카드 제거
         m_cardManager.ClearSetupCards();
         m_setupCards.Clear();
 
-        // UI 업데이트
         UpdateUI();
 
-        // 게임 종료 체크
-        if (YaCht_GameManager.IsGameOver())
+        if (m_currentEnemy != null && m_currentEnemy.IsDead)
         {
-            if (YaCht_GameManager.enemyHealth <= 0)
-            {
-                Debug.Log("승리!");
-            }
-            else
-            {
-                Debug.Log("4라운드 종료!");
-            }
             return;
         }
 
-        // 다음 라운드로
-        YaCht_GameManager.NextRound();
+        if (YaCht_GameManager.IsGameOver())
+        {
+            Debug.Log("4라운드 종료! 스테이지 실패!");
+            return;
+        }
 
-        // 새 라운드 시작 - 모든 패 버리고 10장 다시 뽑기
+        YaCht_GameManager.NextRound();
         StartCoroutine(StartNewRoundCoroutine());
     }
 
-    // 새 라운드 시작 코루틴
     private System.Collections.IEnumerator StartNewRoundCoroutine()
     {
-        // 카드 프리뷰 닫기
         CloseCardPreview();
 
-        // 리롤 카운트 리셋
-        m_currentRerollCount = m_maxRerollCount;
+        int bonusReroll = YaCht_GameManager.RelicManager.ConsumeMercyMaskBonus();
+        m_currentRerollCount = m_maxRerollCount + bonusReroll;
 
         yield return StartCoroutine(m_cardManager.StartNewRound());
+
+        YaCht_CardData? fixedCard = YaCht_GameManager.RelicManager.GetFixedMaskCard(
+            YaCht_GameManager.nowPlayerData.playerDeck
+        );
+        
+        if (fixedCard.HasValue && m_setupCards.Count < m_maxSetupCards && m_setupSlots.Count > 0)
+        {
+            yield return StartCoroutine(AutoSetupFixedCard(fixedCard.Value));
+        }
 
         UpdateUI();
         Debug.Log($"=== 라운드 {YaCht_GameManager.currentRound} 시작 ===");
     }
 
-    private void OnDestroy()
+    private System.Collections.IEnumerator AutoSetupFixedCard(YaCht_CardData cardData)
     {
-        if (m_backgroundButton != null)
+        YaCht_WWECard targetCard = m_cardManager.FindCardInHand(cardData);
+        
+        if (targetCard != null)
         {
-            m_backgroundButton.onClick.RemoveListener(OnBackgroundClicked);
-        }
+            int cardIndex = m_setupCards.Count;
+            Transform targetSlot = m_setupSlots[cardIndex];
 
-        if (m_fightButton != null)
-        {
-            m_fightButton.onClick.RemoveListener(OnFightButtonClicked);
-        }
+            targetCard.SetupCard(targetSlot, cardIndex, Vector3.zero);
+            m_setupCards.Add(targetCard);
+            m_cardManager.SetupCard(targetCard, cardIndex);
 
-        if (m_rerollButton != null)
-        {
-            m_rerollButton.onClick.RemoveListener(OnRerollButtonClicked);
+            Debug.Log($"[유물] 고정의 가면: {cardData.m_name} 자동 셋업");
+            
+            yield return new WaitForSeconds(0.3f);
         }
     }
 }

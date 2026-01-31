@@ -8,7 +8,6 @@ public class YaCht_ComboGuideItem : MonoBehaviour
     [SerializeField] private TextMeshProUGUI m_comboLevelText;
     [SerializeField] private TextMeshProUGUI m_comboNameText;
     [SerializeField] private TextMeshProUGUI m_descriptionText;
-    [SerializeField] private TextMeshProUGUI m_cardsText;
     [SerializeField] private TextMeshProUGUI m_effectText;
     [SerializeField] private Image m_backgroundImage;
     
@@ -56,25 +55,6 @@ public class YaCht_ComboGuideItem : MonoBehaviour
         else
         {
             Debug.LogWarning("YaCht_ComboGuideItem: m_descriptionText is null!");
-        }
-        
-        // 필요한 카드 조합
-        if (m_cardsText != null && comboData.requiredCards != null)
-        {
-            string cardsStr = "카드: ";
-            for (int i = 0; i < comboData.requiredCards.Length; i++)
-            {
-                cardsStr += comboData.requiredCards[i];
-                if (i < comboData.requiredCards.Length - 1)
-                {
-                    cardsStr += " + ";
-                }
-            }
-            m_cardsText.text = cardsStr;
-        }
-        else if (m_cardsText == null)
-        {
-            Debug.LogWarning("YaCht_ComboGuideItem: m_cardsText is null!");
         }
         
         // 효과

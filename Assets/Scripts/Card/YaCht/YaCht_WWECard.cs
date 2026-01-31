@@ -10,9 +10,7 @@ public class YaCht_WWECard : MonoBehaviour, IPointerClickHandler
     
     public Canvas m_cardCanvas;
     public Image m_cardImage;
-    public TextMeshProUGUI m_cardDescr;    
-    public TextMeshProUGUI m_cardName;
-    public TextMeshProUGUI m_cardDamage;
+    public TextMeshProUGUI m_cardRarity;      // 등급 표시 텍스트
 
     private bool m_isPreviewCard = false;
     public bool IsPreviewCard => m_isPreviewCard;
@@ -31,17 +29,13 @@ public class YaCht_WWECard : MonoBehaviour, IPointerClickHandler
     public void Init(YaCht_CardData _cardData, bool isPreviewCard = false)
     {
         m_cardData = _cardData;        
-        m_cardCanvas.worldCamera = Camera.main;
+        m_cardCanvas.worldCamera = Camera.main;      
         
-        // 카드 UI 업데이트
-        if (m_cardName != null)
-            m_cardName.text = m_cardData.m_name;
+        // 등급 표시 업데이트
+        UpdateRarityDisplay();
         
-        if (m_cardDescr != null)
-            m_cardDescr.text = m_cardData.m_description;
-        
-        if (m_cardDamage != null)
-            m_cardDamage.text = m_cardData.m_baseDamage.ToString();
+        // 카드 이미지 로드
+        LoadCardImage();
         
         m_isPreviewCard = isPreviewCard;
         
@@ -60,15 +54,70 @@ public class YaCht_WWECard : MonoBehaviour, IPointerClickHandler
     {
         m_cardData = _cardData;
         
-        if (m_cardName != null)
-            m_cardName.text = m_cardData.m_name;
+        // 등급 표시 업데이트
+        UpdateRarityDisplay();
         
-        if (m_cardDescr != null)
-            m_cardDescr.text = m_cardData.m_description;
-        
-        if (m_cardDamage != null)
-            m_cardDamage.text = m_cardData.m_baseDamage.ToString();
+        // 카드 이미지 로드
+        LoadCardImage();
     }
+    
+    /// <summary>
+    /// 카드 이미지를 Resources에서 로드
+    /// </summary>
+    private void LoadCardImage()
+    {
+        if (m_cardImage == null)
+        {
+            Debug.LogWarning("[Card] Image 컴포넌트가 없습니다!");
+            return;
+        }
+
+        // 이미지 경로가 지정되어 있으면 로드
+        if (!string.IsNullOrEmpty(m_cardData.m_imageResourcePath))
+        {
+            Sprite loadedSprite = Resources.Load<Sprite>(m_cardData.m_imageResourcePath);
+
+            if (loadedSprite != null)
+            {
+                m_cardImage.sprite = loadedSprite;
+                Debug.Log($"[Card] 이미지 로드 성공: {m_cardData.m_imageResourcePath}");
+            }
+        }
+    }   
+    
+    /// <summary>
+    /// 등급 표시 업데이트
+    /// </summary>
+    private void UpdateRarityDisplay()
+    {
+        if (m_cardRarity != null)
+        {
+            m_cardRarity.text = GetRarityText(m_cardData.m_rarity);
+        }         
+    }
+    
+    /// <summary>
+    /// 등급 텍스트 반환
+    /// </summary>
+    private string GetRarityText(YaCht_CardRarity rarity)
+    {
+        switch (rarity)
+        {
+            case YaCht_CardRarity.S:
+                return "S";
+            case YaCht_CardRarity.A:
+                return "A";
+            case YaCht_CardRarity.B:
+                return "B";
+            case YaCht_CardRarity.C:
+                return "C";
+            case YaCht_CardRarity.D:
+                return "D";
+            default:
+                return "?";
+        }
+    }
+   
     
     public void OnPointerClick(PointerEventData eventData)
     {

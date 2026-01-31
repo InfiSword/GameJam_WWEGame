@@ -18,7 +18,7 @@ public enum YaCht_ComboLevel
     Combo6 = 6
 }
 
-// 야추 조합 타입 (레슬러별 구조화)
+// 조합 종류 타입
 public enum YaCht_ComboType
 {
     None,
@@ -36,7 +36,7 @@ public enum YaCht_ComboType
     Undertaker_Combo6
 }
 
-// 야추 조합 데이터
+// 조합 정보 데이터
 [System.Serializable]
 public class YaCht_ComboData
 {
@@ -47,9 +47,15 @@ public class YaCht_ComboData
     public string description;
     public int scoreMultiplier;
     public float damageMultiplier;
-    public string[] requiredCards;
     
-    public YaCht_ComboData(YaCht_ComboType type, YaCht_WrestlerType wrestler, YaCht_ComboLevel level, string name, string desc, int score, float damage, params string[] cards)
+    public YaCht_ComboData(
+        YaCht_ComboType type, 
+        YaCht_WrestlerType wrestler, 
+        YaCht_ComboLevel level, 
+        string name, 
+        string desc, 
+        int score, 
+        float damage)
     {
         comboType = type;
         wrestlerType = wrestler;
@@ -58,91 +64,98 @@ public class YaCht_ComboData
         description = desc;
         scoreMultiplier = score;
         damageMultiplier = damage;
-        requiredCards = cards;
     }
 }
 
-// 야추 조합표 데이터베이스
+// 조합 데이터베이스
 public static class YaCht_ComboDatabase
 {
-    // 존 시나 콤보
+    // 존 시나 콤보 (야추 규칙 적용)
     public static readonly YaCht_ComboData[] JohnCenaCombos = new YaCht_ComboData[]
     {
+        // 3개 조합: Three of a Kind (C/D 등급 3개)
         new YaCht_ComboData(
             YaCht_ComboType.JohnCena_Combo3, 
             YaCht_WrestlerType.JohnCena, 
             YaCht_ComboLevel.Combo3,
-            "존 시나 3콤보", 
-            "촙! 촙! 로킥!", 
-            30, 1.5f, 
-            "촙", "촙", "로킥"),
+            "Three of a Kind", 
+            "C or D 등급 카드 3개 연속\nEx) 박치기 x3", 
+            100, 
+            1.5f),
             
+        // 4개 조합: Two Pair (C등급 2장 + B등급 2장)
         new YaCht_ComboData(
             YaCht_ComboType.JohnCena_Combo4, 
             YaCht_WrestlerType.JohnCena, 
             YaCht_ComboLevel.Combo4,
-            "존 시나 4콤보", 
-            "잽! 잽! 로킥! 박치기!", 
-            50, 2.0f, 
-            "잽", "잽", "로킥", "박치기"),
+            "Two Pair", 
+            "C등급 2장 + B등급 2장\nEx) 아이리쉬 윕 x2 + 숄더 태클 x2", 
+            250, 
+            2.0f),
             
+        // 5개 조합: Full House (B등급 2장 + A등급 3장)
         new YaCht_ComboData(
             YaCht_ComboType.JohnCena_Combo5, 
             YaCht_WrestlerType.JohnCena, 
             YaCht_ComboLevel.Combo5,
-            "존 시나 5콤보", 
-            "하트 펀치 연타 콤보!", 
-            80, 2.8f, 
-            "하트 펀치", "하트 펀치", "리어 네이키드 초크", "슈퍼킥", "촙"),
+            "Full House", 
+            "B등급 2장 + A등급 3장\nEx) 숄더 태클 x2 + 파이브 너클 셔플 x3", 
+            500, 
+            3.0f),
             
+        // 6개 조합: Triple Pair (S등급 2장 + A등급 2장 + B등급 2장)
         new YaCht_ComboData(
             YaCht_ComboType.JohnCena_Combo6, 
             YaCht_WrestlerType.JohnCena, 
             YaCht_ComboLevel.Combo6,
-            "존 시나 6콤보 피니셔", 
-            "U CAN'T SEE ME! RKO!", 
-            120, 4.0f, 
-            "박치기", "박치기", "하트 펀치", "하트 펀치", "RKO")
+            "Triple Pair", 
+            "S등급 2장 + A등급 2장 + B등급 2장\nEx) AA x2 + RKO x2 + 슈퍼킥 x2 + 드롭킥 x2", 
+            1000, 
+            5.0f)
     };
     
-    // 언더테이커 콤보
+    // 언더테이커 콤보 (야추 규칙 적용)
     public static readonly YaCht_ComboData[] UndertakerCombos = new YaCht_ComboData[]
     {
+        // 3개 조합: Three of a Kind (C/D 각 1개씩)
         new YaCht_ComboData(
             YaCht_ComboType.Undertaker_Combo3, 
             YaCht_WrestlerType.Undertaker, 
             YaCht_ComboLevel.Combo3,
-            "언더테이커 3콤보", 
-            "엘보! 엘보! 바디슬램!", 
-            30, 1.5f, 
-            "엘보", "엘보", "바디슬램"),
+            "Three of a Kind", 
+            "C or D 등급 카드 각 1개씩 3개 배치\nEx) 로우킥 + 찹 + 코너 아이리쉬 윕", 
+            100, 
+            1.5f),
             
+        // 4개 조합: Four of a Kind (C 1개 + B 3개)
         new YaCht_ComboData(
             YaCht_ComboType.Undertaker_Combo4, 
             YaCht_WrestlerType.Undertaker, 
             YaCht_ComboLevel.Combo4,
-            "언더테이커 4콤보", 
-            "DDT 연타 콤보!", 
-            50, 2.0f, 
-            "DDT", "DDT", "스피어", "박치기"),
+            "Four of a Kind", 
+            "C등급 1장 + B등급 3장\nEx) 코너 아이리쉬 윕 + 올드 스쿨 x2 + 엘보우 드롭", 
+            250, 
+            2.0f),
             
+        // 5개 조합: Four Cards (A등급 4장)
         new YaCht_ComboData(
             YaCht_ComboType.Undertaker_Combo5, 
             YaCht_WrestlerType.Undertaker, 
             YaCht_ComboLevel.Combo5,
-            "언더테이커 5콤보", 
-            "RKO & 슈퍼킥 연계!", 
-            80, 2.8f, 
-            "RKO", "RKO", "슈퍼킥", "슈퍼킥", "엘보"),
+            "Four Cards", 
+            "A등급 4장 이상\nEx) 머슬 버스터 + 리어 네이키드 초크 x3", 
+            500, 
+            3.0f),
             
+        // 6개 조합: Triple Pair (S 2개 + A 3개 + B 1개)
         new YaCht_ComboData(
             YaCht_ComboType.Undertaker_Combo6, 
             YaCht_WrestlerType.Undertaker, 
             YaCht_ComboLevel.Combo6,
-            "언더테이커 6콤보 피니셔", 
-            "REST IN PEACE!", 
-            120, 4.0f, 
-            "바디슬램", "바디슬램", "DDT", "DDT", "스피어", "스피어")
+            "Triple Pair", 
+            "S등급 2장 + A등급 3장 + B등급 1장\nEx) 툼스톤 x2 + 라스트 라이드 x3 + 레그 드롭", 
+            1000, 
+            5.0f)
     };
     
     // 레슬러 타입에 따른 콤보 가져오기
@@ -191,6 +204,7 @@ public static class YaCht_ComboDatabase
         return YaCht_ComboType.None;
     }
     
+    // 콤보 데이터 가져오기
     public static YaCht_ComboData GetComboData(YaCht_WrestlerType wrestlerType, YaCht_ComboType type)
     {
         switch(wrestlerType)
@@ -217,7 +231,8 @@ public static class YaCht_ComboDatabase
             YaCht_WrestlerType.None, 
             YaCht_ComboLevel.None,
             "조합 없음", 
-            "조합이 성립되지 않음", 
-            0, 1.0f);
+            "카드를 조합하세요", 
+            0, 
+            1.0f);
     }
 }

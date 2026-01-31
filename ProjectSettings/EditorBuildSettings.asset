@@ -12,6 +12,9 @@ EditorBuildSettings:
     path: Assets/Scenes/YaCht/YaCht_CardSelectScene.unity
     guid: d947d54983b7a4349ac3c3a8275965d4
   - enabled: 1
+    path: Assets/Scenes/YaCht/YaCht_RelicScene.unity
+    guid: d0dea11eeea60394d8becf8c07eac1bd
+  - enabled: 1
     path: Assets/Scenes/YaCht/YaCht_GameScene.unity
     guid: 2c5537f72a5e33640b126682d3ec227c
   m_configObjects:
