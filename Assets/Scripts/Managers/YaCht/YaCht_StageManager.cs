@@ -23,10 +23,24 @@ public class YaCht_StageManager : MonoBehaviour
 
     // 현재 스테이지 정보
     public int CurrentStageNumber { get; private set; } = 1;
-    public YaCht_EnemyData CurrentEnemy { get; private set; }
     public YaCht_StageData CurrentStageData { get; private set; }
-    public float CurrentEnemyHealth { get; private set; }
     public int CurrentPhase { get; private set; } = 1;  // 현재 페이즈
+    
+    // 현재 적 인스턴스
+    private YaCht_Enemy m_currentEnemyInstance;
+    public YaCht_Enemy CurrentEnemyInstance => m_currentEnemyInstance;
+    
+    // 현재 적 데이터
+    public YaCht_EnemyData CurrentEnemy
+    {
+        get
+        {
+            return YaCht_EnemyDatabase.GetEnemyByStage(CurrentStageNumber);
+        }
+    }
+    
+    // 현재 적 체력
+    public float CurrentEnemyHealth => m_currentEnemyInstance != null ? m_currentEnemyInstance.CurrentHealth : 0f;
 
     // 이벤트: 보스 처치 시 호출
     public event Action OnBossDefeated;
@@ -53,95 +67,72 @@ public class YaCht_StageManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 게임 시작 - 첫 스테이지로 초기화
+    /// 현재 적 인스턴스 등록
     /// </summary>
-    public void StartGame()
+    public void RegisterEnemy(YaCht_Enemy enemy)
     {
-        CurrentStageNumber = 1;
-        LoadStage(CurrentStageNumber);
-    }
-
-    /// <summary>
-    /// 특정 스테이지 로드
-    /// </summary>
-    public void LoadStage(int stageNumber)
-    {
-        CurrentStageNumber = stageNumber;
-        CurrentEnemy = YaCht_EnemyDatabase.GetEnemyByStage(stageNumber);
-        CurrentStageData = YaCht_StageDatabase.GetStageData(stageNumber);
-        CurrentEnemyHealth = CurrentEnemy.m_maxHealth;
-        CurrentPhase = 1;  // 페이즈 초기화
-
-        Debug.Log($"[StageManager] 스테이지 {stageNumber} 로드: {CurrentEnemy.m_name} (체력: {CurrentEnemyHealth})");
-        Debug.Log($"[StageManager] 배경: {CurrentStageData.m_backgroundResourcePath}");
-        Debug.Log($"[StageManager] BGM: {CurrentStageData.m_bgmResourcePath}");
-        
-        if (CurrentStageData.HasMultiplePhases)
+        // 기존 적 이벤트 구독 해제
+        if (m_currentEnemyInstance != null)
         {
-            Debug.Log($"[StageManager] 다중 페이즈 스테이지: {CurrentStageData.m_phases.Length}개 페이즈");
+            m_currentEnemyInstance.OnHealthChanged -= OnEnemyHealthChanged;
+            m_currentEnemyInstance.OnDeath -= OnEnemyDeath;
         }
-
-        // GameManager에서 적 정보 동기화
-        YaCht_GameManager.enemyHealth = CurrentEnemyHealth;
-        YaCht_GameManager.enemyMaxHealth = CurrentEnemy.m_maxHealth;
-    }
-
-    /// <summary>
-    /// 적에게 데미지 입히기
-    /// </summary>
-    public void DamageEnemy(float damage)
-    {
-        float previousHealth = CurrentEnemyHealth;
-        CurrentEnemyHealth -= damage;
-        if (CurrentEnemyHealth < 0)
-            CurrentEnemyHealth = 0;
-
-        YaCht_GameManager.enemyHealth = CurrentEnemyHealth;
-
-        Debug.Log($"[StageManager] {CurrentEnemy.m_name}에게 {damage} 데미지! 남은 체력: {CurrentEnemyHealth}/{CurrentEnemy.m_maxHealth}");
-
-        // 페이즈 전환 체크 (다중 페이즈 스테이지인 경우)
-        CheckPhaseTransition(previousHealth, CurrentEnemyHealth);
-
-        if (CurrentEnemyHealth <= 0)
+        
+        m_currentEnemyInstance = enemy;
+        
+        if (enemy != null)
         {
-            OnEnemyDefeated();
+            // 새 적 이벤트 구독
+            m_currentEnemyInstance.OnHealthChanged += OnEnemyHealthChanged;
+            m_currentEnemyInstance.OnDeath += OnEnemyDeath;
+            
+            Debug.Log($"[StageManager] 적 등록: {enemy.EnemyName}");
         }
     }
     
     /// <summary>
-    /// 페이즈 전환 체크
+    /// 현재 적 인스턴스 해제
     /// </summary>
-    private void CheckPhaseTransition(float previousHealth, float currentHealth)
+    public void UnregisterEnemy()
+    {
+        // 이벤트 구독 해제
+        if (m_currentEnemyInstance != null)
+        {
+            m_currentEnemyInstance.OnHealthChanged -= OnEnemyHealthChanged;
+            m_currentEnemyInstance.OnDeath -= OnEnemyDeath;
+        }
+        
+        m_currentEnemyInstance = null;
+        Debug.Log("[StageManager] 적 등록 해제");
+    }
+    
+    /// <summary>
+    /// 적 체력 변경 시 호출 - 페이즈 전환 체크
+    /// </summary>
+    private void OnEnemyHealthChanged(float currentHealth, float maxHealth)
     {
         if (!CurrentStageData.HasMultiplePhases)
             return;
         
-        float previousPercent = previousHealth / CurrentEnemy.m_maxHealth;
-        float currentPercent = currentHealth / CurrentEnemy.m_maxHealth;
-        
-        YaCht_PhaseData? previousPhase = CurrentStageData.GetPhaseByHealthPercent(previousPercent);
+        float currentPercent = currentHealth / maxHealth;
         YaCht_PhaseData? currentPhase = CurrentStageData.GetPhaseByHealthPercent(currentPercent);
         
         // 페이즈가 변경되었는지 확인
-        if (previousPhase.HasValue && currentPhase.HasValue)
+        if (currentPhase.HasValue && currentPhase.Value.m_phaseNumber != CurrentPhase)
         {
-            if (previousPhase.Value.m_phaseNumber != currentPhase.Value.m_phaseNumber)
-            {
-                CurrentPhase = currentPhase.Value.m_phaseNumber;
-                Debug.Log($"[StageManager] ★ 페이즈 전환! Phase {CurrentPhase} ★");
-                Debug.Log($"[StageManager] {currentPhase.Value.m_phaseDescription}");
-                
-                // 페이즈 전환 이벤트 발생
-                OnPhaseChanged?.Invoke(CurrentPhase, currentPhase.Value);
-            }
+            CurrentPhase = currentPhase.Value.m_phaseNumber;
+            Debug.Log($"[StageManager] ★ 페이즈 전환! Phase {CurrentPhase} ★");
+            Debug.Log($"[StageManager] {currentPhase.Value.m_phaseDescription}");
+            
+            // 페이즈 전환 이벤트 발생
+            OnPhaseChanged?.Invoke(CurrentPhase, currentPhase.Value);
         }
     }
-
+    
     /// <summary>
-    /// 적 처치 시 호출
+    /// 적 사망 시 호출
     /// </summary>
-    private void OnEnemyDefeated()
+    private void OnEnemyDeath()
     {
         Debug.Log($"[StageManager] {CurrentEnemy.m_name} 처치! 스테이지 {CurrentStageNumber} 클리어!");
 
@@ -168,6 +159,25 @@ public class YaCht_StageManager : MonoBehaviour
         {
             Debug.Log("★★★ 모든 스테이지 클리어! 게임 완료! ★★★");
         }
+    }
+
+    /// <summary>
+    /// 게임 시작 - 첫 스테이지로 초기화
+    /// </summary>
+    public void StartGame()
+    {
+        CurrentStageNumber = 1;
+        LoadStage(CurrentStageNumber);
+    }
+
+    /// <summary>
+    /// 특정 스테이지 로드
+    /// </summary>
+    public void LoadStage(int stageNumber)
+    {
+        CurrentStageNumber = stageNumber;
+        CurrentStageData = YaCht_StageDatabase.GetStageData(stageNumber);
+        CurrentPhase = 1;         
     }
 
     /// <summary>

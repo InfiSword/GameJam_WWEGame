@@ -9,6 +9,7 @@ public class YaCht_RelicManager : MonoBehaviour
 
     // 영구 효과 플래그
     private bool m_rtkoActivated = false;           // RTKO 활성화 여부
+    private int m_rtkoUseCount = 0;                 // RKO 사용 횟수 (누적 배수 계산용)
     private float m_purpleGloveMultiplier = 1.0f;  // 보라색 장갑 배율
     
     // 턴별 효과 플래그
@@ -21,21 +22,55 @@ public class YaCht_RelicManager : MonoBehaviour
     // 자비의 가면 (다음 턴)
     private int m_mercyMaskBonusReroll = 0;
 
-    // 초기화
+    // 초기화 (게임 시작 시 호출)
     public void Init()
     {
         m_ownedRelics.Clear();
-        ResetAllEffects();
+        ResetGameEffects();  // 게임 완전 재시작
     }
 
     // 모든 효과 초기화
     public void ResetAllEffects()
     {
-        m_rtkoActivated = false;
+        // RTKO는 영구 효과이므로 리셋하지 않음!
+        // m_rtkoActivated = false;  <- 제거
+        // m_rtkoUseCount = 0;       <- 제거
+        
         m_purpleGloveMultiplier = 1.0f;
         m_harmonyMaskComboCount = 0;
         m_mercyMaskBonusReroll = 0;
         ResetTurnEffects();
+    }
+    
+    // 스테이지 전환 시 호출 (턴별 효과만 리셋)
+    public void ResetStageEffects()
+    {
+        // RTKO와 보라색 장갑은 유지
+        // 화합의 가면 콤보 카운트는 유지 (게임 전체 누적)
+        
+        m_mercyMaskBonusReroll = 0;  // 다음 턴 효과만 리셋
+        ResetTurnEffects();
+        
+        Debug.Log("[유물] 스테이지 전환 - 영구 효과 유지됨");
+        if (m_rtkoActivated)
+            Debug.Log($"[유물] RTKO 영구 효과 유지 중 (사용 횟수: {m_rtkoUseCount}회, 배수: x{2 * m_rtkoUseCount})");
+        if (m_purpleGloveMultiplier > 1.0f)
+            Debug.Log($"[유물] 보라색 장갑 배율 유지: x{m_purpleGloveMultiplier:F2}");
+        if (m_harmonyMaskComboCount > 0)
+            Debug.Log($"[유물] 화합의 가면 콤보: {m_harmonyMaskComboCount}회");
+    }
+    
+    // 게임 완전 재시작 시 호출 (모든 효과 초기화)
+    public void ResetGameEffects()
+    {
+        m_rtkoActivated = false;
+        m_rtkoUseCount = 0;
+        m_purpleGloveMultiplier = 1.0f;
+        m_harmonyMaskComboCount = 0;
+        m_mercyMaskBonusReroll = 0;
+        ResetTurnEffects();
+        
+        Debug.Log("[유물] 게임 재시작 - 모든 효과 초기화");
     }
 
     // 턴별 효과 초기화
@@ -108,24 +143,39 @@ public class YaCht_RelicManager : MonoBehaviour
     public float CalculateFinalDamage(float baseDamage, List<YaCht_CardData> usedCards)
     {
         float finalDamage = baseDamage;
+        float multiplier = 1.0f;
+        
+        Debug.Log($"[유물] 데미지 계산 시작 - 기본 데미지: {baseDamage:F1}");
+        Debug.Log($"[유물] 보유 유물 수: {m_ownedRelics.Count}");
+        foreach (var relic in m_ownedRelics)
+        {
+            YaCht_RelicData relicData = YaCht_RelicDatabase.GetRelicData(relic);
+            Debug.Log($"  - {relicData.name}");
+        }
 
         // 1. 분노의 가면 (+20%)
         if (HasRelic(YaCht_RelicType.RageMask))
         {
+            multiplier *= 1.2f;
             finalDamage *= 1.2f;
+            Debug.Log($"[유물] 분노의 가면 적용: x1.2 → {finalDamage:F1}");
         }
 
         // 2. 다이아몬드 너클 (+20%)
         if (HasRelic(YaCht_RelicType.DiamondKnuckle))
         {
+            multiplier *= 1.2f;
             finalDamage *= 1.2f;
+            Debug.Log($"[유물] 다이아몬드 너클 적용: x1.2 → {finalDamage:F1}");
             
-            // 파이브 너클 셔플 사용 시 추가 2배
+            // 파이브 너클 셔플 포함 시 추가 2배
             foreach (var card in usedCards)
             {
                 if (card.m_name == "파이브 너클 셔플")
                 {
+                    multiplier *= 2.0f;
                     finalDamage *= 2.0f;
+                    Debug.Log($"[유물] 파이브 너클 셔플 포함! x2.0 → {finalDamage:F1}");
                     break;
                 }
             }
@@ -134,31 +184,49 @@ public class YaCht_RelicManager : MonoBehaviour
         // 3. AAA (이번 턴 AA 사용 시 2배)
         if (m_aaaActivatedThisTurn)
         {
+            multiplier *= 2.0f;
             finalDamage *= 2.0f;
+            Debug.Log($"[유물] AAA 발동! x2.0 → {finalDamage:F1}");
         }
 
-        // 4. RTKO (영구 2배)
-        if (m_rtkoActivated)
+        // 4. RTKO (RKO 사용 횟수 × 2배 누적) ← 수정!
+        if (m_rtkoActivated && m_rtkoUseCount > 0)
         {
-            finalDamage *= 2.0f;
+            float rtkoMultiplier = 2.0f * m_rtkoUseCount;  // 1회: 2배, 2회: 4배, 3회: 6배
+            multiplier *= rtkoMultiplier;
+            finalDamage *= rtkoMultiplier;
+            Debug.Log($"[유물] RTKO 발동! (사용 {m_rtkoUseCount}회) x{rtkoMultiplier} → {finalDamage:F1}");
         }
 
-        // 5. 영혼의 종 (이번 턴 헬즈 게이트 사용 시 2배)
+        // 5. 영혼의 종 (이번 턴 라스트 라이드 사용 시 2배)
         if (m_soulBellActivatedThisTurn)
         {
+            multiplier *= 2.0f;
             finalDamage *= 2.0f;
+            Debug.Log($"[유물] 영혼의 종 발동! x2.0 → {finalDamage:F1}");
         }
 
-        // 6. 보라색 장갑 (올드 스쿨 누적)
-        finalDamage *= m_purpleGloveMultiplier;
+        // 6. 보라색 장갑 (숄더 태클 누적)
+        if (m_purpleGloveMultiplier > 1.0f)
+        {
+            multiplier *= m_purpleGloveMultiplier;
+            finalDamage *= m_purpleGloveMultiplier;
+            Debug.Log($"[유물] 보라색 장갑: x{m_purpleGloveMultiplier:F2} → {finalDamage:F1}");
+        }
 
         // 7. 화합의 가면 (콤보당 4%, 최대 40%)
         if (HasRelic(YaCht_RelicType.HarmonyMask))
         {
             float harmonyBonus = Mathf.Min(m_harmonyMaskComboCount * 0.04f, 0.4f);
-            finalDamage *= (1.0f + harmonyBonus);
+            float harmonyMultiplier = 1.0f + harmonyBonus;
+            multiplier *= harmonyMultiplier;
+            finalDamage *= harmonyMultiplier;
+            Debug.Log($"[유물] 화합의 가면: x{harmonyMultiplier:F2} (콤보 {m_harmonyMaskComboCount}회) → {finalDamage:F1}");
         }
 
+        Debug.Log($"[유물] 최종 배율: x{multiplier:F2}");
+        Debug.Log($"[유물] 최종 데미지: {baseDamage:F1} x {multiplier:F2} = {finalDamage:F1}");
+        
         return finalDamage;
     }
 
@@ -178,11 +246,12 @@ public class YaCht_RelicManager : MonoBehaviour
                 Debug.Log("[유물] AAA 발동! 이번 턴 데미지 2배");
             }
 
-            // RTKO: RKO 사용 감지
-            if (HasRelic(YaCht_RelicType.RTKO) && card.m_name == "RKO" && !m_rtkoActivated)
+            // RTKO: RKO 사용 감지 (사용할 때마다 카운트 증가) ← 수정!
+            if (HasRelic(YaCht_RelicType.RTKO) && card.m_name == "RKO")
             {
                 m_rtkoActivated = true;
-                Debug.Log("[유물] RTKO 발동! 영구 데미지 2배");
+                m_rtkoUseCount++;  // 매번 증가!
+                Debug.Log($"[유물] RTKO 발동! RKO 사용 {m_rtkoUseCount}회 (데미지 배수: x{2 * m_rtkoUseCount})");
             }
 
             // 영혼의 종: 헬즈 게이트 사용 감지

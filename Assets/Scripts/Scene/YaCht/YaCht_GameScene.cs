@@ -20,10 +20,7 @@ public class YaCht_GameScene : MonoBehaviour
             {
                 YaCht_GameManager.StartNewStage(1);
             }
-            
-            YaCht_GameManager.enemyHealth = YaCht_GameManager.StageManager.CurrentEnemyHealth;
-            YaCht_GameManager.enemyMaxHealth = YaCht_GameManager.StageManager.CurrentEnemy.m_maxHealth;
-            
+                                   
             // 페이즈 전환 이벤트 구독
             YaCht_GameManager.StageManager.OnPhaseChanged += OnPhaseChanged;
         }

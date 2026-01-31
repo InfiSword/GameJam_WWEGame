@@ -7,7 +7,7 @@ using UnityEngine.SceneManagement;
 public class YaCht_WWEMainGame : MonoBehaviour
 {
     [Header("Setup Area")]
-    [SerializeField] private Transform m_setupArea;    
+    [SerializeField] private Transform m_setupArea;
     [SerializeField] private int m_maxSetupCards = 6;
     [SerializeField] private float m_setupCardSpacing = 1.5f;
 
@@ -39,7 +39,7 @@ public class YaCht_WWEMainGame : MonoBehaviour
 
     private List<YaCht_WWECard> m_setupCards = new List<YaCht_WWECard>();
     private List<Transform> m_setupSlots = new List<Transform>();
-    private YaCht_WWECard m_currentPreviewOriginalCard;   
+    private YaCht_WWECard m_currentPreviewOriginalCard;
     private int m_currentRerollCount;
     private bool m_isBattleEnded = false;
 
@@ -67,6 +67,13 @@ public class YaCht_WWEMainGame : MonoBehaviour
         m_cardManager = YaCht_GameManager.CardManager;
         m_comboGuideUI.Initialize(YaCht_GameManager.nowPlayerData.GetWrestlerType());
 
+        // StageManager 이벤트 구독
+        if (YaCht_GameManager.StageManager != null)
+        {
+            YaCht_GameManager.StageManager.OnBossDefeated += OnBossDefeated;
+            YaCht_GameManager.StageManager.OnEnemyDefeatedNormal += OnNormalEnemyDefeated;
+        }
+
         // 적 스폰
         SpawnEnemy();
 
@@ -76,9 +83,12 @@ public class YaCht_WWEMainGame : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (m_currentEnemy != null)
+        // StageManager 이벤트 구독 해제
+        if (YaCht_GameManager.StageManager != null)
         {
-            m_currentEnemy.OnDeath -= OnEnemyDeath;
+            YaCht_GameManager.StageManager.OnBossDefeated -= OnBossDefeated;
+            YaCht_GameManager.StageManager.OnEnemyDefeatedNormal -= OnNormalEnemyDefeated;
+            YaCht_GameManager.StageManager.UnregisterEnemy();
         }
 
         if (m_nextStageButton != null)
@@ -93,6 +103,10 @@ public class YaCht_WWEMainGame : MonoBehaviour
         // 기존 적 제거
         if (m_currentEnemy != null)
         {
+            if (YaCht_GameManager.StageManager != null)
+            {
+                YaCht_GameManager.StageManager.UnregisterEnemy();
+            }
             Destroy(m_currentEnemy.gameObject);
             m_currentEnemy = null;
         }
@@ -107,38 +121,9 @@ public class YaCht_WWEMainGame : MonoBehaviour
             {
                 YaCht_EnemyData currentEnemyData = YaCht_GameManager.StageManager.CurrentEnemy;
                 m_currentEnemy.Initialize(currentEnemyData, m_enemySpawnPosition);
-                m_currentEnemy.SetHealth(YaCht_GameManager.enemyHealth, YaCht_GameManager.enemyMaxHealth);
 
-                // 이벤트 구독
-                m_currentEnemy.OnDeath += OnEnemyDeath;
-
-                Debug.Log($"[WWEMainGame] 적 스폰 완료: {currentEnemyData.m_name} (스테이지 {currentEnemyData.m_stageNumber})");
+                YaCht_GameManager.StageManager.RegisterEnemy(m_currentEnemy);
             }
-            else
-            {
-                Debug.LogError("[WWEMainGame] Enemy Prefab에 YaCht_Enemy 컴포넌트가 없습니다!");
-            }
-        }
-        else
-        {
-            Debug.LogError("[WWEMainGame] Enemy Prefab 또는 Spawn Position이 설정되지 않았습니다!");
-        }
-    }
-    
-    // 적 사망 시 호출
-    private void OnEnemyDeath()
-    {
-        if (m_currentEnemy == null) return;
-
-        bool isBoss = m_currentEnemy.IsBoss;
-        
-        if (isBoss)
-        {
-            OnBossDefeated();
-        }
-        else
-        {
-            OnNormalEnemyDefeated();
         }
     }
 
@@ -179,12 +164,10 @@ public class YaCht_WWEMainGame : MonoBehaviour
 
     private void OnNextStageButtonClicked()
     {
-        // YaCht_StageDatabase를 통해 보스전 확인
         bool isBoss = YaCht_GameManager.IsCurrentStageBoss();
-        
+
         if (isBoss)
         {
-            Debug.Log("[WWEMainGame] 보스 처치! 유물 선택 씬으로 이동");
             YaCht_GameManager.SetRelicSceneFromBossDefeat();
             SceneManager.LoadScene("YaCht_RelicScene");
         }
@@ -193,12 +176,7 @@ public class YaCht_WWEMainGame : MonoBehaviour
             bool success = YaCht_GameManager.MoveToNextStage();
             if (success)
             {
-                Debug.Log("[WWEMainGame] 다음 스테이지 로드");
                 SceneManager.LoadScene("YaCht_GameScene");
-            }
-            else
-            {
-                Debug.LogError("[WWEMainGame] 다음 스테이지로 이동 실패!");
             }
         }
     }
@@ -429,50 +407,82 @@ public class YaCht_WWEMainGame : MonoBehaviour
         }
 
         YaCht_WrestlerType wrestlerType = YaCht_GameManager.nowPlayerData.wrestlerType;
-        YaCht_ComboType combo = YaCht_ComboChecker.CheckCombo(setupCardData, wrestlerType);
-        
+
+        Debug.Log("=== 전투 시작 ===");
+        Debug.Log($"셋업 카드 수: {setupCardData.Count}");
+        foreach (var card in setupCardData)
+        {
+            Debug.Log($"  - {card.m_name} ({card.m_rarity}급, 데미지: {card.m_baseDamage})");
+        }
+
+        // 유물 효과 먼저 적용
+        Debug.Log("\n[1단계] 유물 효과 적용 (OnCardsUsed)");
         YaCht_GameManager.RelicManager.OnCardsUsed(setupCardData);
-        float baseDamage = YaCht_ComboChecker.CalculateComboDamage(setupCardData, wrestlerType, combo);
+
+        // 모든 콤보 데미지 계산
+        Debug.Log("\n[2단계] 콤보 데미지 계산");
+        float baseDamage = YaCht_ComboChecker.CalculateComboDamage(setupCardData, wrestlerType, YaCht_ComboType.None);
+        Debug.Log($"콤보 적용 후 기본 데미지: {baseDamage:F1}");
+        
+        Debug.Log("\n[3단계] 최종 데미지 계산 (유물 배수 적용)");
         float finalDamage = YaCht_GameManager.RelicManager.CalculateFinalDamage(baseDamage, setupCardData);
-        
-        float enemyHealthPercent = (YaCht_GameManager.enemyHealth / YaCht_GameManager.enemyMaxHealth) * 100f;
+        Debug.Log($"유물 적용 후 최종 데미지: {finalDamage:F1}");
+
+        // 안식의 비석 즉사 체크
+        float enemyHealthPercent = 0f;
+        if (m_currentEnemy != null && m_currentEnemy.MaxHealth > 0)
+        {
+            enemyHealthPercent = (m_currentEnemy.CurrentHealth / m_currentEnemy.MaxHealth) * 100f;
+        }
         bool instantKill = YaCht_GameManager.RelicManager.CheckRestTombstoneInstantKill(setupCardData, enemyHealthPercent);
-        
+
         if (instantKill)
         {
             if (m_currentEnemy != null)
             {
                 m_currentEnemy.TakeDamage(m_currentEnemy.CurrentHealth, true);
             }
-            YaCht_GameManager.DamageEnemy(YaCht_GameManager.enemyHealth);
             Debug.Log("[유물] 안식의 비석 발동! 즉시 처치!");
         }
         else
         {
+            Debug.Log($"\n[4단계] 적에게 데미지 적용: {finalDamage:F1}");
             if (m_currentEnemy != null)
             {
                 m_currentEnemy.TakeDamage(finalDamage, true);
             }
-            YaCht_GameManager.DamageEnemy(finalDamage);
         }
-        
-        Debug.Log($"=== 전투 결과 ===");
-        Debug.Log($"기본 데미지: {baseDamage}");
-        Debug.Log($"최종 데미지: {finalDamage}");
 
-        if (combo != YaCht_ComboType.None)
+        Debug.Log($"\n=== 전투 결과 ===");
+        Debug.Log($"기본 데미지: {baseDamage:F1}");
+        Debug.Log($"최종 데미지: {finalDamage:F1}");
+        Debug.Log($"데미지 증가율: {(finalDamage / baseDamage):P0}");
+
+        // 모든 콤보 가져오기
+        List<YaCht_ComboType> allCombos = YaCht_ComboChecker.CheckAllCombos(setupCardData, wrestlerType);
+
+        // 콤보가 있으면 유물 효과 발동
+        if (allCombos.Count > 0)
         {
             YaCht_GameManager.RelicManager.OnComboAchieved();
-        }
-        
-        YaCht_ComboData comboData = YaCht_ComboDatabase.GetComboData(wrestlerType, combo);
-        if (comboData.comboLevel == YaCht_ComboLevel.Combo3 || 
-            comboData.comboLevel == YaCht_ComboLevel.Combo4)
-        {
-            YaCht_GameManager.RelicManager.OnEasyNormalComboSuccess();
-        }
 
-        YaCht_GameManager.AddScore(comboData.scoreMultiplier);
+            // 첫 번째 콤보 정보로 레벨 체크 (Easy/Normal 판정용)
+            YaCht_ComboData firstComboData = YaCht_ComboDatabase.GetComboData(wrestlerType, allCombos[0]);
+            if (firstComboData.comboLevel == YaCht_ComboLevel.Combo3 ||
+                firstComboData.comboLevel == YaCht_ComboLevel.Combo4)
+            {
+                YaCht_GameManager.RelicManager.OnEasyNormalComboSuccess();
+            }
+
+            // 점수는 모든 콤보 합산
+            int totalScore = 0;
+            foreach (var combo in allCombos)
+            {
+                YaCht_ComboData comboData = YaCht_ComboDatabase.GetComboData(wrestlerType, combo);
+                totalScore += comboData.scoreMultiplier;
+            }
+            YaCht_GameManager.AddScore(totalScore);
+        }
 
         m_cardManager.ClearSetupCards();
         m_setupCards.Clear();
@@ -506,7 +516,7 @@ public class YaCht_WWEMainGame : MonoBehaviour
         YaCht_CardData? fixedCard = YaCht_GameManager.RelicManager.GetFixedMaskCard(
             YaCht_GameManager.nowPlayerData.playerDeck
         );
-        
+
         if (fixedCard.HasValue && m_setupCards.Count < m_maxSetupCards && m_setupSlots.Count > 0)
         {
             yield return StartCoroutine(AutoSetupFixedCard(fixedCard.Value));
@@ -519,7 +529,7 @@ public class YaCht_WWEMainGame : MonoBehaviour
     private System.Collections.IEnumerator AutoSetupFixedCard(YaCht_CardData cardData)
     {
         YaCht_WWECard targetCard = m_cardManager.FindCardInHand(cardData);
-        
+
         if (targetCard != null)
         {
             int cardIndex = m_setupCards.Count;
@@ -530,7 +540,7 @@ public class YaCht_WWEMainGame : MonoBehaviour
             m_cardManager.SetupCard(targetCard, cardIndex);
 
             Debug.Log($"[유물] 고정의 가면: {cardData.m_name} 자동 셋업");
-            
+
             yield return new WaitForSeconds(0.3f);
         }
     }

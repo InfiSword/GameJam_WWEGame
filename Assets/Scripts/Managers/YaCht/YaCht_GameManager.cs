@@ -23,8 +23,6 @@ public class YaCht_GameManager : MonoBehaviour
     // 게임 상태
     public static int currentRound = 1;
     public static int totalScore = 0;
-    public static float enemyHealth = 400f;
-    public static float enemyMaxHealth = 400f;
     
     // 유물 씬 진입 - 덱 선택 후인지 여부
     private static bool m_isFromDeckSelection = true;
@@ -78,36 +76,29 @@ public class YaCht_GameManager : MonoBehaviour
         }
     }
 
-    private void Update()
-    {
-
-    }
-
     public static void Clear()
     {
         currentRound = 1;
         totalScore = 0;
-        RelicManager.ResetAllEffects();
+        RelicManager.ResetGameEffects();  // 게임 완전 재시작
         
-        // StageManager로 적 정보 초기화
+        // StageManager도 새 게임 초기화
         if (StageManager != null)
         {
-            StageManager.ResetGame();
-            enemyHealth = StageManager.CurrentEnemyHealth;
-            enemyMaxHealth = StageManager.CurrentEnemy.m_maxHealth;
+            StageManager.ResetGame();            
         }
     }
     
     public static void NextRound()
     {
         currentRound++;
-        // 턴별 효과 초기화
+        // 턴별 효과 초기화 (RTKO는 유지)
         RelicManager.ResetTurnEffects();
     }
     
     public static bool IsGameOver()
     {
-        return currentRound > 4 || enemyHealth <= 0;
+        return currentRound > 4;
     }
     
     public static void AddScore(int score)
@@ -115,30 +106,16 @@ public class YaCht_GameManager : MonoBehaviour
         totalScore += score;
     }
     
-    public static void DamageEnemy(float damage)
-    {
-        if (StageManager != null)
-        {
-            StageManager.DamageEnemy(damage);
-            enemyHealth = StageManager.CurrentEnemyHealth;
-        }
-        else
-        {
-            enemyHealth -= damage;
-            if (enemyHealth < 0)
-                enemyHealth = 0;
-        }
-    }
-    
     public static void StartNewStage(int stageNumber)
     {
         if (StageManager != null)
         {
-            StageManager.LoadStage(stageNumber);
-            enemyHealth = StageManager.CurrentEnemyHealth;
-            enemyMaxHealth = StageManager.CurrentEnemy.m_maxHealth;
+            StageManager.LoadStage(stageNumber);           
             currentRound = 1;
             totalScore = 0;
+            
+            // 스테이지 전환 시 턴별 효과만 리셋 (RTKO 유지)
+            RelicManager.ResetStageEffects();
         }
     }
     
@@ -148,11 +125,12 @@ public class YaCht_GameManager : MonoBehaviour
         {
             bool success = StageManager.MoveToNextStage();
             if (success)
-            {
-                enemyHealth = StageManager.CurrentEnemyHealth;
-                enemyMaxHealth = StageManager.CurrentEnemy.m_maxHealth;
+            {               
                 currentRound = 1;
                 totalScore = 0;
+                
+                // 스테이지 전환 시 턴별 효과만 리셋 (RTKO 유지)
+                RelicManager.ResetStageEffects();
             }
             return success;
         }
