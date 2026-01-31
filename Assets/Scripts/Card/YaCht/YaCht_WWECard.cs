@@ -2,6 +2,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using System.Collections;
 
 public class YaCht_WWECard : MonoBehaviour, IPointerClickHandler
 {
@@ -116,9 +117,7 @@ public class YaCht_WWECard : MonoBehaviour, IPointerClickHandler
             default:
                 return "?";
         }
-    }
-   
-    
+    }       
     public void OnPointerClick(PointerEventData eventData)
     {
         YaCht_WWEMainGame testGame = FindFirstObjectByType<YaCht_WWEMainGame>();
@@ -166,5 +165,143 @@ public class YaCht_WWECard : MonoBehaviour, IPointerClickHandler
         {
             transform.SetParent(m_originalParent);
         }
+    }
+
+    /// <summary>
+    /// 카드가 적을 향해 돌진하며 타격하는 연출
+    /// </summary>
+    public IEnumerator AttackEnemyCoroutine(Transform enemyPosition, float attackDuration = 0.5f)
+    {
+        Vector3 startPosition = transform.position;
+        Vector3 targetPosition = enemyPosition.position;
+        
+        YaCht_CardAttackSettings attackSettings = m_cardData.m_attackSettings;
+
+        // 차징 단계
+        if (attackSettings.chargeDuration > 0)
+        {
+            yield return StartCoroutine(ChargeMovement(startPosition, attackSettings, targetPosition));
+        }
+
+        // 차징 후 딜레이
+        if (attackSettings.chargeDelay > 0)
+        {
+            yield return new WaitForSeconds(attackSettings.chargeDelay);
+        }
+
+        // 돌진 단계 - 사운드와 이펙트 타이밍 포함
+        yield return StartCoroutine(AttackMovementWithEffects(startPosition, targetPosition, attackSettings));       
+    }
+
+    /// <summary>
+    /// 차징 무브먼트 (적과 반대 방향으로 뒤로 물러나는 효과)
+    /// </summary>
+    private IEnumerator ChargeMovement(Vector3 originalPosition, YaCht_CardAttackSettings settings, Vector3 targetPosition)
+    {
+        // 적 방향 계산
+        Vector3 directionToEnemy = (targetPosition - originalPosition).normalized;
+        // 적과 반대 방향
+        Vector3 chargeBackDirection = -directionToEnemy;
+        // 차징 위치 계산 (반대 방향으로 이동)
+        Vector3 chargeBackPosition = originalPosition + chargeBackDirection * settings.chargeMoveDistance;
+        
+        float elapsed = 0f;
+
+        while (elapsed < settings.chargeDuration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / settings.chargeDuration;
+            
+            // 부드러운 이동
+            float easeT = t * t;
+            transform.position = Vector3.Lerp(originalPosition, chargeBackPosition, easeT);
+            
+            yield return null;
+        }
+
+        transform.position = chargeBackPosition;
+    }
+
+    /// <summary>
+    /// 돌진 무브먼트 + 사운드/이펙트 타이밍
+    /// </summary>
+    private IEnumerator AttackMovementWithEffects(Vector3 startPosition, Vector3 targetPosition, 
+        YaCht_CardAttackSettings settings)
+    {
+        float elapsed = 0f;
+        bool soundPlayed = false;
+        bool effectPlayed = false;
+
+        while (elapsed < settings.attackDuration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / settings.attackDuration;
+            
+            // 사운드 타이밍
+            if (!soundPlayed && t >= settings.soundTriggerTime)
+            {
+                PlayAttackSound();
+                soundPlayed = true;
+            }
+
+            // 이펙트 타이밍
+            if (!effectPlayed && t >= settings.effectTriggerTime)
+            {
+                PlayAttackEffect(targetPosition);
+                effectPlayed = true;
+            }
+            
+            // Ease-out 곡선으로 자연스러운 움직임
+            float easeT = 1f - Mathf.Pow(1f - t, 3f);
+            transform.position = Vector3.Lerp(startPosition, targetPosition, easeT);
+            
+            yield return null;
+        }
+
+        // 최종 위치 확정
+        transform.position = targetPosition;
+
+        // 아직 사운드/이펙트가 재생되지 않았으면 마지막에 실행
+        if (!soundPlayed)
+        {
+            PlayAttackSound();
+        }
+        if (!effectPlayed)
+        {
+            PlayAttackEffect(targetPosition);
+        }
+
+        m_cardImage.enabled = false;
+    }
+
+    /// <summary>
+    /// 카드 사운드 재생
+    /// </summary>
+    private void PlayAttackSound()
+    {
+        // 게임의 효과음 시스템이 있다면 여기에 통합
+        if (!string.IsNullOrEmpty(m_cardData.m_soundResourcePath))
+        {
+            Debug.Log($"[Sound] {m_cardData.m_name}: {m_cardData.m_soundResourcePath} 재생");
+            // AudioClip soundClip = Resources.Load<AudioClip>(m_cardData.m_soundResourcePath);
+            // if (soundClip != null)
+            // {
+            //     AudioSource audioSource = GetComponent<AudioSource>();
+            //     if (audioSource != null)
+            //     {
+            //         audioSource.PlayOneShot(soundClip);
+            //     }
+            // }
+        }
+    }
+
+    /// <summary>
+    /// 카드 이펙트 재생
+    /// </summary>
+    private void PlayAttackEffect(Vector3 targetPosition)
+    {
+        // 게임의 이펙트 시스템이 있다면 여기에 통합
+        Debug.Log($"[Effect] {m_cardData.m_name}: 이펙트 재생 - 적 위치: {targetPosition}");
+        // EffectManager.PlayEffect("CardAttackEffect", targetPosition);
     }
 }

@@ -436,6 +436,32 @@ public class YaCht_WWEMainGame : MonoBehaviour
         }
         bool instantKill = YaCht_GameManager.RelicManager.CheckRestTombstoneInstantKill(setupCardData, enemyHealthPercent);
 
+        // 카드 순차 공격 연출 및 데미지 처리
+        StartCoroutine(ExecuteSequentialCardAttacks(instantKill, finalDamage, setupCardData, wrestlerType, baseDamage));
+    }
+
+    /// <summary>
+    /// 셋업된 카드들이 순차적으로 적을 공격하는 연출
+    /// </summary>
+    private System.Collections.IEnumerator ExecuteSequentialCardAttacks(bool instantKill, float finalDamage, 
+        List<YaCht_CardData> setupCardData, YaCht_WrestlerType wrestlerType, float baseDamage)
+    {
+        // 모든 카드가 공격을 완료할 때까지 대기
+        for (int i = 0; i < m_setupCards.Count; i++)
+        {
+            YaCht_WWECard card = m_setupCards[i];
+            
+            if (card != null && m_currentEnemy != null)
+            {
+                // 카드 돌진 연출 (카드 데이터의 공격 설정에 따라 자동으로 연출됨)
+                yield return StartCoroutine(card.AttackEnemyCoroutine(m_currentEnemy.transform));
+                
+                // 다음 카드 공격까지 약간의 딜레이
+                yield return new WaitForSeconds(0.1f);
+            }
+        }
+
+        // 모든 카드 공격 완료 후 데미지 적용
         if (instantKill)
         {
             if (m_currentEnemy != null)
@@ -491,17 +517,17 @@ public class YaCht_WWEMainGame : MonoBehaviour
 
         if (m_currentEnemy != null && m_currentEnemy.IsDead)
         {
-            return;
+            yield break;
         }
 
         if (YaCht_GameManager.IsGameOver())
         {
             Debug.Log("4라운드 종료! 스테이지 실패!");
-            return;
+            yield break;
         }
 
         YaCht_GameManager.NextRound();
-        StartCoroutine(StartNewRoundCoroutine());
+        yield return StartCoroutine(StartNewRoundCoroutine());
     }
 
     private System.Collections.IEnumerator StartNewRoundCoroutine()

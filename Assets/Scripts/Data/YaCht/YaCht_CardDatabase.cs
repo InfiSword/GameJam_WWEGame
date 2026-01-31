@@ -14,6 +14,19 @@ public enum YaCht_CardRarity
 }
 
 // ==================================================================================
+// 카드 공격 설정
+// ==================================================================================
+public struct YaCht_CardAttackSettings
+{
+    public float chargeDuration;               // 차징/준비 시간 (Heavy, PowerSlam용)
+    public float chargeMoveDistance;           // 차징 시 이동 거리 (PowerSlam: 뒤로 물러남)
+    public float chargeDelay;                  // 차징 후 돌진까지의 딜레이
+    public float attackDuration;               // 돌진 시간
+    public float soundTriggerTime;             // 사운드가 나는 시점 (0~1 사이)
+    public float effectTriggerTime;            // 이펙트가 나는 시점 (0~1 사이)
+}
+
+// ==================================================================================
 // 카드 데이터 구조체
 // ==================================================================================
 public struct YaCht_CardData
@@ -23,14 +36,20 @@ public struct YaCht_CardData
     public string m_description;    // 설명
     public YaCht_CardRarity m_rarity; // 등급 (확률 계산용)
     public string m_imageResourcePath; // 카드 이미지 리소스 경로 (Resources 폴더 기준)
-    
-    public YaCht_CardData(string name, float damage, string desc, YaCht_CardRarity rarity = YaCht_CardRarity.D, string imagePath = "")
+    public YaCht_CardAttackSettings m_attackSettings; // 공격 연출 설정
+    public string m_soundResourcePath; // 카드 사운드 리소스 경로
+
+    // 커스텀 생성자 - 공격 설정과 사운드를 직접 지정할 수 있음
+    public YaCht_CardData(string name, float damage, string desc, YaCht_CardRarity rarity, 
+        string imagePath, YaCht_CardAttackSettings customAttackSettings, string soundPath = "")
     {
         m_name = name;
         m_baseDamage = damage;
         m_description = desc;
         m_rarity = rarity;
         m_imageResourcePath = imagePath;
+        m_attackSettings = customAttackSettings;
+        m_soundResourcePath = soundPath;
     }
 }
 
@@ -58,50 +77,280 @@ public class YaCht_CardSetData
 // ==================================================================================
 public static class YaCht_CardDatabase
 {
-    // === 존 시나 테마 카드 ===
+    // 존 시나 테마 카드 
     
     // S랭크 (10% 확률)
-    public static YaCht_CardData AA = new YaCht_CardData("AA", 20, "애티튜드 어저스트먼트 - 존 시나의 피니셔 무브", YaCht_CardRarity.S, "Sprites/Cards/JohnCena/AA");
-    public static YaCht_CardData RKO = new YaCht_CardData("RKO", 18, "상대를 바닥에 내리꽂는 피니셔 무브", YaCht_CardRarity.S, "Sprites/Cards/JohnCena/RKO");
+    public static YaCht_CardData AA = new YaCht_CardData("AA", 20, "애티튜드 어저스트먼트 - 존 시나의 피니셔 무브", YaCht_CardRarity.S, "Sprites/Cards/JohnCena/AA",
+    new YaCht_CardAttackSettings
+    {
+        chargeDuration = 0.35f,
+        chargeMoveDistance = 0.6f,
+        chargeDelay = 0.18f,
+        attackDuration = 0.42f,
+        soundTriggerTime = 0.32f,
+        effectTriggerTime = 0.27f
+    },
+    "Sounds/Cards/JohnCena/AA"
+);
+
+    public static YaCht_CardData RKO = new YaCht_CardData("RKO", 18, "상대를 바닥에 내리꽂는 피니셔 무브", YaCht_CardRarity.S, "Sprites/Cards/JohnCena/RKO",
+    new YaCht_CardAttackSettings
+    {
+        chargeDuration = 0.38f,
+        chargeMoveDistance = 0.65f,
+        chargeDelay = 0.22f,
+        attackDuration = 0.38f,
+        soundTriggerTime = 0.28f,
+        effectTriggerTime = 0.22f
+    },
+    "Sounds/Cards/JohnCena/RKO"
+);
 
     // A랭크 (20% 확률) Naked Choke
-    public static YaCht_CardData NakedChoke = new YaCht_CardData("네이키드 초크", 12, "팔을 이용해 상대방의 경동맥을 조르는 기술", YaCht_CardRarity.A, "Sprites/Cards/JohnCena/NakedChoke");
-    public static YaCht_CardData Superkick = new YaCht_CardData("슈퍼킥", 10, "높이 점프하여 상대의 턱을 가격하는 강력한 킥", YaCht_CardRarity.A, "Sprites/Cards/JohnCena/Superkick");
-    
+    public static YaCht_CardData NakedChoke = new YaCht_CardData("네이키드 초크", 12, "팔을 이용해 상대방의 경동맥을 조르는 기술", YaCht_CardRarity.A, "Sprites/Cards/JohnCena/NakedChoke",
+    new YaCht_CardAttackSettings
+    {
+        chargeDuration = 0.28f,
+        chargeMoveDistance = 0.32f,
+        chargeDelay = 0.12f,
+        attackDuration = 0.36f,
+        soundTriggerTime = 0.26f,
+        effectTriggerTime = 0.21f
+    },
+    "Sounds/Cards/JohnCena/NakedChoke"
+);
+
+    public static YaCht_CardData Superkick = new YaCht_CardData("슈퍼킥", 10, "높이 점프하여 상대의 턱을 가격하는 강력한 킥", YaCht_CardRarity.A, "Sprites/Cards/JohnCena/Superkick",
+    new YaCht_CardAttackSettings
+    {
+        chargeDuration = 0.22f,
+        chargeMoveDistance = 0.28f,
+        chargeDelay = 0.1f,
+        attackDuration = 0.32f,
+        soundTriggerTime = 0.23f,
+        effectTriggerTime = 0.19f
+    },
+    "Sounds/Cards/JohnCena/Superkick"
+);
+
     // B랭크 (30% 확률)
-    public static YaCht_CardData ShoulderTackle = new YaCht_CardData("숄더 태클", 8, "어깨로 상대를 밀어붙이는 기술", YaCht_CardRarity.B, "Sprites/Cards/JohnCena/ShoulderTackle");
-    public static YaCht_CardData Dropkick = new YaCht_CardData("드롭킥", 7, "공중에서 양발로 차는 기술", YaCht_CardRarity.B, "Sprites/Cards/JohnCena/Dropkick");
-    
+    public static YaCht_CardData ShoulderTackle = new YaCht_CardData("숄더 태클", 8, "어깨로 상대를 밀어붙이는 기술", YaCht_CardRarity.B, "Sprites/Cards/JohnCena/ShoulderTackle",
+    new YaCht_CardAttackSettings
+    {
+        chargeDuration = 0f,
+        chargeMoveDistance = 0f,
+        chargeDelay = 0f,
+        attackDuration = 0.4f,
+        soundTriggerTime = 0.3f,
+        effectTriggerTime = 0.25f
+    },
+    "Sounds/Cards/JohnCena/ShoulderTackle"
+);
+
+    public static YaCht_CardData Dropkick = new YaCht_CardData("드롭킥", 7, "공중에서 양발로 차는 기술", YaCht_CardRarity.B, "Sprites/Cards/JohnCena/Dropkick",
+    new YaCht_CardAttackSettings
+    {
+        chargeDuration = 0f,
+        chargeMoveDistance = 0f,
+        chargeDelay = 0f,
+        attackDuration = 0.38f,
+        soundTriggerTime = 0.28f,
+        effectTriggerTime = 0.23f
+    },
+    "Sounds/Cards/JohnCena/Dropkick"
+);
+
     // C랭크 (40% 확률)
-    public static YaCht_CardData IrishWhip = new YaCht_CardData("아이리쉬 윕", 6, "상대를 로프로 던지는 기술", YaCht_CardRarity.C, "Sprites/Cards/JohnCena/IrishWhip");
-    public static YaCht_CardData KitchenSink = new YaCht_CardData("키친 싱크", 6, "무릎을 들어 상대의 복부를 가격", YaCht_CardRarity.C, "Sprites/Cards/JohnCena/KitchenSink");
-    
+    public static YaCht_CardData IrishWhip = new YaCht_CardData("아이리쉬 윕", 6, "상대를 로프로 던지는 기술", YaCht_CardRarity.C, "Sprites/Cards/JohnCena/IrishWhip",
+    new YaCht_CardAttackSettings
+    {
+        chargeDuration = 0f,
+        chargeMoveDistance = 0f,
+        chargeDelay = 0f,
+        attackDuration = 0.4f,
+        soundTriggerTime = 0.3f,
+        effectTriggerTime = 0.25f
+    },
+    "Sounds/Cards/JohnCena/IrishWhip"
+);
+
+    public static YaCht_CardData KitchenSink = new YaCht_CardData("키친 싱크", 6, "무릎을 들어 상대의 복부를 가격", YaCht_CardRarity.C, "Sprites/Cards/JohnCena/KitchenSink",
+    new YaCht_CardAttackSettings
+    {
+        chargeDuration = 0f,
+        chargeMoveDistance = 0f,
+        chargeDelay = 0f,
+        attackDuration = 0.4f,
+        soundTriggerTime = 0.3f,
+        effectTriggerTime = 0.25f
+    },
+    "Sounds/Cards/JohnCena/KitchenSink"
+);
+
     // D랭크 (50% 확률)
-    public static YaCht_CardData KneeStrike = new YaCht_CardData("니 스트라이크", 4, "무릎으로 가격하는 기본 기술", YaCht_CardRarity.D, "Sprites/Cards/JohnCena/KneeStrike");
-    public static YaCht_CardData Headbutt = new YaCht_CardData("박치기", 5, "머리를 사용해서 상대를 치는 기술", YaCht_CardRarity.D, "Sprites/Cards/JohnCena/Headbutt");
+    public static YaCht_CardData KneeStrike = new YaCht_CardData("니 스트라이크", 4, "무릎으로 가격하는 기본 기술", YaCht_CardRarity.D, "Sprites/Cards/JohnCena/KneeStrike",
+    new YaCht_CardAttackSettings
+    {
+        chargeDuration = 0f,
+        chargeMoveDistance = 0f,
+        chargeDelay = 0f,
+        attackDuration = 0.24f,
+        soundTriggerTime = 0.17f,
+        effectTriggerTime = 0.11f
+    },
+    "Sounds/Cards/JohnCena/KneeStrike"
+);
+
+    public static YaCht_CardData Headbutt = new YaCht_CardData("박치기", 5, "머리를 사용해서 상대를 치는 기술", YaCht_CardRarity.D, "Sprites/Cards/JohnCena/Headbutt",
+    new YaCht_CardAttackSettings
+    {
+        chargeDuration = 0f,
+        chargeMoveDistance = 0f,
+        chargeDelay = 0f,
+        attackDuration = 0.26f,
+        soundTriggerTime = 0.19f,
+        effectTriggerTime = 0.14f
+    },
+    "Sounds/Cards/JohnCena/Headbutt"
+);
+
+// === 언더테이커 테마 카드 ===
+
+// S랭크 (10% 확률)
+public static YaCht_CardData TombstonePiledriver = new YaCht_CardData("툼스톤 파일드라이버", 22, "언더테이커의 최강 피니셔 무브", YaCht_CardRarity.S, "Sprites/Cards/Undertaker/TombstonePiledriver",
+    new YaCht_CardAttackSettings
+    {
+        chargeDuration = 0.42f,
+        chargeMoveDistance = 0.75f,
+        chargeDelay = 0.22f,
+        attackDuration = 0.47f,
+        soundTriggerTime = 0.36f,
+        effectTriggerTime = 0.31f
+    },
+    "Sounds/Cards/Undertaker/TombstonePiledriver"
+);
+
+public static YaCht_CardData HellsGate = new YaCht_CardData("헬즈 게이트", 20, "상대를 제압하는 서브미션 기술", YaCht_CardRarity.S, "Sprites/Cards/Undertaker/HellsGate",
+    new YaCht_CardAttackSettings
+    {
+        chargeDuration = 0.38f,
+        chargeMoveDistance = 0.68f,
+        chargeDelay = 0.2f,
+        attackDuration = 0.44f,
+        soundTriggerTime = 0.34f,
+        effectTriggerTime = 0.29f
+    },
+    "Sounds/Cards/Undertaker/HellsGate"
+);
+
+// A랭크 (20% 확률)
+public static YaCht_CardData MuscleBuster = new YaCht_CardData("머슬 버스터", 13, "상대를 들어올려 내려찍는 강력한 기술", YaCht_CardRarity.A, "Sprites/Cards/Undertaker/MuscleBuster",
+    new YaCht_CardAttackSettings
+    {
+        chargeDuration = 0.32f,
+        chargeMoveDistance = 0.38f,
+        chargeDelay = 0.14f,
+        attackDuration = 0.38f,
+        soundTriggerTime = 0.29f,
+        effectTriggerTime = 0.24f
+    },
+    "Sounds/Cards/Undertaker/MuscleBuster"
+);
+
+public static YaCht_CardData RearNakedChoke = new YaCht_CardData("리어 네이키드 초크", 11, "상대의 뒤에서 안고 목을 조르는 기술", YaCht_CardRarity.A, "Sprites/Cards/Undertaker/RearNakedChoke",
+    new YaCht_CardAttackSettings
+    {
+        chargeDuration = 0.27f,
+        chargeMoveDistance = 0.3f,
+        chargeDelay = 0.11f,
+        attackDuration = 0.35f,
+        soundTriggerTime = 0.26f,
+        effectTriggerTime = 0.21f
+    },
+    "Sounds/Cards/Undertaker/RearNakedChoke"
+);
+
+// B랭크 (30% 확률)
+public static YaCht_CardData ElbowDrop = new YaCht_CardData("엘보우 드롭", 8, "팔꿈치를 떨어뜨리는 기술", YaCht_CardRarity.B, "Sprites/Cards/Undertaker/ElbowDrop",
+    new YaCht_CardAttackSettings
+    {
+        chargeDuration = 0f,
+        chargeMoveDistance = 0f,
+        chargeDelay = 0f,
+        attackDuration = 0.39f,
+        soundTriggerTime = 0.29f,
+        effectTriggerTime = 0.24f
+    },
+    "Sounds/Cards/Undertaker/ElbowDrop"
+);
+
+public static YaCht_CardData CornerBodySplash = new YaCht_CardData("코너 바디 스플래쉬", 8, "코너에서 몸으로 압박하는 기술", YaCht_CardRarity.B, "Sprites/Cards/Undertaker/CornerBodySplash",
+    new YaCht_CardAttackSettings
+    {
+        chargeDuration = 0f,
+        chargeMoveDistance = 0f,
+        chargeDelay = 0f,
+        attackDuration = 0.4f,
+        soundTriggerTime = 0.3f,
+        effectTriggerTime = 0.25f
+    },
+    "Sounds/Cards/Undertaker/CornerBodySplash"
+);
+
+public static YaCht_CardData OldSchool = new YaCht_CardData("올드 스쿨", 9, "로프를 타고 팔을 내리치는 언더테이커 시그니처 무브", YaCht_CardRarity.B, "Sprites/Cards/Undertaker/OldSchool",
+    new YaCht_CardAttackSettings
+    {
+        chargeDuration = 0f,
+        chargeMoveDistance = 0f,
+        chargeDelay = 0f,
+        attackDuration = 0.41f,
+        soundTriggerTime = 0.31f,
+        effectTriggerTime = 0.26f
+    },
+    "Sounds/Cards/Undertaker/OldSchool"
+);
+
+// C랭크 (40% 확률)
+public static YaCht_CardData CornerIrishWhip = new YaCht_CardData("코너 아이리시 윕", 6, "상대를 코너로 던지는 기술", YaCht_CardRarity.C, "Sprites/Cards/Undertaker/CornerIrishWhip",
+    new YaCht_CardAttackSettings
+    {
+        chargeDuration = 0f,
+        chargeMoveDistance = 0f,
+        chargeDelay = 0f,
+        attackDuration = 0.4f,
+        soundTriggerTime = 0.3f,
+        effectTriggerTime = 0.25f
+    },
+    "Sounds/Cards/Undertaker/CornerIrishWhip"
+);
+
+public static YaCht_CardData LowKick = new YaCht_CardData("로우킥", 5, "낮은 다리 높이로 빠른 속도로 기술", YaCht_CardRarity.C, "Sprites/Cards/Undertaker/LowKick",
+    new YaCht_CardAttackSettings
+    {
+        chargeDuration = 0f,
+        chargeMoveDistance = 0f,
+        chargeDelay = 0f,
+        attackDuration = 0.38f,
+        soundTriggerTime = 0.28f,
+        effectTriggerTime = 0.23f
+    },
+    "Sounds/Cards/Undertaker/LowKick"
+);
+
+// D랭크 (50% 확률)
+public static YaCht_CardData Chop = new YaCht_CardData("찹", 4, "손바닥으로 치는 기술", YaCht_CardRarity.D, "Sprites/Cards/Undertaker/Chop",
+    new YaCht_CardAttackSettings
+    {
+        chargeDuration = 0f,
+        chargeMoveDistance = 0f,
+        chargeDelay = 0f,
+        attackDuration = 0.25f,
+        soundTriggerTime = 0.18f,
+        effectTriggerTime = 0.13f
+    },
+    "Sounds/Cards/Undertaker/Chop"
+);
     
-    // === 언더테이커 테마 카드 ===
-    
-    // S랭크 (10% 확률)
-    public static YaCht_CardData TombstonePiledriver = new YaCht_CardData("툼스톤 파일드라이버", 22, "언더테이커의 최강 피니셔 무브", YaCht_CardRarity.S, "Sprites/Cards/Undertaker/TombstonePiledriver");
-    public static YaCht_CardData HellsGate = new YaCht_CardData("헬즈 게이트", 20, "상대를 제압하는 서브미션 기술", YaCht_CardRarity.S, "Sprites/Cards/Undertaker/HellsGate");
-    
-    // A랭크 (20% 확률)
-    public static YaCht_CardData MuscleBuster = new YaCht_CardData("머슬 버스터", 13, "상대를 들어올려 내려찍는 강력한 기술", YaCht_CardRarity.A, "Sprites/Cards/Undertaker/MuscleBuster");
-    public static YaCht_CardData RearNakedChoke = new YaCht_CardData("리어 네이키드 초크", 11, "상대의 뒤에서 안고 목을 조르는 기술", YaCht_CardRarity.A, "Sprites/Cards/Undertaker/RearNakedChoke");
-    
-    // B랭크 (30% 확률)
-    public static YaCht_CardData ElbowDrop = new YaCht_CardData("엘보우 드롭", 8, "팔꿈치를 떨어뜨리는 기술", YaCht_CardRarity.B, "Sprites/Cards/Undertaker/ElbowDrop");
-    public static YaCht_CardData CornerBodySplash = new YaCht_CardData("코너 바디 스플래쉬", 8, "코너에서 몸으로 압박하는 기술", YaCht_CardRarity.B, "Sprites/Cards/Undertaker/CornerBodySplash");
-    public static YaCht_CardData OldSchool = new YaCht_CardData("올드 스쿨", 9, "로프를 타고 팔을 내리치는 언더테이커 시그니처 무브", YaCht_CardRarity.B, "Sprites/Cards/Undertaker/OldSchool");
-    
-    // C랭크 (40% 확률)
-    public static YaCht_CardData CornerIrishWhip = new YaCht_CardData("코너 아이리시 윕", 6, "상대를 코너로 던지는 기술", YaCht_CardRarity.C, "Sprites/Cards/Undertaker/CornerIrishWhip");
-    public static YaCht_CardData LowKick = new YaCht_CardData("로우킥", 5, "낮은 다리 높이로 빠른 속도로 기술", YaCht_CardRarity.C, "Sprites/Cards/Undertaker/LowKick");
-    
-    // D랭크 (50% 확률)
-    public static YaCht_CardData Chop = new YaCht_CardData("찹", 4, "손바닥으로 치는 기술", YaCht_CardRarity.D, "Sprites/Cards/Undertaker/Chop");
-        
     // 모든 카드 목록
     public static YaCht_CardData[] GetAllCards()
     {
