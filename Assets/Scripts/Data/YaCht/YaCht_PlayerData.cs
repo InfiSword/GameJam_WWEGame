@@ -3,27 +3,57 @@ using UnityEngine;
 
 public class YaCht_PlayerData
 {
-    // ÇÃ·¹ÀÌ¾î ¼ÒÀ¯ÇÑ Ä«µå µ¦
+    // í”Œë ˆì´ì–´ ì†Œìœ í•œ ì¹´ë“œ ë±
     public List<YaCht_CardData> playerDeck = new List<YaCht_CardData>();
     public const int MAX_DECK_SIZE = 10;
     
-    // ÇÃ·¹ÀÌ¾î ¼±ÅÃÇÑ ·¹½½·¯ Å¸ÀÔ
+    // í”Œë ˆì´ì–´ ì„ íƒí•œ ë ˆìŠ¬ëŸ¬ íƒ€ì…
     public YaCht_WrestlerType wrestlerType = YaCht_WrestlerType.None;
+
+    // í”Œë ˆì´ì–´ê°€ ì„ íƒí•œ ìœ ë¬¼ ëª©ë¡
+    public List<YaCht_RelicType> playerRelics = new List<YaCht_RelicType>();
 
     public YaCht_PlayerData()
     {
     }
     
-    // Ä«µå ¼¼Æ® ¼³Á¤ÇÏ¸é ÇÃ·¹ÀÌ¾î µ¦ ÀúÀå
+    // ì¹´ë“œ ì„¸íŠ¸ ì„¤ì •í•˜ë©´ í”Œë ˆì´ì–´ ë± ì €ì¥
     public void SetPlayerDeck(List<YaCht_CardData> selectedCards, YaCht_WrestlerType wrestler)
     {
         playerDeck.Clear();
         playerDeck.AddRange(selectedCards);
         wrestlerType = wrestler;
-        Debug.Log($"ÇÃ·¹ÀÌ¾î µ¦ÀÌ ¼³Á¤µÇ¾ú½À´Ï´Ù. ÃÑ {playerDeck.Count}ÀåÀÇ Ä«µå, ·¹½½·¯: {wrestler}");
+        Debug.Log($"í”Œë ˆì´ì–´ ë±ì´ ì„¤ì •ë˜ì—ˆìŠµë‹ˆë‹¤. ì´ {playerDeck.Count}ì¥ì˜ ì¹´ë“œ, ë ˆìŠ¬ëŸ¬: {wrestler}");
+    }
+
+    // ìœ ë¬¼ ì¶”ê°€
+    public void AddRelic(YaCht_RelicType relic)
+    {
+        if (!playerRelics.Contains(relic))
+        {
+            playerRelics.Add(relic);
+            Debug.Log($"í”Œë ˆì´ì–´ ìœ ë¬¼ ì¶”ê°€: {relic}");
+        }
+    }
+
+    // ìœ ë¬¼ ì œê±°
+    public void RemoveRelic(YaCht_RelicType relic)
+    {
+        if (playerRelics.Contains(relic))
+        {
+            playerRelics.Remove(relic);
+            Debug.Log($"í”Œë ˆì´ì–´ ìœ ë¬¼ ì œê±°: {relic}");
+        }
+    }
+
+    // ìœ ë¬¼ ì „ì²´ ì´ˆê¸°í™”
+    public void ClearRelics()
+    {
+        playerRelics.Clear();
+        Debug.Log("í”Œë ˆì´ì–´ ìœ ë¬¼ ì „ì²´ ì´ˆê¸°í™”");
     }
     
-    // ·¹½½·¯ Å¸ÀÔ °¡Á®¿À±â
+    // ë ˆìŠ¬ëŸ¬ íƒ€ì… ê°€ì ¸ì˜¤ê¸°
     public YaCht_WrestlerType GetWrestlerType()
     {
         return wrestlerType;

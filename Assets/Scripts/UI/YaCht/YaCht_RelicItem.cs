@@ -2,25 +2,39 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System;
+using System.Collections;
 
-// À¯¹° ¾ÆÀÌÅÛ UI ÄÄÆ÷³ÍÆ®
+// ì— ë¸”ëŸ¼ ì•„ì´í…œ UI ì „ì²´ ê´€ë¦¬
 public class YaCht_RelicItem : MonoBehaviour
 {
-    [SerializeField] private Image m_iconImage;              // À¯¹° ¾ÆÀÌÄÜ ÀÌ¹ÌÁö
+    [SerializeField] private Image m_iconImage;              // ì— ë¸”ëŸ¼ ì•„ì´ì½˜ ì´ë¯¸ì§€
     [SerializeField] private Button m_selectButton;
+
+    [Header("Selection Animation Settings")]
+    [SerializeField] private float m_selectedScale = 1.15f;    // ì„ íƒ ì‹œ í¬ê¸° ë°°ìœ¨
+    [SerializeField] private float m_animationDuration = 0.3f;  // ì• ë‹ˆë©”ì´ì…˜ ì§€ì† ì‹œê°„
+    [SerializeField] private AnimationCurve m_scaleCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
     private YaCht_RelicData m_relicData;
     private Action m_onSelected;
+    private bool m_isSelected = false;
+    private Vector3 m_originalScale;
+    private Coroutine m_scaleCoroutine;
+
+    private void Awake()
+    {
+        m_originalScale = transform.localScale;
+    }
 
     public void Init(YaCht_RelicData relicData, Action onSelected)
     {
         m_relicData = relicData;
         m_onSelected = onSelected;
 
-        // À¯¹° ÀÌ¹ÌÁö ·Îµå
+        // ì— ë¸”ëŸ¼ ì•„ì´ì½˜ ì´ë¯¸ì§€ ë¡œë“œ
         LoadRelicIcon();
        
-        // ¹öÆ° ÀÌº¥Æ®
+        // ì„ íƒ ë²„íŠ¼ í´ë¦­ ì´ë²¤íŠ¸ ì¶”ê°€
         if (m_selectButton != null)
         {
             m_selectButton.onClick.AddListener(OnClicked);
@@ -28,17 +42,25 @@ public class YaCht_RelicItem : MonoBehaviour
     }
 
     /// <summary>
-    /// À¯¹° ¾ÆÀÌÄÜ ÀÌ¹ÌÁö¸¦ Resources¿¡¼­ ·Îµå
+    /// ìœ ë¬¼ íƒ€ì… ë°˜í™˜
+    /// </summary>
+    public YaCht_RelicType GetRelicType()
+    {
+        return m_relicData.relicType;
+    }
+
+    /// <summary>
+    /// ì— ë¸”ëŸ¼ ì•„ì´ì½˜ ì´ë¯¸ì§€ ë¡œë“œ
     /// </summary>
     private void LoadRelicIcon()
     {
         if (m_iconImage == null)
         {
-            Debug.LogWarning("[RelicItem] Icon Image°¡ ÇÒ´çµÇÁö ¾Ê¾Ò½À´Ï´Ù!");
+            Debug.LogWarning("[RelicItem] Icon Image ì´ˆê¸°í™” ì‹¤íŒ¨!");
             return;
         }
 
-        // ÀÌ¹ÌÁö °æ·Î°¡ ÁöÁ¤µÇ¾î ÀÖÀ¸¸é ·Îµå
+        // ì— ë¸”ëŸ¼ ì•„ì´ì½˜ ì´ë¯¸ì§€ ë¡œë“œ
         if (!string.IsNullOrEmpty(m_relicData.imageResourcePath))
         {
             Sprite loadedSprite = Resources.Load<Sprite>(m_relicData.imageResourcePath);
@@ -47,18 +69,8 @@ public class YaCht_RelicItem : MonoBehaviour
             {
                 m_iconImage.sprite = loadedSprite;
                 m_iconImage.enabled = true;
-                Debug.Log($"[RelicItem] ÀÌ¹ÌÁö ·Îµå ¼º°ø: {m_relicData.imageResourcePath}");
+                Debug.Log($"[RelicItem] ì— ë¸”ëŸ¼ ì•„ì´ì½˜ ì´ë¯¸ì§€ ë¡œë“œ: {m_relicData.imageResourcePath}");
             }
-            else
-            {
-                Debug.LogWarning($"[RelicItem] ÀÌ¹ÌÁö¸¦ Ã£À» ¼ö ¾øÀ½: {m_relicData.imageResourcePath}");
-                m_iconImage.enabled = false;
-            }
-        }
-        else
-        {
-            Debug.LogWarning($"[RelicItem] {m_relicData.name}ÀÇ ÀÌ¹ÌÁö °æ·Î°¡ ÁöÁ¤µÇÁö ¾Ê¾Ò½À´Ï´Ù.");
-            m_iconImage.enabled = false;
         }
     }
 
@@ -67,11 +79,72 @@ public class YaCht_RelicItem : MonoBehaviour
         m_onSelected?.Invoke();
     }
 
+    /// <summary>
+    /// ìœ ë¬¼ ì„ íƒ ìƒíƒœ ì„¤ì •
+    /// </summary>
+    /// <param name="selected">ì„ íƒ ì—¬ë¶€</param>
+    public void SetSelected(bool selected)
+    {
+        if (m_isSelected == selected) return;
+        
+        m_isSelected = selected;
+        
+        if (selected)
+        {
+            // ì„ íƒ ì• ë‹ˆë©”ì´ì…˜ ì‹œì‘
+            if (m_scaleCoroutine != null)
+            {
+                StopCoroutine(m_scaleCoroutine);
+            }
+            m_scaleCoroutine = StartCoroutine(ScaleAnimationCoroutine(m_selectedScale));         
+           
+        }
+        else
+        {
+            // ì„ íƒ í•´ì œ ì• ë‹ˆë©”ì´ì…˜
+            if (m_scaleCoroutine != null)
+            {
+                StopCoroutine(m_scaleCoroutine);
+            }
+            m_scaleCoroutine = StartCoroutine(ScaleAnimationCoroutine(1f));
+            
+        }
+    }
+
+    /// <summary>
+    /// í¬ê¸° ì• ë‹ˆë©”ì´ì…˜ ì½”ë£¨í‹´
+    /// </summary>
+    private IEnumerator ScaleAnimationCoroutine(float targetScale)
+    {
+        Vector3 startScale = transform.localScale;
+        Vector3 endScale = m_originalScale * targetScale;
+        float elapsed = 0f;
+
+        while (elapsed < m_animationDuration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / m_animationDuration;
+            float curveValue = m_scaleCurve.Evaluate(t);
+            
+            transform.localScale = Vector3.Lerp(startScale, endScale, curveValue);
+            yield return null;
+        }
+
+        transform.localScale = endScale;
+        m_scaleCoroutine = null;
+    }
+
+
     private void OnDestroy()
     {
         if (m_selectButton != null)
         {
             m_selectButton.onClick.RemoveListener(OnClicked);
+        }
+        
+        if (m_scaleCoroutine != null)
+        {
+            StopCoroutine(m_scaleCoroutine);
         }
     }
 }

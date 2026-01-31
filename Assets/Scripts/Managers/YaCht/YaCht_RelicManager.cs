@@ -1,122 +1,143 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
-// À¯¹° È¿°ú °ü¸®ÀÚ
+// ì— ë¸”ëŸ¼ íš¨ê³¼ ê´€ë¦¬
 public class YaCht_RelicManager : MonoBehaviour
 {
-    // ÇÃ·¹ÀÌ¾î°¡ º¸À¯ÇÑ À¯¹° ¸ñ·Ï
-    private List<YaCht_RelicType> m_ownedRelics = new List<YaCht_RelicType>();
+    // RTKO íš¨ê³¼
+    private bool m_rtkoActivated = false;           // RTKO í™œì„±í™” ì—¬ë¶€                                                    
+    private int m_rtkoStageUseCount = 0;            // ìŠ¤í…Œì´ì§€ë‹¹ RKO ì‚¬ìš© íšŸìˆ˜ (ìµœëŒ€ 3)
+    private float m_rtkoPermanentMultiplier = 1.0f; // ì˜êµ¬ ë°°ìœ¨ (1.2ë°°ì”© ëˆ„ì )
+    private float m_purpleGlovePermanentMultiplier = 1.0f; // í¼í”Œ ê±´ë“œë¦¬ ì˜êµ¬ ë°°ìœ¨ (1.1ë°°ì”© ëˆ„ì )
+    private int m_purpleGloveStageCount = 0; // ìŠ¤í…Œì´ì§€ë‹¹ Aë­í¬ ì¹´ë“œ ì‚¬ìš© íšŸìˆ˜ (ìµœëŒ€ 3)
 
-    // ¿µ±¸ È¿°ú ÇÃ·¡±×
-    private bool m_rtkoActivated = false;           // RTKO È°¼ºÈ­ ¿©ºÎ
-    private int m_rtkoUseCount = 0;                 // RKO »ç¿ë È½¼ö (´©Àû ¹è¼ö °è»ê¿ë)
-    private float m_purpleGloveMultiplier = 1.0f;  // º¸¶ó»ö Àå°© ¹èÀ²
-    
-    // ÅÏº° È¿°ú ÇÃ·¡±×
-    private bool m_aaaActivatedThisTurn = false;    // AAA ÀÌ¹ø ÅÏ È°¼ºÈ­
-    private bool m_soulBellActivatedThisTurn = false; // ¿µÈ¥ÀÇ Á¾ ÀÌ¹ø ÅÏ È°¼ºÈ­
-    
-    // È­ÇÕÀÇ °¡¸é (°ÔÀÓ ÀüÃ¼)
+    // SoulBell íš¨ê³¼
+    private List<float> m_soulBellDefeatedEnemyHP = new List<float>(); // ì²˜ì¹˜í•œ ì ì˜ HP ì €ì¥
+
+    // í•©ì£¼ íš¨ê³¼ ì¹´ìš´íŠ¸
     private int m_harmonyMaskComboCount = 0;
-    
-    // ÀÚºñÀÇ °¡¸é (´ÙÀ½ ÅÏ)
-    private int m_mercyMaskBonusReroll = 0;
 
-    // ÃÊ±âÈ­ (°ÔÀÓ ½ÃÀÛ ½Ã È£Ãâ)
+    // YouCantSeeMe íš¨ê³¼
+    private List<float> m_youCantSeeMeDamageHistory = new List<float>(); // ìµœê·¼ 2í„´ ë°ë¯¸ì§€ íˆìŠ¤í† ë¦¬
+
+    // IHateS íš¨ê³¼
+    private int m_iHateSACardCount = 0; // ë¦¬ë¡¤ì— ì‚¬ìš©ëœ Aë­í¬ ì¹´ë“œ ê°œìˆ˜
+
+    // JjolBoy íš¨ê³¼
+    private float m_jjolBoyDamageMultiplier = 1.0f; // ë°ë¯¸ì§€ ë°°ìœ¨ (ë¦¬ë¡¤ ì‹œ ë³€ë™)
+
+    // UnderDogMask íš¨ê³¼
+    private float m_underDogMaskPermanentMultiplier = 1.0f; // ì˜êµ¬ ë°°ìœ¨ (1.015ë°°ì”© ëˆ„ì )
+
+    // ì´ˆê¸°í™” (ì— ë¸”ëŸ¼ ê²Œì„ íš¨ê³¼ ì´ˆê¸°í™”)
     public void Init()
     {
-        m_ownedRelics.Clear();
-        ResetGameEffects();  // °ÔÀÓ ¿ÏÀü Àç½ÃÀÛ
+        ResetGameEffects();  // ì— ë¸”ëŸ¼ ê²Œì„ íš¨ê³¼ ì´ˆê¸°í™”
     }
 
-    // ¸ğµç È¿°ú ÃÊ±âÈ­
+    // ëª¨ë“  íš¨ê³¼ ì´ˆê¸°í™”
     public void ResetAllEffects()
     {
-        // RTKO´Â ¿µ±¸ È¿°úÀÌ¹Ç·Î ¸®¼ÂÇÏÁö ¾ÊÀ½!
-        // m_rtkoActivated = false;  <- Á¦°Å
-        // m_rtkoUseCount = 0;       <- Á¦°Å
-        
-        m_purpleGloveMultiplier = 1.0f;
+        // RTKO íš¨ê³¼ ì´ˆê¸°í™” (ì˜êµ¬ ë°°ìœ¨ì€ ìœ ì§€)
+        m_rtkoActivated = false;
+        m_rtkoStageUseCount = 0;
+        m_rtkoPermanentMultiplier = 1.0f;
+
+        m_purpleGlovePermanentMultiplier = 1.0f;
+        m_purpleGloveStageCount = 0;
         m_harmonyMaskComboCount = 0;
-        m_mercyMaskBonusReroll = 0;
+        m_youCantSeeMeDamageHistory.Clear();
+        m_iHateSACardCount = 0;
+        m_soulBellDefeatedEnemyHP.Clear(); // ê²Œì„ ì´ˆê¸°í™” ì‹œ ì²˜ì¹˜í•œ ì  HP ë¦¬ìŠ¤íŠ¸ ì´ˆê¸°í™”
         ResetTurnEffects();
     }
-    
-    // ½ºÅ×ÀÌÁö ÀüÈ¯ ½Ã È£Ãâ (ÅÏº° È¿°ú¸¸ ¸®¼Â)
+
+    // ì— ë¸”ëŸ¼ ìŠ¤í…Œì´ì§€ íš¨ê³¼ ì´ˆê¸°í™” (í„´ íš¨ê³¼ ì´ˆê¸°í™”)
     public void ResetStageEffects()
     {
-        // RTKO¿Í º¸¶ó»ö Àå°©Àº À¯Áö
-        // È­ÇÕÀÇ °¡¸é ÄŞº¸ Ä«¿îÆ®´Â À¯Áö (°ÔÀÓ ÀüÃ¼ ´©Àû)
+        // RTKO ìŠ¤í…Œì´ì§€ë‹¹ ì‚¬ìš© íšŸìˆ˜ ì´ˆê¸°í™” (ì˜êµ¬ ë°°ìœ¨ì€ ìœ ì§€)
+        m_rtkoStageUseCount = 0;
+
+        // PurpleGlove ìŠ¤í…Œì´ì§€ë‹¹ ì‚¬ìš© íšŸìˆ˜ ì´ˆê¸°í™” (ì˜êµ¬ ë°°ìœ¨ì€ ìœ ì§€)
+        m_purpleGloveStageCount = 0;
+
+        // IHateS íš¨ê³¼ ì´ˆê¸°í™”
+        m_iHateSACardCount = 0;
         
-        m_mercyMaskBonusReroll = 0;  // ´ÙÀ½ ÅÏ È¿°ú¸¸ ¸®¼Â
+        // JjolBoy íš¨ê³¼ ì´ˆê¸°í™” (ìŠ¤í…Œì´ì§€ ì´ë™ ì‹œ)
+        m_jjolBoyDamageMultiplier = 1.0f;
+
         ResetTurnEffects();
-        
-        Debug.Log("[À¯¹°] ½ºÅ×ÀÌÁö ÀüÈ¯ - ¿µ±¸ È¿°ú À¯ÁöµÊ");
+
+        Debug.Log("[RelicManager] ì— ë¸”ëŸ¼ ìŠ¤í…Œì´ì§€ íš¨ê³¼ ì´ˆê¸°í™” - í„´ íš¨ê³¼ ì´ˆê¸°í™”");
         if (m_rtkoActivated)
-            Debug.Log($"[À¯¹°] RTKO ¿µ±¸ È¿°ú À¯Áö Áß (»ç¿ë È½¼ö: {m_rtkoUseCount}È¸, ¹è¼ö: x{2 * m_rtkoUseCount})");
-        if (m_purpleGloveMultiplier > 1.0f)
-            Debug.Log($"[À¯¹°] º¸¶ó»ö Àå°© ¹èÀ² À¯Áö: x{m_purpleGloveMultiplier:F2}");
+            Debug.Log($"[RelicManager] RTKO íš¨ê³¼ - ìŠ¤í…Œì´ì§€ ì‚¬ìš© íšŸìˆ˜: {m_rtkoStageUseCount}íšŒ, ì˜êµ¬ ë°°ìœ¨: x{m_rtkoPermanentMultiplier:F2}");
+        if (m_purpleGlovePermanentMultiplier > 1.0f)
+            Debug.Log($"[RelicManager] í¼í”Œ ê±´ë“œë¦¬ íš¨ê³¼ ì´ˆê¸°í™” - ì˜êµ¬ ë°°ìœ¨: x{m_purpleGlovePermanentMultiplier:F2} (ìŠ¤í…Œì´ì§€ ì‚¬ìš© íšŸìˆ˜: {m_purpleGloveStageCount}íšŒ)");
         if (m_harmonyMaskComboCount > 0)
-            Debug.Log($"[À¯¹°] È­ÇÕÀÇ °¡¸é ÄŞº¸: {m_harmonyMaskComboCount}È¸");
+            Debug.Log($"[RelicManager] í•©ì£¼ íš¨ê³¼ ì´ˆê¸°í™” - ì¹´ìš´íŠ¸: {m_harmonyMaskComboCount}íšŒ");
+        if (m_iHateSACardCount > 0)
+            Debug.Log($"[RelicManager] IHateS íš¨ê³¼ ì´ˆê¸°í™” - Aë­í¬ ì¹´ë“œ ê°œìˆ˜: {m_iHateSACardCount}ê°œ");
     }
-    
-    // °ÔÀÓ ¿ÏÀü Àç½ÃÀÛ ½Ã È£Ãâ (¸ğµç È¿°ú ÃÊ±âÈ­)
+
+    // ì— ë¸”ëŸ¼ ê²Œì„ íš¨ê³¼ ì´ˆê¸°í™” (í„´ íš¨ê³¼ ì´ˆê¸°í™”)
     public void ResetGameEffects()
     {
         m_rtkoActivated = false;
-        m_rtkoUseCount = 0;
-        m_purpleGloveMultiplier = 1.0f;
+        m_rtkoStageUseCount = 0;
+        m_rtkoPermanentMultiplier = 1.0f;
+        m_purpleGlovePermanentMultiplier = 1.0f;
+        m_purpleGloveStageCount = 0;
         m_harmonyMaskComboCount = 0;
-        m_mercyMaskBonusReroll = 0;
+        m_youCantSeeMeDamageHistory.Clear();
+        m_iHateSACardCount = 0;
+        m_jjolBoyDamageMultiplier = 1.0f;
+        m_underDogMaskPermanentMultiplier = 1.0f;
+        m_soulBellDefeatedEnemyHP.Clear(); // ê²Œì„ ì´ˆê¸°í™” ì‹œ ì²˜ì¹˜í•œ ì  HP ë¦¬ìŠ¤íŠ¸ ì´ˆê¸°í™”
         ResetTurnEffects();
-        
-        Debug.Log("[À¯¹°] °ÔÀÓ Àç½ÃÀÛ - ¸ğµç È¿°ú ÃÊ±âÈ­");
+
+        Debug.Log("[RelicManager] ì— ë¸”ëŸ¼ ê²Œì„ íš¨ê³¼ ì´ˆê¸°í™” - í„´ íš¨ê³¼ ì´ˆê¸°í™”");
     }
 
-    // ÅÏº° È¿°ú ÃÊ±âÈ­
+    // í„´ íš¨ê³¼ ì´ˆê¸°í™”
     public void ResetTurnEffects()
     {
-        m_aaaActivatedThisTurn = false;
-        m_soulBellActivatedThisTurn = false;
-    }
-
-    // À¯¹° Ãß°¡
-    public void AddRelic(YaCht_RelicType relicType)
-    {
-        if (!m_ownedRelics.Contains(relicType))
+        // 4í„´ì¼ ë•Œ YouCantSeeMe ë°ë¯¸ì§€ íˆìŠ¤í† ë¦¬ ì´ˆê¸°í™”
+        if (YaCht_GameManager.currentRound == 4)
         {
-            m_ownedRelics.Add(relicType);
-            Debug.Log($"À¯¹° È¹µæ: {YaCht_RelicDatabase.GetRelicData(relicType).name}");
+            m_youCantSeeMeDamageHistory.Clear();
         }
     }
 
-    // À¯¹° Á¦°Å
-    public void RemoveRelic(YaCht_RelicType relicType)
+    // ì— ë¸”ëŸ¼ ë³´ìœ  ì¶”ê°€
+    public void AddRelic(YaCht_RelicType relicType)
     {
-        m_ownedRelics.Remove(relicType);
+
+        // í”Œë ˆì´ì–´ ë°ì´í„°ì—ë„ ìœ ë¬¼ ì¶”ê°€
+        if (YaCht_GameManager.nowPlayerData != null && !YaCht_GameManager.nowPlayerData.playerRelics.Contains(relicType))
+        {
+            YaCht_GameManager.nowPlayerData.AddRelic(relicType);
+        }
+
+        Debug.Log($"ì— ë¸”ëŸ¼ ë³´ìœ  ì¶”ê°€: {YaCht_RelicDatabase.GetRelicData(relicType).name}");
     }
 
-    // À¯¹° º¸À¯ ¿©ºÎ
+    // ì— ë¸”ëŸ¼ ë³´ìœ  ì—¬ë¶€ ì²´í¬
     public bool HasRelic(YaCht_RelicType relicType)
     {
-        return m_ownedRelics.Contains(relicType);
-    }
-
-    // º¸À¯ À¯¹° ¸ñ·Ï
-    public List<YaCht_RelicType> GetOwnedRelics()
-    {
-        return new List<YaCht_RelicType>(m_ownedRelics);
+        return YaCht_GameManager.nowPlayerData.playerRelics.Contains(relicType);
     }
 
     // ==============================================
-    // Ä«µå µå·Î¿ì È®·ü ¼öÁ¤
+    // ì— ë¸”ëŸ¼ ë“±ê¸‰ ì¡°ì • íš¨ê³¼
     // ==============================================
     public float ModifyRarityChance(YaCht_CardRarity rarity, float baseChance)
     {
         float modifiedChance = baseChance;
 
-        // µµ¹Ú»çÀÇ °¡¸é II (S±Ş +15%)
-        if (HasRelic(YaCht_RelicType.GamblerMask2))
+        // ê²Œì´ë¸ŒëŸ¬ ë§ˆìŠ¤í¬ I (Së“±ê¸‰ +15%, Dë“±ê¸‰ -15%)
+        if (HasRelic(YaCht_RelicType.GamblerMask1))
         {
             if (rarity == YaCht_CardRarity.S)
                 modifiedChance += 15f;
@@ -124,166 +145,224 @@ public class YaCht_RelicManager : MonoBehaviour
                 modifiedChance -= 15f;
         }
 
-        // µµ¹Ú»çÀÇ °¡¸é I (A±Ş +10%)
-        if (HasRelic(YaCht_RelicType.GamblerMask1))
+        // IHateS: Së­í¬ í™•ë¥  1%ë¡œ ë³€ê²½
+        if (HasRelic(YaCht_RelicType.IHateS))
         {
-            if (rarity == YaCht_CardRarity.A)
-                modifiedChance += 10f;
-            else if (rarity == YaCht_CardRarity.D)
-                modifiedChance -= 10f;
+            if (rarity == YaCht_CardRarity.S)
+            {
+                modifiedChance = 1f; // Së­í¬ í™•ë¥ ì„ 1%ë¡œ ê³ ì •
+            }
         }
 
-        // ÃÖ¼Ò 0%, ÃÖ´ë 100%
+        // UnderDogMask: ëª¨ë“  ì¹´ë“œë¥¼ C, D ë­í¬ë¡œ ê°•ì œ ë³€ê²½
+        if (HasRelic(YaCht_RelicType.UnderDogMask))
+        {
+            // C, D ë­í¬ë§Œ ê°€ëŠ¥í•˜ë„ë¡ í™•ë¥  ì¡°ì •
+            if (rarity == YaCht_CardRarity.S || rarity == YaCht_CardRarity.A || rarity == YaCht_CardRarity.B)
+            {
+                modifiedChance = 0f; // S, A, B ë­í¬ëŠ” 0%
+            }
+            else if (rarity == YaCht_CardRarity.C)
+            {
+                modifiedChance = 50f; // C ë­í¬ 50%
+            }
+            else if (rarity == YaCht_CardRarity.D)
+            {
+                modifiedChance = 50f; // D ë­í¬ 50%
+            }
+        }
+
+        // ìµœì € 0%, ìµœê³  100%
         return Mathf.Clamp(modifiedChance, 0f, 100f);
     }
 
     // ==============================================
-    // µ¥¹ÌÁö °è»ê ¼öÁ¤
+    // ìµœì¢… ë°ë¯¸ì§€ ê³„ì‚°
     // ==============================================
     public float CalculateFinalDamage(float baseDamage, List<YaCht_CardData> usedCards)
     {
         float finalDamage = baseDamage;
         float multiplier = 1.0f;
-        
-        Debug.Log($"[À¯¹°] µ¥¹ÌÁö °è»ê ½ÃÀÛ - ±âº» µ¥¹ÌÁö: {baseDamage:F1}");
-        Debug.Log($"[À¯¹°] º¸À¯ À¯¹° ¼ö: {m_ownedRelics.Count}");
-        foreach (var relic in m_ownedRelics)
+
+        Debug.Log($"[RelicManager] ìµœì¢… ë°ë¯¸ì§€ ê³„ì‚° - ê¸°ë³¸ ë°ë¯¸ì§€: {baseDamage:F1}");
+        Debug.Log($"[RelicManager] ì— ë¸”ëŸ¼ ë³´ìœ  ëª©ë¡: {YaCht_GameManager.nowPlayerData.playerRelics.Count}");
+        foreach (var relic in YaCht_GameManager.nowPlayerData.playerRelics)
         {
             YaCht_RelicData relicData = YaCht_RelicDatabase.GetRelicData(relic);
-            Debug.Log($"  - {relicData.name}");
+            Debug.Log($"  - {relicData.name} ì— ë¸”ëŸ¼ ë³´ìœ ");
+        }       
+
+        // 3. RTKO (ì˜êµ¬ ë°°ìœ¨ ì ìš©)
+        if (m_rtkoPermanentMultiplier > 1.0f)
+        {
+            multiplier *= m_rtkoPermanentMultiplier;
+            finalDamage *= m_rtkoPermanentMultiplier;
+            Debug.Log($"[RelicManager] RTKO íš¨ê³¼ í™œì„±í™”: ì˜êµ¬ ë°°ìœ¨ x{m_rtkoPermanentMultiplier:F2} â†’ {finalDamage:F1}");
         }
 
-        // 1. ºĞ³ëÀÇ °¡¸é (+20%)
-        if (HasRelic(YaCht_RelicType.RageMask))
+        // 4. RestTombstone (ê° Së­í¬ ì¹´ë“œì˜ ë°ë¯¸ì§€ë¥¼ ê°œë³„ì ìœ¼ë¡œ 0.7ë°°ë¡œ ì¤„ì„)
+        if (HasRelic(YaCht_RelicType.RestTombstone))
         {
-            multiplier *= 1.2f;
-            finalDamage *= 1.2f;
-            Debug.Log($"[À¯¹°] ºĞ³ëÀÇ °¡¸é Àû¿ë: x1.2 ¡æ {finalDamage:F1}");
-        }
-
-        // 2. ´ÙÀÌ¾Æ¸óµå ³ÊÅ¬ (+20%)
-        if (HasRelic(YaCht_RelicType.DiamondKnuckle))
-        {
-            multiplier *= 1.2f;
-            finalDamage *= 1.2f;
-            Debug.Log($"[À¯¹°] ´ÙÀÌ¾Æ¸óµå ³ÊÅ¬ Àû¿ë: x1.2 ¡æ {finalDamage:F1}");
-            
-            // ÆÄÀÌºê ³ÊÅ¬ ¼ÅÇÃ Æ÷ÇÔ ½Ã Ãß°¡ 2¹è
+            // Së­í¬ ì¹´ë“œì˜ ì›ë˜ ê¸°ë³¸ ë°ë¯¸ì§€ í•©ì‚° (ê° ì¹´ë“œë§ˆë‹¤)
+            float sRankOriginalDamage = 0f;
+            int sRankCardCount = 0;
             foreach (var card in usedCards)
             {
-                if (card.m_name == "ÆÄÀÌºê ³ÊÅ¬ ¼ÅÇÃ")
+                if (card.m_rarity == YaCht_CardRarity.S)
                 {
-                    multiplier *= 2.0f;
-                    finalDamage *= 2.0f;
-                    Debug.Log($"[À¯¹°] ÆÄÀÌºê ³ÊÅ¬ ¼ÅÇÃ Æ÷ÇÔ! x2.0 ¡æ {finalDamage:F1}");
-                    break;
+                    sRankOriginalDamage += card.m_baseDamage;
+                    sRankCardCount++;
+                }
+            }
+            
+            if (sRankOriginalDamage > 0f)
+            {
+                // ì „ì²´ ì¹´ë“œì˜ ì›ë˜ ê¸°ë³¸ ë°ë¯¸ì§€ í•©ì‚°
+                float totalOriginalDamage = 0f;
+                foreach (var card in usedCards)
+                {
+                    totalOriginalDamage += card.m_baseDamage;
+                }
+                
+                if (totalOriginalDamage > 0f)
+                {
+                    // Së­í¬ ì¹´ë“œì˜ ë°ë¯¸ì§€ ë¹„ìœ¨
+                    float sRankRatio = sRankOriginalDamage / totalOriginalDamage;
+                    // baseDamageì—ì„œ Së­í¬ ì¹´ë“œì˜ ê¸°ì—¬ë„ ì¶”ì •
+                    float sRankContribution = baseDamage * sRankRatio;
+                    // ê° Së­í¬ ì¹´ë“œì˜ ë°ë¯¸ì§€ë¥¼ 0.7ë°°ë¡œ ì¤„ì„ (ê° ì¹´ë“œë§ˆë‹¤ ê°œë³„ ì ìš©)
+                    float adjustedSRankContribution = sRankContribution * 0.7f;
+                    // ìµœì¢… ë°ë¯¸ì§€ ê³„ì‚°: baseDamageì—ì„œ Së­í¬ ê¸°ì—¬ë„ë¥¼ ë¹¼ê³  0.7ë°°í•œ ê°’ì„ ë”í•¨
+                    finalDamage = baseDamage - sRankContribution + adjustedSRankContribution;
+                    
+                    Debug.Log($"[RelicManager] RestTombstone íš¨ê³¼: Së­í¬ ì¹´ë“œ {sRankCardCount}ì¥ì˜ ë°ë¯¸ì§€ë¥¼ ê°ê° 0.7ë°° ì ìš© (ì›ë˜ Së­í¬ ê¸°ì—¬ë„: {sRankContribution:F1} â†’ ì¡°ì •ëœ ê¸°ì—¬ë„: {adjustedSRankContribution:F1}, ê°ì†Œ: {sRankContribution - adjustedSRankContribution:F1}) â†’ {finalDamage:F1}");
                 }
             }
         }
 
-        // 3. AAA (ÀÌ¹ø ÅÏ AA »ç¿ë ½Ã 2¹è)
-        if (m_aaaActivatedThisTurn)
+        // 8. IHateS (Aë­í¬ ì¹´ë“œ ê°œìˆ˜ì— ë”°ë¥¸ ë°ë¯¸ì§€ ì¦ê°€)
+        if (HasRelic(YaCht_RelicType.IHateS) && m_iHateSACardCount > 0)
         {
-            multiplier *= 2.0f;
-            finalDamage *= 2.0f;
-            Debug.Log($"[À¯¹°] AAA ¹ßµ¿! x2.0 ¡æ {finalDamage:F1}");
+            float iHateSMultiplier = 1.25f * m_iHateSACardCount; // ìµœì†Œ 1.25ë°°
+            multiplier *= iHateSMultiplier;
+            finalDamage *= iHateSMultiplier;
+            Debug.Log($"[RelicManager] IHateS íš¨ê³¼ í™œì„±í™”: (Aë­í¬ ì¹´ë“œ: {m_iHateSACardCount}ê°œ) x{iHateSMultiplier:F2} â†’ {finalDamage:F1}");
         }
 
-        // 4. RTKO (RKO »ç¿ë È½¼ö ¡¿ 2¹è ´©Àû) ¡ç ¼öÁ¤!
-        if (m_rtkoActivated && m_rtkoUseCount > 0)
+        // 5. SoulBell (ì²˜ì¹˜í•œ ì ë“¤ì˜ HPë¥¼ ìŠ¤í…Œì´ì§€ë³„ ë¹„ìœ¨ë¡œ ì¶”ê°€ ë°ë¯¸ì§€ ì ìš©)
+        if (HasRelic(YaCht_RelicType.SoulBell) && m_soulBellDefeatedEnemyHP.Count > 0)
         {
-            float rtkoMultiplier = 2.0f * m_rtkoUseCount;  // 1È¸: 2¹è, 2È¸: 4¹è, 3È¸: 6¹è
-            multiplier *= rtkoMultiplier;
-            finalDamage *= rtkoMultiplier;
-            Debug.Log($"[À¯¹°] RTKO ¹ßµ¿! (»ç¿ë {m_rtkoUseCount}È¸) x{rtkoMultiplier} ¡æ {finalDamage:F1}");
+            int currentStage = YaCht_GameManager.StageManager != null ? YaCht_GameManager.StageManager.CurrentStageNumber : 1;
+            float additionalDamage = 0f;
+            
+            // ìŠ¤í…Œì´ì§€ë³„ ë¹„ìœ¨ ê²°ì •
+            float percentage = 0f;
+            if (currentStage == 1)
+                percentage = 0.20f; // 20%
+            else if (currentStage == 2)
+                percentage = 0.10f; // 10%
+            else
+                percentage = 0.05f; // 5%
+            
+            // ì²˜ì¹˜í•œ ì ë“¤ì˜ HPë¥¼ ìŠ¤í…Œì´ì§€ë³„ ë¹„ìœ¨ë¡œ ê³„ì‚°
+            foreach (var enemyHP in m_soulBellDefeatedEnemyHP)
+            {
+                additionalDamage += enemyHP * percentage;
+            }
+            
+            finalDamage += additionalDamage;
+            Debug.Log($"[RelicManager] SoulBell íš¨ê³¼: ì²˜ì¹˜í•œ ì  {m_soulBellDefeatedEnemyHP.Count}ëª…ì˜ HP ({percentage * 100}%) ì¶”ê°€ ë°ë¯¸ì§€: +{additionalDamage:F1} â†’ {finalDamage:F1}");
         }
 
-        // 5. ¿µÈ¥ÀÇ Á¾ (ÀÌ¹ø ÅÏ ¶ó½ºÆ® ¶óÀÌµå »ç¿ë ½Ã 2¹è)
-        if (m_soulBellActivatedThisTurn)
+        // 6. í¼í”Œ ê±´ë“œë¦¬ (ì˜êµ¬ ë°°ìœ¨ ì ìš©)
+        if (m_purpleGlovePermanentMultiplier > 1.0f)
         {
-            multiplier *= 2.0f;
-            finalDamage *= 2.0f;
-            Debug.Log($"[À¯¹°] ¿µÈ¥ÀÇ Á¾ ¹ßµ¿! x2.0 ¡æ {finalDamage:F1}");
+            multiplier *= m_purpleGlovePermanentMultiplier;
+            finalDamage *= m_purpleGlovePermanentMultiplier;
+            Debug.Log($"[RelicManager] í¼í”Œ ê±´ë“œë¦¬: ì˜êµ¬ ë°°ìœ¨ x{m_purpleGlovePermanentMultiplier:F2} â†’ {finalDamage:F1}");
         }
 
-        // 6. º¸¶ó»ö Àå°© (¼ñ´õ ÅÂÅ¬ ´©Àû)
-        if (m_purpleGloveMultiplier > 1.0f)
-        {
-            multiplier *= m_purpleGloveMultiplier;
-            finalDamage *= m_purpleGloveMultiplier;
-            Debug.Log($"[À¯¹°] º¸¶ó»ö Àå°©: x{m_purpleGloveMultiplier:F2} ¡æ {finalDamage:F1}");
-        }
-
-        // 7. È­ÇÕÀÇ °¡¸é (ÄŞº¸´ç 4%, ÃÖ´ë 40%)
+        // 7. í•©ì£¼ íš¨ê³¼ (í•©ì£¼ íš¨ê³¼ ì¹´ìš´
         if (HasRelic(YaCht_RelicType.HarmonyMask))
         {
             float harmonyBonus = Mathf.Min(m_harmonyMaskComboCount * 0.04f, 0.4f);
             float harmonyMultiplier = 1.0f + harmonyBonus;
             multiplier *= harmonyMultiplier;
             finalDamage *= harmonyMultiplier;
-            Debug.Log($"[À¯¹°] È­ÇÕÀÇ °¡¸é: x{harmonyMultiplier:F2} (ÄŞº¸ {m_harmonyMaskComboCount}È¸) ¡æ {finalDamage:F1}");
+            Debug.Log($"[RelicManager] í•©ì£¼ íš¨ê³¼: x{harmonyMultiplier:F2} (ì¹´ìš´íŠ¸: {m_harmonyMaskComboCount}íšŒ) â†’ {finalDamage:F1}");
         }
 
-        Debug.Log($"[À¯¹°] ÃÖÁ¾ ¹èÀ²: x{multiplier:F2}");
-        Debug.Log($"[À¯¹°] ÃÖÁ¾ µ¥¹ÌÁö: {baseDamage:F1} x {multiplier:F2} = {finalDamage:F1}");
-        
+        Debug.Log($"[RelicManager] ê³±ì—´: x{multiplier:F2}");
+        Debug.Log($"[RelicManager] ìµœì¢… ë°ë¯¸ì§€: {baseDamage:F1} x {multiplier:F2} = {finalDamage:F1}");
+
         return finalDamage;
     }
 
     // ==============================================
-    // À¯¹° È¿°ú Æ®¸®°Å
+    // ì¹´ë“œ ì‚¬ìš© ì´ë²¤íŠ¸
     // ==============================================
-    
-    // Ä«µå »ç¿ë ½Ã È£Ãâ
+
+    // ì¹´ë“œ ì‚¬ìš© ì´ë²¤íŠ¸
     public void OnCardsUsed(List<YaCht_CardData> usedCards)
     {
         foreach (var card in usedCards)
-        {
-            // AAA: AA »ç¿ë °¨Áö
-            if (HasRelic(YaCht_RelicType.AAA) && card.m_name == "AA")
-            {
-                m_aaaActivatedThisTurn = true;
-                Debug.Log("[À¯¹°] AAA ¹ßµ¿! ÀÌ¹ø ÅÏ µ¥¹ÌÁö 2¹è");
-            }
-
-            // RTKO: RKO »ç¿ë °¨Áö (»ç¿ëÇÒ ¶§¸¶´Ù Ä«¿îÆ® Áõ°¡) ¡ç ¼öÁ¤!
+        {           
+            // RTKO: RKO íš¨ê³¼ í™œì„±í™” ì—¬ë¶€ (ìŠ¤í…Œì´ì§€ë‹¹ 3ë²ˆ ì œí•œ, 1.2ë°° ëˆ„ì )
             if (HasRelic(YaCht_RelicType.RTKO) && card.m_name == "RKO")
             {
-                m_rtkoActivated = true;
-                m_rtkoUseCount++;  // ¸Å¹ø Áõ°¡!
-                Debug.Log($"[À¯¹°] RTKO ¹ßµ¿! RKO »ç¿ë {m_rtkoUseCount}È¸ (µ¥¹ÌÁö ¹è¼ö: x{2 * m_rtkoUseCount})");
+                if (m_rtkoStageUseCount < 3)
+                {
+                    m_rtkoActivated = true;
+                    m_rtkoStageUseCount++;
+                    m_rtkoPermanentMultiplier *= 1.2f; // 1.2ë°°ì”© ëˆ„ì 
+                    Debug.Log($"[RelicManager] RTKO íš¨ê³¼ í™œì„±í™”: (ìŠ¤í…Œì´ì§€ ì‚¬ìš© íšŸìˆ˜: {m_rtkoStageUseCount}/3) ì˜êµ¬ ë°°ìœ¨: x{m_rtkoPermanentMultiplier:F2}");
+                }
+                else
+                {
+                    Debug.Log($"[RelicManager] RTKO íš¨ê³¼: ìŠ¤í…Œì´ì§€ë‹¹ 3ë²ˆ ì œí•œì— ë„ë‹¬í–ˆìŠµë‹ˆë‹¤. (í˜„ì¬ ë°°ìœ¨: x{m_rtkoPermanentMultiplier:F2})");
+                }
             }
 
-            // ¿µÈ¥ÀÇ Á¾: ÇïÁî °ÔÀÌÆ® »ç¿ë °¨Áö
-            if (HasRelic(YaCht_RelicType.SoulBell) && card.m_name == "ÇïÁî °ÔÀÌÆ®")
+
+            // í¼í”Œ ê±´ë“œë¦¬: Aë­í¬ ê¸°ìˆ  ì ì¤‘ ì‹œë§ˆë‹¤ ì˜êµ¬ì ìœ¼ë¡œ 1.1ë°°ì”© ìƒìŠ¹ (ìŠ¤í…Œì´ì§€ë‹¹ ìµœëŒ€ 3ë²ˆ)
+            if (HasRelic(YaCht_RelicType.PurpleGlove) && card.m_rarity == YaCht_CardRarity.A)
             {
-                m_soulBellActivatedThisTurn = true;
-                Debug.Log("[À¯¹°] ¿µÈ¥ÀÇ Á¾ ¹ßµ¿! ÀÌ¹ø ÅÏ µ¥¹ÌÁö 2¹è");
+                if (m_purpleGloveStageCount < 3)
+                {
+                    m_purpleGloveStageCount++;
+                    m_purpleGlovePermanentMultiplier *= 1.1f; // 1.1ë°°ì”© ëˆ„ì 
+                    Debug.Log($"[RelicManager] í¼í”Œ ê±´ë“œë¦¬ íš¨ê³¼ í™œì„±í™”: (ìŠ¤í…Œì´ì§€ ì‚¬ìš© íšŸìˆ˜: {m_purpleGloveStageCount}/3) ì˜êµ¬ ë°°ìœ¨: x{m_purpleGlovePermanentMultiplier:F2}");
+                }
+                else
+                {
+                    Debug.Log($"[RelicManager] í¼í”Œ ê±´ë“œë¦¬ íš¨ê³¼: ìŠ¤í…Œì´ì§€ë‹¹ 3ë²ˆ ì œí•œì— ë„ë‹¬í–ˆìŠµë‹ˆë‹¤. (í˜„ì¬ ë°°ìœ¨: x{m_purpleGlovePermanentMultiplier:F2})");
+                }
             }
 
-            // º¸¶ó»ö Àå°©: ¿Ãµå ½ºÄğ »ç¿ë °¨Áö
-            if (HasRelic(YaCht_RelicType.PurpleGlove) && card.m_name == "¿Ãµå ½ºÄğ")
+            // UnderDogMask: ê¸°ìˆ  ì‚¬ìš© ì‹œë§ˆë‹¤ ë°ë¯¸ì§€ ì˜êµ¬ 1.015ë°° ì¦ê°€
+            if (HasRelic(YaCht_RelicType.UnderDogMask))
             {
-                m_purpleGloveMultiplier += 0.3f;
-                Debug.Log($"[À¯¹°] º¸¶ó»ö Àå°© ¹ßµ¿! µ¥¹ÌÁö ¹èÀ²: {m_purpleGloveMultiplier:F2}¹è");
+                m_underDogMaskPermanentMultiplier *= 1.015f; // 1.015ë°°ì”© ëˆ„ì 
+                Debug.Log($"[RelicManager] UnderDogMask íš¨ê³¼: ê¸°ìˆ  ì‚¬ìš©ìœ¼ë¡œ ì˜êµ¬ ë°°ìœ¨ ì¦ê°€ x{m_underDogMaskPermanentMultiplier:F2}");
             }
         }
     }
 
-    // ¾È½ÄÀÇ ºñ¼®: Åù½ºÅæ ÆÄÀÏµå¶óÀÌ¹ö Áï»ç Ã¼Å©
+    // ë ˆìŠ¤í†  í†°ìŠ¤í†¤: Së­í¬ ê¸°ìˆ ë¡œ ì¦‰ì‹œ ì²˜ì¹˜ (HP 10% ì´í•˜)
     public bool CheckRestTombstoneInstantKill(List<YaCht_CardData> usedCards, float enemyHealthPercent)
     {
         if (!HasRelic(YaCht_RelicType.RestTombstone))
             return false;
 
-        if (enemyHealthPercent > 40f)
+        if (enemyHealthPercent > 10f)
             return false;
 
+        // Së­í¬ ê¸°ìˆ ì´ ìˆëŠ”ì§€ í™•ì¸
         foreach (var card in usedCards)
         {
-            if (card.m_name == "Åù½ºÅæ ÆÄÀÏµå¶óÀÌ¹ö")
+            if (card.m_rarity == YaCht_CardRarity.S)
             {
-                Debug.Log("[À¯¹°] ¾È½ÄÀÇ ºñ¼® ¹ßµ¿! Áï½Ã Ã³Ä¡!");
+                Debug.Log("[RelicManager] RestTombstone íš¨ê³¼ í™œì„±í™”: Së­í¬ ê¸°ìˆ ë¡œ ì¦‰ì‹œ ì²˜ì¹˜");
                 return true;
             }
         }
@@ -291,35 +370,17 @@ public class YaCht_RelicManager : MonoBehaviour
         return false;
     }
 
-    // È­ÇÕÀÇ °¡¸é: ÄŞº¸ ´Ş¼º ½Ã È£Ãâ
+    // í•©ì£¼ íš¨ê³¼: í•©ì£¼ íš¨ê³¼ ì¹´ìš´íŠ¸ ì¦ê°€
     public void OnComboAchieved()
     {
         if (HasRelic(YaCht_RelicType.HarmonyMask))
         {
             m_harmonyMaskComboCount++;
-            Debug.Log($"[À¯¹°] È­ÇÕÀÇ °¡¸é: ÄŞº¸ Ä«¿îÆ® {m_harmonyMaskComboCount} (µ¥¹ÌÁö +{Mathf.Min(m_harmonyMaskComboCount * 4, 40)}%)");
+            Debug.Log($"[RelicManager] í•©ì£¼ íš¨ê³¼: ì¹´ìš´íŠ¸: {m_harmonyMaskComboCount} (ê³±ì—´: +{Mathf.Min(m_harmonyMaskComboCount * 4, 40)}%)");
         }
     }
 
-    // ÀÚºñÀÇ °¡¸é: Easy/Normal ¼º°ø ½Ã È£Ãâ
-    public void OnEasyNormalComboSuccess()
-    {
-        if (HasRelic(YaCht_RelicType.MercyMask))
-        {
-            m_mercyMaskBonusReroll = 1;
-            Debug.Log("[À¯¹°] ÀÚºñÀÇ °¡¸é ¹ßµ¿! ´ÙÀ½ ÅÏ ¸®·Ñ +1");
-        }
-    }
-
-    // ÀÚºñÀÇ °¡¸é º¸³Ê½º ¸®·Ñ °¡Á®¿À±â ¹× ¼Òºñ
-    public int ConsumeMercyMaskBonus()
-    {
-        int bonus = m_mercyMaskBonusReroll;
-        m_mercyMaskBonusReroll = 0;
-        return bonus;
-    }
-
-    // °íÁ¤ÀÇ °¡¸é: »õ ¶ó¿îµå ½ÃÀÛ ½Ã È£Ãâ
+    // ê³ ì • ë§ˆìŠ¤í¬: ê³ ì • ë§ˆìŠ¤í¬ í™œì„±í™” ì—¬ë¶€
     public YaCht_CardData? GetFixedMaskCard(List<YaCht_CardData> playerDeck)
     {
         if (!HasRelic(YaCht_RelicType.FixedMask))
@@ -328,9 +389,179 @@ public class YaCht_RelicManager : MonoBehaviour
         if (playerDeck.Count == 0)
             return null;
 
-        // µ¦¿¡¼­ ¿ÏÀü ·£´ı ¼±ÅÃ
+        // ê³ ì • ë§ˆìŠ¤í¬ ì¹´ë“œ ì„ íƒ    
         int randomIndex = Random.Range(0, playerDeck.Count);
-        Debug.Log($"[À¯¹°] °íÁ¤ÀÇ °¡¸é ¹ßµ¿! {playerDeck[randomIndex].m_name} ÀÚµ¿ ¼Â¾÷");
+        Debug.Log($"[RelicManager] ê³ ì • ë§ˆìŠ¤í¬ íš¨ê³¼ í™œì„±í™”: {playerDeck[randomIndex].m_name} ì„ íƒ");
         return playerDeck[randomIndex];
+    }
+
+    // ==============================================
+    // YouCantSeeMe íš¨ê³¼
+    // ==============================================
+
+    /// <summary>
+    /// ë°ë¯¸ì§€ ê¸°ë¡ (YouCantSeeMeìš©)
+    /// </summary>
+    public void OnDamageDealt(float damage)
+    {
+        if (!HasRelic(YaCht_RelicType.YouCantSeeMe))
+            return;
+
+        // 2í„´(round 2, 3)ì˜ ë°ë¯¸ì§€ë§Œ ì €ì¥
+        if (YaCht_GameManager.currentRound == 2 || YaCht_GameManager.currentRound == 3)
+        {
+            m_youCantSeeMeDamageHistory.Add(damage);
+            Debug.Log($"[RelicManager] YouCantSeeMe ë°ë¯¸ì§€ ê¸°ë¡: {damage:F1} (í„´: {YaCht_GameManager.currentRound})");
+        }
+    }
+
+    /// <summary>
+    /// YouCantSeeMe ê³µê²© íšŸìˆ˜ ê³„ì‚°
+    /// </summary>
+    public int GetYouCantSeeMeAttackCount(int cardCount)
+    {
+        if (!HasRelic(YaCht_RelicType.YouCantSeeMe))
+            return 1; // ê¸°ë³¸ 1íšŒ
+
+        // 4í„´ì¼ ë•Œë§Œ ë°œë™
+        if (YaCht_GameManager.currentRound != 4)
+            return 1;
+
+        // 2í„´ ë™ì•ˆì˜ ì´ ë°ë¯¸ì§€ ê³„ì‚°
+        float totalDamage = 0f;
+        foreach (var damage in m_youCantSeeMeDamageHistory)
+        {
+            totalDamage += damage;
+        }
+
+        Debug.Log($"[RelicManager] YouCantSeeMe ì´ ë°ë¯¸ì§€: {totalDamage:F1}");
+
+        // ì¡°ê±´ì— ë”°ë¼ ê³µê²© íšŸìˆ˜ ê²°ì •
+        if (totalDamage >= 400f)
+            return 5; // 5íšŒ
+        else if (totalDamage >= 300f)
+            return 4; // 4íšŒ
+        else if (totalDamage >= 200f)
+            return 3; // 3íšŒ
+        else
+            return 1; // ê¸°ë³¸ 1íšŒ
+    }
+
+    // ==============================================
+    // IHateS íš¨ê³¼
+    // ==============================================
+
+    /// <summary>
+    /// ë¦¬ë¡¤ ì‹œ Aë­í¬ ì¹´ë“œ ê°œìˆ˜ ê¸°ë¡
+    /// </summary>
+    public void OnRerollWithACards(int aCardCount)
+    {
+        if (!HasRelic(YaCht_RelicType.IHateS))
+            return;
+
+        m_iHateSACardCount += aCardCount;
+        Debug.Log($"[RelicManager] IHateS íš¨ê³¼: Aë­í¬ ì¹´ë“œ {aCardCount}ê°œ ì¶”ê°€ (ì´: {m_iHateSACardCount}ê°œ, ë°°ìœ¨: x{1.25f * m_iHateSACardCount:F2})");
+    }
+
+    /// <summary>
+    /// Së­í¬ ì¹´ë“œ íšë“ ì‹œ ì¤‘ì²© ì´ˆê¸°í™”
+    /// </summary>
+    public void OnSRankCardObtained()
+    {
+        if (!HasRelic(YaCht_RelicType.IHateS))
+            return;
+
+        if (m_iHateSACardCount > 0)
+        {
+            Debug.Log($"[RelicManager] IHateS íš¨ê³¼: Së­í¬ ì¹´ë“œ íšë“ìœ¼ë¡œ ì¤‘ì²© ì´ˆê¸°í™” (ì´ì „: {m_iHateSACardCount}ê°œ)");
+            m_iHateSACardCount = 0;
+        }
+    }
+
+    // ==============================================
+    // SoulBell íš¨ê³¼
+    // ==============================================
+
+    /// <summary>
+    /// ì  ì²˜ì¹˜ ì‹œ HP ì €ì¥ (SoulBell íš¨ê³¼ìš©)
+    /// </summary>
+    public void OnEnemyDefeated(float enemyMaxHP)
+    {
+        if (!HasRelic(YaCht_RelicType.SoulBell))
+            return;
+
+        m_soulBellDefeatedEnemyHP.Add(enemyMaxHP);
+        Debug.Log($"[RelicManager] SoulBell íš¨ê³¼: ì²˜ì¹˜í•œ ì  HP ì €ì¥: {enemyMaxHP:F1} (ì´ {m_soulBellDefeatedEnemyHP.Count}ëª…)");
+    }
+
+    // ==============================================
+    // GamblerMask2 íš¨ê³¼
+    // ==============================================
+
+    /// <summary>
+    /// GamblerMask2: ë­í¬ë³„ ì¶”ê°€ ê³µê²© í™•ë¥  ë°˜í™˜
+    /// </summary>
+    public float GetGamblerMask2AttackChance(YaCht_CardRarity rarity)
+    {
+        if (!HasRelic(YaCht_RelicType.GamblerMask2))
+            return 0f;
+
+        switch (rarity)
+        {
+            case YaCht_CardRarity.D:
+                return 90f; // 90%
+            case YaCht_CardRarity.C:
+                return 75f; // 75%
+            case YaCht_CardRarity.B:
+                return 50f; // 50%
+            case YaCht_CardRarity.A:
+                return 15f; // 15%
+            case YaCht_CardRarity.S:
+                return 3f;  // 3%
+            default:
+                return 0f;
+        }
+    }
+
+    // ==============================================
+    // JjolBoy íš¨ê³¼
+    // ==============================================
+
+    /// <summary>
+    /// ë¦¬ë¡¤ ì‹œ JjolBoy íš¨ê³¼ ì ìš© (50% í™•ë¥ ë¡œ ë°ë¯¸ì§€ 10%/30%/50% ì¦ê°€ í˜¹ì€ ê°ì†Œ)
+    /// </summary>
+    public void OnReroll()
+    {
+        if (!HasRelic(YaCht_RelicType.JjolBoy))
+            return;
+
+        // 50% í™•ë¥ ë¡œ íš¨ê³¼ ë°œë™
+        float roll = Random.Range(0f, 100f);
+        if (roll < 50f)
+        {
+            // 10%, 30%, 50% ì¤‘ ëœë¤ ì„ íƒ
+            float[] percentages = { 0.10f, 0.30f, 0.50f };
+            float selectedPercentage = percentages[Random.Range(0, percentages.Length)];
+            
+            // ì¦ê°€ ë˜ëŠ” ê°ì†Œ (50% í™•ë¥ )
+            bool isIncrease = Random.Range(0f, 100f) < 50f;
+            
+            if (isIncrease)
+            {
+                m_jjolBoyDamageMultiplier = 1.0f + selectedPercentage;
+                Debug.Log($"[RelicManager] JjolBoy íš¨ê³¼: ë¦¬ë¡¤ ì‹œ ë°ë¯¸ì§€ {selectedPercentage * 100}% ì¦ê°€ â†’ x{m_jjolBoyDamageMultiplier:F2}");
+            }
+            else
+            {
+                m_jjolBoyDamageMultiplier = 1.0f - selectedPercentage;
+                Debug.Log($"[RelicManager] JjolBoy íš¨ê³¼: ë¦¬ë¡¤ ì‹œ ë°ë¯¸ì§€ {selectedPercentage * 100}% ê°ì†Œ â†’ x{m_jjolBoyDamageMultiplier:F2}");
+            }
+        }
+        else
+        {
+            // íš¨ê³¼ ë¯¸ë°œë™
+            m_jjolBoyDamageMultiplier = 1.0f;
+            Debug.Log($"[RelicManager] JjolBoy íš¨ê³¼: ë¦¬ë¡¤ ì‹œ íš¨ê³¼ ë¯¸ë°œë™ (í™•ë¥ : {roll:F1}%)");
+        }
     }
 }

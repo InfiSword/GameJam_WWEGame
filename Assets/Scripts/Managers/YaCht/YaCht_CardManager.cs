@@ -11,19 +11,19 @@ public class YaCht_CardManager : MonoBehaviour
 
     [Header("Fan Layout Settings")]
     private float m_maxFanAngle = 60f;
-    private float m_cardSpacing = 1.5f;        // ºÎÃ¤²Ã Á¤·Ä ½Ã °£°İ (°¢µµ °è»ê¿ë)
-    private float m_handCardYPosition = -1.5f; // ¼ÕÆĞ Ä«µåÀÇ Y À§Ä¡ (ºÎÃ¤²Ã)
-    private float m_firstHandCardYPosition = -0.5f; // Ã³À½ »Ì¾ÒÀ» ¶§ Ä«µåÀÇ Y À§Ä¡ (Á÷¼±)
-    private float m_repositionDuration = 0.3f; // ºÎÃ¤²Ã·Î Á¤·ÄµÉ ¶§ °É¸®´Â ½Ã°£
+    private float m_cardSpacing = 1.5f;        // ì†íŒ¨ì—ì„œ ì¹´ë“œ ê°„ ì¢Œìš° ê°„ê²© (íŒ¬ ë°°ì—´)
+    private float m_handCardYPosition = -1.5f; // ì†íŒ¨ì—ì„œ ì¹´ë“œì˜ Y ìœ„ì¹˜ (íŒ¬ ë°°ì—´)
+    private float m_firstHandCardYPosition = -0.5f; // ì²« ì¹´ë“œì˜ Y ìœ„ì¹˜ (íŒ¬ ë°°ì—´)
+    private float m_repositionDuration = 0.3f; // ì¬ë°°ì—´ ì‹œê°„
 
-    [Header("Machine Deal Settings (±â°è ¿¬Ãâ)")]
-    private Transform m_machineSpawnPoint;     // ±â°è°¡ À§Ä¡ÇÑ Æ®·£½ºÆû (¿À¸¥ÂÊ)
-    private AnimationCurve m_dealSpeedCurve;   // X: 0~1(ÁøÇàµµ), Y: µô·¹ÀÌ ½Ã°£ (Á¡Á¡ ´À·ÁÁö°Ô ¼³Á¤)
-    private float m_linearSpacing = 1.2f;      // Ã³À½¿¡ Á÷¼±À¸·Î ±ò¸± ¶§ÀÇ °£°İ
-    private float m_dealFlyDuration = 0.4f;    // Ä«µå°¡ ±â°è¿¡¼­ ¸ñÇ¥ÁöÁ¡±îÁö ³¯¾Æ°¡´Â ½Ã°£
-    private float m_waitBeforeFan = 0.8f;      // ´Ù ³ª¿Â µÚ ºÎÃ¤²Ã·Î ¹Ù²î±â Àü ´ë±â ½Ã°£
+    [Header("Machine Deal Settings (ì¹´ë“œ ë°°ë¶„)")]
+    private Transform m_machineSpawnPoint;     // ê¸°ê³„ ìœ„ì¹˜
+    private AnimationCurve m_dealSpeedCurve;   // X: 0~1(ì™¼ìª½ì—ì„œ ì˜¤ë¥¸ìª½ìœ¼ë¡œ), Y: ë°°ë¶„ ì‹œê°„ (ì™¼ìª½ì—ì„œ ì˜¤ë¥¸ìª½ìœ¼ë¡œ ë°°ë¶„)
+    private float m_linearSpacing = 1.2f;      // ì™¼ìª½ì—ì„œ ì˜¤ë¥¸ìª½ìœ¼ë¡œ ë°°ë¶„ ì‹œê°„
+    private float m_dealFlyDuration = 0.4f;    // ì¹´ë“œ ì´ë™ ì‹œê°„
+    private float m_waitBeforeFan = 0.8f;      // íŒ¬ ë°°ì—´ ì „ ëŒ€ê¸° ì‹œê°„
 
-    // ±âÅ¸ º¯¼öµé
+    // ë¯¸ë¦¬ë³´ê¸° ì¹´ë“œ ìœ„ì¹˜
     private Vector3 m_previewCardPosition = new Vector3(0f, 0f, -2f);
     private float m_previewCardScale = 3.0f;
 
@@ -39,12 +39,12 @@ public class YaCht_CardManager : MonoBehaviour
     private List<YaCht_CardData> m_availableCardsPool = new List<YaCht_CardData>();
     private YaCht_WWECard m_previewCard;
 
-    // ÇöÀç ¾Ö´Ï¸ŞÀÌ¼ÇÀÌ³ª ·ÎÁ÷ Ã³¸® ÁßÀÎÁö È®ÀÎ
+    // ì²˜ë¦¬ ì¤‘ì¸ì§€ ì—¬ë¶€
     public bool IsProcessing { get; private set; } = false;
 
     public YaCht_WWECard GetPreviewCard() => m_previewCard;
 
-    // ¼ÕÆĞ¿¡¼­ Æ¯Á¤ Ä«µå µ¥ÀÌÅÍ¿Í ÀÏÄ¡ÇÏ´Â Ä«µå Ã£±â
+    // ì†íŒ¨ì—ì„œ ì¹´ë“œ ë°ì´í„°ë¥¼ ì°¾ëŠ” ë©”ì„œë“œ
     public YaCht_WWECard FindCardInHand(YaCht_CardData cardData)
     {
         foreach (var card in m_hand)
@@ -65,8 +65,8 @@ public class YaCht_CardManager : MonoBehaviour
 
 
         m_dealSpeedCurve = new AnimationCurve();
-        m_dealSpeedCurve.AddKey(0f, 0.05f); // Ã³À½¿£ ºü¸§
-        m_dealSpeedCurve.AddKey(1f, 0.9f);  // ³¡¿£ ´À¸²
+        m_dealSpeedCurve.AddKey(0f, 0.05f); 
+        m_dealSpeedCurve.AddKey(1f, 0.9f);  
 
     }
 
@@ -81,7 +81,7 @@ public class YaCht_CardManager : MonoBehaviour
     {
         if (m_cardPrefab == null)
         {
-            Debug.LogError("[CardManager] Ä«µå ÇÁ¸®ÆÕÀÌ ¾ø½À´Ï´Ù!");
+            Debug.LogError("[CardManager] ì¹´ë“œ í”„ë¦¬íŒ¹ì´ ì—†ìŠµë‹ˆë‹¤!");
             return;
         }
 
@@ -90,7 +90,7 @@ public class YaCht_CardManager : MonoBehaviour
             return;
         }
 
-        // ±âÁ¸ ÇÁ¸®ºä Ä«µå°¡ ÀÖÀ¸¸é »èÁ¦
+        // ë¯¸ë¦¬ë³´ê¸° ì¹´ë“œ ì´ˆê¸°í™”
         if (m_previewCard != null)
         {
             Destroy(m_previewCard.gameObject);
@@ -123,7 +123,7 @@ public class YaCht_CardManager : MonoBehaviour
             if (machineObj) m_machineSpawnPoint = machineObj.transform;
         }
 
-        // ÇÁ¸®ºä Ä«µå°¡ ¾øÀ¸¸é ´Ù½Ã ÃÊ±âÈ­ ½Ãµµ
+        // ë¯¸ë¦¬ë³´ê¸° ì¹´ë“œ ì´ˆê¸°í™”
         if (m_previewCard == null && YaCht_GameManager.nowPlayerData.playerDeck.Count > 0)
         {
             InitializePreviewCard();
@@ -132,41 +132,61 @@ public class YaCht_CardManager : MonoBehaviour
         StartCoroutine(StartNewRound());
     }
 
-    // »õ ¶ó¿îµå ½ÃÀÛ
+    // ìƒˆ ë¼ìš´ë“œ ì‹œì‘
     public IEnumerator StartNewRound()
     {
         if (IsProcessing)
         {
-            Debug.LogWarning("YaCht_CardManager: ÀÌ¹Ì Ä«µå Ã³¸® ÁßÀÔ´Ï´Ù. »õ ¶ó¿îµå ½ÃÀÛ ´ë±â Áß...");
+            Debug.LogWarning("YaCht_CardManager: ì²˜ë¦¬ ì¤‘ì…ë‹ˆë‹¤. ìƒˆ ë¼ìš´ë“œ ì‹œì‘ ë¶ˆê°€");
             yield break;
         }
 
         ClearAllHandCards();
         yield return new WaitForSeconds(0.2f);
 
-        // ±â°è ¿¬Ãâ·Î 10Àå »Ì±â
+        // ê¸°ê³„ì—ì„œ ì¹´ë“œ ë°°ë¶„
         yield return StartCoroutine(DealCardsFromMachineRoutine(m_initialHandSize));
     }
 
-    // ¸®·Ñ (¼ÕÆĞ¸¸ ¹ö¸®°í ´Ù½Ã »Ì±â)
+    // ì†íŒ¨ ì¬ë°°ì—´
     public IEnumerator RerollHand()
     {
         if (IsProcessing)
         {
-            Debug.LogWarning("YaCht_CardManager: ÀÌ¹Ì Ä«µå Ã³¸® ÁßÀÔ´Ï´Ù. ¸®·Ñ ´ë±â Áß...");
+            Debug.LogWarning("YaCht_CardManager: ì²˜ë¦¬ ì¤‘ì…ë‹ˆë‹¤. ì†íŒ¨ ì¬ë°°ì—´ ë¶ˆê°€");
             yield break;
         }
 
         int cardsToRedraw = m_hand.Count;
+        
+        // ë¦¬ë¡¤ ì „ì— Aë­í¬ ì¹´ë“œ ê°œìˆ˜ ê³„ì‚° (IHateS íš¨ê³¼ìš©)
+        int aCardCount = 0;
+        foreach (var card in m_hand)
+        {
+            if (card != null && card.GetCardData.m_rarity == YaCht_CardRarity.A)
+            {
+                aCardCount++;
+            }
+        }
+        
+        // IHateS íš¨ê³¼ ì ìš©
+        if (aCardCount > 0)
+        {
+            YaCht_GameManager.RelicManager.OnRerollWithACards(aCardCount);
+        }
+
+        // JjolBoy íš¨ê³¼ ì ìš©
+        YaCht_GameManager.RelicManager.OnReroll();
+
         ClearAllHandCards();
 
         yield return new WaitForSeconds(0.2f);
 
-        // ±â°è ¿¬Ãâ·Î ºó °ø°£¸¸Å­ ´Ù½Ã »Ì±â
+        // ì†íŒ¨ ì¬ë°°ì—´
         yield return StartCoroutine(DealCardsFromMachineRoutine(cardsToRedraw));
     }
 
-    // ±â°è µô¸µ ¿¬Ãâ ¸ŞÀÎ ÄÚ·çÆ¾
+    // ì¹´ë“œ ë°°ë¶„
     private IEnumerator DealCardsFromMachineRoutine(int count)
     {
         IsProcessing = true;
@@ -198,21 +218,21 @@ public class YaCht_CardManager : MonoBehaviour
             {
                 YaCht_WWECard card = drawnCards[i];
 
-                // ½ÃÀÛ À§Ä¡: ±â°è À§Ä¡ (World Space)
+                // ê¸°ê³„ ìœ„ì¹˜: ì›”ë“œ ìŠ¤í˜ì´ìŠ¤
                 Vector3 spawnPos = m_machineSpawnPoint.position;
                 card.transform.position = spawnPos;
                 card.transform.rotation = Quaternion.identity;
                 card.gameObject.SetActive(true);
 
-                // ¸ñÇ¥ À§Ä¡: È­¸é Áß¾Ó ±âÁØ Á÷¼± Á¤·Ä (Z = -1·Î ¼³Á¤)
+                // ëª©í‘œ ìœ„ì¹˜: ì™¼ìª½ì—ì„œ ì˜¤ë¥¸ìª½ìœ¼ë¡œ ë°°ë¶„ (Z = -1)
                 float targetX = startX + (i * m_linearSpacing);
                 Vector3 targetLocalPos = new Vector3(targetX, m_firstHandCardYPosition, -1f);
                 Vector3 targetWorldPos = m_handTransform.TransformPoint(targetLocalPos);
 
-                // ±â°è -> ¸ñÇ¥ À§Ä¡·Î ÀÌµ¿
+                // ì†íŒ¨ -> ëª©í‘œ ìœ„ì¹˜ë¡œ ì´ë™
                 StartCoroutine(MoveCardToTarget(card.transform, targetWorldPos, Quaternion.identity, m_dealFlyDuration));
 
-                // µô·¹ÀÌ °è»ê (AnimationCurve »ç¿ë: °¥¼ö·Ï ´À·ÁÁö°Ô)
+                // ë°°ë¶„ ì‹œê°„ (AnimationCurve: ë°°ë¶„ ì‹œê°„)
                 float progress = (count > 1) ? (float)i / (count - 1) : 0f;
                 float delay = m_dealSpeedCurve.Evaluate(progress);
 
@@ -223,7 +243,7 @@ public class YaCht_CardManager : MonoBehaviour
                     yield return new WaitForSeconds(delay);
             }
 
-            // ´Ù ³ª¿Â ÈÄ Àá½Ã ´ë±â
+            // íŒ¬ ë°°ì—´ ì „ ëŒ€ê¸° ì‹œê°„
             yield return new WaitForSeconds(m_waitBeforeFan);
 
             yield return StartCoroutine(RepositionAllCardsCoroutine());
@@ -231,7 +251,7 @@ public class YaCht_CardManager : MonoBehaviour
         IsProcessing = false;
     }
 
-    // Ä«µå ÀÌµ¿ ÇïÆÛ ÄÚ·çÆ¾ (Lerp)
+    // ì¹´ë“œ ì´ë™ (Lerp)
     private IEnumerator MoveCardToTarget(Transform cardTr, Vector3 targetPos, Quaternion targetRot, float duration)
     {
         Vector3 startPos = cardTr.position;
@@ -240,7 +260,7 @@ public class YaCht_CardManager : MonoBehaviour
 
         while (elapsed < duration)
         {
-            if (cardTr == null) yield break; // Ä«µå°¡ ÆÄ±«µÇ¾úÀ» °æ¿ì ¹æÁö
+            if (cardTr == null) yield break; // ì¹´ë“œê°€ ì—†ìœ¼ë©´ ì¢…ë£Œ
 
             elapsed += Time.deltaTime;
             float t = elapsed / duration;
@@ -259,16 +279,16 @@ public class YaCht_CardManager : MonoBehaviour
         }
     }
 
-    // ¼ø¼öÇÏ°Ô Ä«µå µ¥ÀÌÅÍ¿Í ¿ÀºêÁ§Æ®¸¸ »ı¼ºÇÏ¿© ¹İÈ¯ (È®·ü ±â¹İ)
+    // ì¹´ë“œ ìƒì„± (ì¹´ë“œ ë°ì´í„°ë§Œ ì‚¬ìš©)
     private YaCht_WWECard CreateCardObjectOnly()
     {
         if (YaCht_GameManager.nowPlayerData.playerDeck.Count == 0) return null;
 
-        // µî±Ş ±â¹İ È®·ü µå·Î¿ì
+        // ì¹´ë“œ ë°ì´í„° ì„ íƒ
         YaCht_CardData selectedCard;
         if (!TryDrawCardByRarity(out selectedCard))
         {
-            // È®·ü ½ÇÆĞ ½Ã null ¹İÈ¯
+            // ì¹´ë“œ ë°ì´í„° ì„ íƒ ì‹¤íŒ¨
             return null;
         }
 
@@ -277,12 +297,37 @@ public class YaCht_CardManager : MonoBehaviour
 
         wweCard.Init(selectedCard);
         wweCard.SetDrawOrderId(m_nextDrawOrderId++);
-        cardObj.SetActive(false); // »ı¼º Á÷ÈÄ¿£ ¾Èº¸ÀÌ°Ô (À§Ä¡ Àâ°í ÄÓ ¿¹Á¤)
+        cardObj.SetActive(false); // ì¹´ë“œ ë¹„í™œì„±í™”
 
         return wweCard;
     }
 
-    // µî±Ş ±â¹İ È®·ü µå·Î¿ì ½Ã½ºÅÛ (¼º°ø ¿©ºÎ ¹İÈ¯)
+    /// <summary>
+    /// FixedMaskìš© ê³ ì • ì¹´ë“œ ìƒì„± (ë±ì—ì„œ ì§ì ‘ ìƒì„±)
+    /// </summary>
+    public YaCht_WWECard CreateFixedMaskCard(YaCht_CardData cardData)
+    {
+        if (m_cardPrefab == null)
+        {
+            Debug.LogError("[CardManager] ì¹´ë“œ í”„ë¦¬íŒ¹ì´ ì—†ìŠµë‹ˆë‹¤!");
+            return null;
+        }
+
+        GameObject cardObj = Instantiate(m_cardPrefab);
+        YaCht_WWECard wweCard = cardObj.GetComponent<YaCht_WWECard>();
+
+        if (wweCard != null)
+        {
+            wweCard.Init(cardData);
+            wweCard.SetFixedCard(true); // ê³ ì • ì¹´ë“œë¡œ ì„¤ì •
+            wweCard.SetDrawOrderId(m_nextDrawOrderId++);
+            cardObj.SetActive(true);
+        }
+
+        return wweCard;
+    }
+
+    // ì¹´ë“œ ë°ì´í„° ì„ íƒ (ì¹´ë“œ ë°ì´í„°ë§Œ ì‚¬ìš©)
     private bool TryDrawCardByRarity(out YaCht_CardData drawnCard)
     {
         drawnCard = default(YaCht_CardData);
@@ -290,29 +335,36 @@ public class YaCht_CardManager : MonoBehaviour
         
         if (m_playerDeck.Count == 0)
         {
-            Debug.LogError("ÇÃ·¹ÀÌ¾î µ¦ÀÌ ºñ¾îÀÖ½À´Ï´Ù!");
+            Debug.LogError("í”Œë ˆì´ì–´ ë±ì´ ì—†ìŠµë‹ˆë‹¤!");
             return false;
         }
 
-        // µ¦¿¡¼­ ·£´ıÇÏ°Ô Ä«µå ¼±ÅÃ
+        // ì¹´ë“œ ë°ì´í„° ì„ íƒ
         int randomIndex = Random.Range(0, m_playerDeck.Count);
         YaCht_CardData candidateCard = m_playerDeck[randomIndex];
 
-        // µî±Ş¿¡ µû¸¥ È®·ü Ã¼Å© (³ôÀº µî±ŞÀÏ¼ö·Ï È®·üÀÌ ³·À½)
+        // ì¹´ë“œ ë ˆì–´ë„ ì¶”ì²œ
         float rarityChance = GetRarityChance(candidateCard.m_rarity);
         float roll = Random.Range(0f, 100f);
 
-        // È®·ü ¼º°ø ½Ã ÇØ´ç Ä«µå ¹İÈ¯
+        // ì¹´ë“œ ë ˆì–´ë„ ì¶”ì²œ ì„±ê³µ
         if (roll < rarityChance)
         {
             drawnCard = candidateCard;
+            
+            // IHateS íš¨ê³¼: Së­í¬ ì¹´ë“œ íšë“ ì‹œ ì¤‘ì²© ì´ˆê¸°í™”
+            if (drawnCard.m_rarity == YaCht_CardRarity.S)
+            {
+                YaCht_GameManager.RelicManager.OnSRankCardObtained();
+            }
+            
             return true;
         }
         
         return false;
     }
 
-    // µî±Şº° È®·ü ¹İÈ¯ (À¯¹° È¿°ú Àû¿ë)
+    // ì¹´ë“œ ë ˆì–´ë„ ì¶”ì²œ ì„±ê³µ
     private float GetRarityChance(YaCht_CardRarity rarity)
     {
         float baseChance;
@@ -320,26 +372,26 @@ public class YaCht_CardManager : MonoBehaviour
         switch (rarity)
         {
             case YaCht_CardRarity.S:
-                baseChance = 10f; // 10%
+                baseChance = 10f; // S ë ˆì–´ë„ 10%
                 break;
             case YaCht_CardRarity.A:
-                baseChance = 20f; // 20%
+                baseChance = 20f; // A ë ˆì–´ë„ 20%
                 break;
             case YaCht_CardRarity.B:
-                baseChance = 30f; // 30%
+                baseChance = 30f; // B ë ˆì–´ë„ 30%
                 break;
             case YaCht_CardRarity.C:
-                baseChance = 40f; // 40%
+                baseChance = 40f; // C ë ˆì–´ë„ 40%
                 break;
             case YaCht_CardRarity.D:
-                baseChance = 50f; // 50%
+                baseChance = 50f; // D ë ˆì–´ë„ 50%
                 break;
             default:
                 baseChance = 50f;
                 break;
         }
 
-        // À¯¹° È¿°ú Àû¿ë (µµ¹Ú»çÀÇ °¡¸é 1, 2)
+        // ì¹´ë“œ ë ˆì–´ë„ ì¶”ì²œ ì„±ê³µ
         return YaCht_GameManager.RelicManager.ModifyRarityChance(rarity, baseChance);
     }
 
@@ -347,20 +399,28 @@ public class YaCht_CardManager : MonoBehaviour
     {
         if (IsProcessing)
         {
-            Debug.LogWarning("YaCht_CardManager: Ä«µå Ã³¸® Áß¿¡´Â ¼Â¾÷À» ÇÒ ¼ö ¾ø½À´Ï´Ù.");
+            Debug.LogWarning("YaCht_CardManager: ì²˜ë¦¬ ì¤‘ì…ë‹ˆë‹¤. ì¹´ë“œ ì„¤ì • ë¶ˆê°€");
             return;
         }
 
         if (card == null) return;
 
-        // ¾ßÃß ¹æ½Ä: ¼Â¾÷ Ä«µå ÃÖ´ë 6Àå Á¦ÇÑ
+        // ì¹´ë“œ ì„¤ì • ìµœëŒ€ ê°œìˆ˜ ì´ˆê³¼
         if (m_setupCards.Count >= MAX_SETUP_CARDS)
         {
-            Debug.Log($"¼Â¾÷ Ä«µå´Â ÃÖ´ë {MAX_SETUP_CARDS}Àå±îÁö¸¸ °¡´ÉÇÕ´Ï´Ù!");
+            Debug.Log($"ì¹´ë“œ ì„¤ì • ìµœëŒ€ ê°œìˆ˜ ì´ˆê³¼: {MAX_SETUP_CARDS}ê°œ");
             return;
         }
 
-        if (m_hand.Contains(card))
+        // ê³ ì • ì¹´ë“œëŠ” ì†íŒ¨ì— ì—†ìœ¼ë¯€ë¡œ ë°”ë¡œ ì…‹ì—…ì— ì¶”ê°€
+        if (card.IsFixedCard)
+        {
+            if (!m_setupCards.Contains(card))
+            {
+                m_setupCards.Add(card);
+            }
+        }
+        else if (m_hand.Contains(card))
         {
             m_hand.Remove(card);
             m_setupCards.Add(card);
@@ -378,6 +438,13 @@ public class YaCht_CardManager : MonoBehaviour
 
         if (card == null) return;
 
+        // ê³ ì • ì¹´ë“œëŠ” ì†íŒ¨ë¡œ ëŒì•„ê°€ì§€ ì•ŠìŒ
+        if (card.IsFixedCard)
+        {
+            Debug.LogWarning("[CardManager] ê³ ì • ì¹´ë“œëŠ” ì†íŒ¨ë¡œ ëŒì•„ê°ˆ ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
+            return;
+        }
+
         if (m_setupCards.Contains(card))
         {
             m_setupCards.Remove(card);
@@ -394,12 +461,12 @@ public class YaCht_CardManager : MonoBehaviour
 
             m_hand.Insert(insertIndex, card);
 
-            // ¼ÕÆĞ ÀçÁ¤·Ä - ÀÌ ¸Ş¼­µå°¡ Ä«µå À§Ä¡¸¦ ¿Ã¹Ù¸£°Ô ¼³Á¤ÇÔ
+            // ì¹´ë“œ ì¬ë°°ì—´
             RepositionHandCards();
         }
     }
 
-    // ÇöÀç Á¶ÇÕ Á¤º¸ °¡Á®¿À±â
+    // í˜„ì¬ ì½¤ë³´ ì •ë³´ ê°€ì ¸ì˜¤ê¸°
     public string GetCurrentComboInfo()
     {
         List<YaCht_CardData> setupCardData = new List<YaCht_CardData>();
@@ -412,8 +479,29 @@ public class YaCht_CardManager : MonoBehaviour
         return YaCht_ComboChecker.GetComboInfo(setupCardData, wrestlerType);
     }
 
-    // ¼Â¾÷ Ä«µå ÀüºÎ Á¦°Å (¶ó¿îµå Á¾·á ½Ã)
+    // ì¹´ë“œ ì„¤ì • ì´ˆê¸°í™” (ê³ ì • ì¹´ë“œëŠ” ì œì™¸)
     public void ClearSetupCards()
+    {
+        List<YaCht_WWECard> cardsToRemove = new List<YaCht_WWECard>();
+        
+        foreach (var card in m_setupCards)
+        {
+            // ê³ ì • ì¹´ë“œëŠ” ìœ ì§€
+            if (card != null && !card.IsFixedCard)
+            {
+                cardsToRemove.Add(card);
+                Destroy(card.gameObject);
+            }
+        }
+        
+        foreach (var card in cardsToRemove)
+        {
+            m_setupCards.Remove(card);
+        }
+    }
+    
+    // ëª¨ë“  ì…‹ì—… ì¹´ë“œ ì´ˆê¸°í™” (ê³ ì • ì¹´ë“œ í¬í•¨)
+    public void ClearAllSetupCards()
     {
         foreach (var card in m_setupCards)
         {
@@ -425,7 +513,7 @@ public class YaCht_CardManager : MonoBehaviour
         m_setupCards.Clear();
     }
 
-    // ¸ğµç ¼ÕÆĞ Ä«µå Á¦°Å
+    // ì†íŒ¨ ì´ˆê¸°í™”
     public void ClearAllHandCards()
     {
         foreach (var card in m_hand)
@@ -438,7 +526,7 @@ public class YaCht_CardManager : MonoBehaviour
         m_hand.Clear();
     }
 
-    // ºÎÃ¤²Ã Á¤·Ä ½ÃÀÛ ÇÔ¼ö
+    // ì†íŒ¨ ì¬ë°°ì—´
     private void RepositionHandCards()
     {
         if (m_currentRepositionCoroutine != null)
@@ -448,7 +536,7 @@ public class YaCht_CardManager : MonoBehaviour
         m_currentRepositionCoroutine = StartCoroutine(RepositionAllCardsCoroutine());
     }
 
-    // °³º° Ä«µå À§Ä¡/È¸Àü°ª °è»ê
+    // ì¹´ë“œ ìœ„ì¹˜ ê³„ì‚°
     private void CalculateCardTransform(int index, int totalCardCount, out Vector3 localPosition, out Quaternion localRotation)
     {
         float normalizedIndex = 0f;
@@ -463,12 +551,12 @@ public class YaCht_CardManager : MonoBehaviour
         float totalWidth = (totalCardCount - 1) * m_cardSpacing;
         float x = index * m_cardSpacing - totalWidth * 0.5f;
 
-        // ºÎÃ¤²Ã Á¤·Ä ½Ã Z°ªÀ» 0À¸·Î ¼³Á¤
+        // ì†íŒ¨ ì¬ë°°ì—´ Z ìœ„ì¹˜ 0
         localPosition = new Vector3(x, m_handCardYPosition, 0f);
         localRotation = Quaternion.Euler(0f, 0f, -angle);
     }
 
-    // ÀüÃ¼ Ä«µå ºÎÃ¤²Ã ÀçÁ¤·Ä ÄÚ·çÆ¾
+    // ì¹´ë“œ ì¬ë°°ì—´
     private IEnumerator RepositionAllCardsCoroutine()
     {
         int totalCards = m_hand.Count;
@@ -511,7 +599,7 @@ public class YaCht_CardManager : MonoBehaviour
             yield return null;
         }
 
-        // ÃÖÁ¾ À§Ä¡ È®Á¤
+        // ì¹´ë“œ ì¬ë°°ì—´ ì™„ë£Œ
         for (int i = 0; i < m_hand.Count && i < targetPositions.Count; i++)
         {
             if (m_hand[i] == null) continue;

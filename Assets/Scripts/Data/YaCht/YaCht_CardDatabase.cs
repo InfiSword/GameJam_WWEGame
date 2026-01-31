@@ -2,44 +2,44 @@ using UnityEngine;
 using System.Collections.Generic;
 
 // ==================================================================================
-// Ä«µå µî±Ş Enum
+// ì¹´ë“œ ë“±ê¸‰ Enum
 // ==================================================================================
 public enum YaCht_CardRarity
 {
-    S,  // 10% È®·ü
-    A,  // 20% È®·ü
-    B,  // 30% È®·ü
-    C,  // 40% È®·ü
-    D   // 50% È®·ü (±âº» È®·üÀÌ °¡Àå ³ôÀ½)
+    S,  // 10% í™•ë¥ 
+    A,  // 20% í™•ë¥ 
+    B,  // 30% í™•ë¥ 
+    C,  // 40% í™•ë¥ 
+    D   // 50% í™•ë¥  (ê¸°ë³¸ í™•ë¥ ì´ ê°€ì¥ ë†’ìŒ)
 }
 
 // ==================================================================================
-// Ä«µå °ø°İ ¼³Á¤
+// ì¹´ë“œ ê³µê²© ì„¤ì •
 // ==================================================================================
 public struct YaCht_CardAttackSettings
 {
-    public float chargeDuration;               // Â÷Â¡/ÁØºñ ½Ã°£ (Heavy, PowerSlam¿ë)
-    public float chargeMoveDistance;           // Â÷Â¡ ½Ã ÀÌµ¿ °Å¸® (PowerSlam: µÚ·Î ¹°·¯³²)
-    public float chargeDelay;                  // Â÷Â¡ ÈÄ µ¹Áø±îÁöÀÇ µô·¹ÀÌ
-    public float attackDuration;               // µ¹Áø ½Ã°£
-    public float soundTriggerTime;             // »ç¿îµå°¡ ³ª´Â ½ÃÁ¡ (0~1 »çÀÌ)
-    public float effectTriggerTime;            // ÀÌÆåÆ®°¡ ³ª´Â ½ÃÁ¡ (0~1 »çÀÌ)
+    public float chargeDuration;               // ì°¨ì§•/ì¤€ë¹„ ì‹œê°„ (Heavy, PowerSlamìš©)
+    public float chargeMoveDistance;           // ì°¨ì§• ì‹œ ì´ë™ ê±°ë¦¬ (PowerSlam: ë’¤ë¡œ ë¬¼ëŸ¬ë‚¨)
+    public float chargeDelay;                  // ì°¨ì§• í›„ ëŒì§„ê¹Œì§€ì˜ ë”œë ˆì´
+    public float attackDuration;               // ëŒì§„ ì‹œê°„
+    public float soundTriggerTime;             // ì‚¬ìš´ë“œê°€ ë‚˜ëŠ” ì‹œì  (0~1 ì‚¬ì´)
+    public float effectTriggerTime;            // ì´í™íŠ¸ê°€ ë‚˜ëŠ” ì‹œì  (0~1 ì‚¬ì´)
 }
 
 // ==================================================================================
-// Ä«µå µ¥ÀÌÅÍ ±¸Á¶Ã¼
+// ì¹´ë“œ ë°ì´í„° êµ¬ì¡°ì²´
 // ==================================================================================
 public struct YaCht_CardData
 {
-    public string m_name;           // ±â¼ú ÀÌ¸§ (Á¶ÇÕ Ã¼Å©¿ë)
-    public float m_baseDamage;      // ±âº» µ¥¹ÌÁö
-    public string m_description;    // ¼³¸í
-    public YaCht_CardRarity m_rarity; // µî±Ş (È®·ü °è»ê¿ë)
-    public string m_imageResourcePath; // Ä«µå ÀÌ¹ÌÁö ¸®¼Ò½º °æ·Î (Resources Æú´õ ±âÁØ)
-    public YaCht_CardAttackSettings m_attackSettings; // °ø°İ ¿¬Ãâ ¼³Á¤
-    public string m_soundResourcePath; // Ä«µå »ç¿îµå ¸®¼Ò½º °æ·Î
+    public string m_name;           // ê¸°ìˆ  ì´ë¦„ (ì¡°í•© ì²´í¬ìš©)
+    public float m_baseDamage;      // ê¸°ë³¸ ë°ë¯¸ì§€
+    public string m_description;    // ì„¤ëª…
+    public YaCht_CardRarity m_rarity; // ë“±ê¸‰ (í™•ë¥  ê³„ì‚°ìš©)
+    public string m_imageResourcePath; // ì¹´ë“œ ì´ë¯¸ì§€ ë¦¬ì†ŒìŠ¤ ê²½ë¡œ (Resources í´ë” ê¸°ì¤€)
+    public YaCht_CardAttackSettings m_attackSettings; // ê³µê²© ì—°ì¶œ ì„¤ì •
+    public string m_soundResourcePath; // ì¹´ë“œ ì‚¬ìš´ë“œ ë¦¬ì†ŒìŠ¤ ê²½ë¡œ
 
-    // Ä¿½ºÅÒ »ı¼ºÀÚ - °ø°İ ¼³Á¤°ú »ç¿îµå¸¦ Á÷Á¢ ÁöÁ¤ÇÒ ¼ö ÀÖÀ½
+    // ì»¤ìŠ¤í…€ ìƒì„±ì - ê³µê²© ì„¤ì •ê³¼ ì‚¬ìš´ë“œë¥¼ ì§ì ‘ ì§€ì •í•  ìˆ˜ ìˆìŒ
     public YaCht_CardData(string name, float damage, string desc, YaCht_CardRarity rarity, 
         string imagePath, YaCht_CardAttackSettings customAttackSettings, string soundPath = "")
     {
@@ -54,7 +54,7 @@ public struct YaCht_CardData
 }
 
 // ==================================================================================
-// Ä«µå ¼¼Æ® µ¥ÀÌÅÍ Å¬·¡½º
+// ì¹´ë“œ ì„¸íŠ¸ ë°ì´í„° í´ë˜ìŠ¤
 // ==================================================================================
 public class YaCht_CardSetData
 {
@@ -73,14 +73,14 @@ public class YaCht_CardSetData
 }
 
 // ==================================================================================
-// Ä«µå µ¥ÀÌÅÍº£ÀÌ½º (¸ğµç Ä«µå Á¤ÀÇ)
+// ì¹´ë“œ ë°ì´í„°ë² ì´ìŠ¤ (ëª¨ë“  ì¹´ë“œ ì •ì˜)
 // ==================================================================================
 public static class YaCht_CardDatabase
 {
-    // Á¸ ½Ã³ª Å×¸¶ Ä«µå 
+    // ì¡´ ì‹œë‚˜ í…Œë§ˆ ì¹´ë“œ 
     
-    // S·©Å© (10% È®·ü)
-    public static YaCht_CardData AA = new YaCht_CardData("AA", 20, "¾ÖÆ¼Æ©µå ¾îÀú½ºÆ®¸ÕÆ® - Á¸ ½Ã³ªÀÇ ÇÇ´Ï¼Å ¹«ºê", YaCht_CardRarity.S, "Sprites/Cards/JohnCena/AA",
+    // Së­í¬ (10% í™•ë¥ )
+    public static YaCht_CardData AA = new YaCht_CardData("AA", 20, "ì• í‹°íŠœë“œ ì–´ì €ìŠ¤íŠ¸ë¨¼íŠ¸ - ì¡´ ì‹œë‚˜ì˜ í”¼ë‹ˆì…” ë¬´ë¸Œ", YaCht_CardRarity.S, "Sprites/Cards/JohnCena/AA",
     new YaCht_CardAttackSettings
     {
         chargeDuration = 0.35f,
@@ -93,7 +93,7 @@ public static class YaCht_CardDatabase
     "Sounds/Cards/JohnCena/AA"
 );
 
-    public static YaCht_CardData RKO = new YaCht_CardData("RKO", 18, "»ó´ë¸¦ ¹Ù´Ú¿¡ ³»¸®²È´Â ÇÇ´Ï¼Å ¹«ºê", YaCht_CardRarity.S, "Sprites/Cards/JohnCena/RKO",
+    public static YaCht_CardData RKO = new YaCht_CardData("RKO", 18, "ìƒëŒ€ë¥¼ ë°”ë‹¥ì— ë‚´ë¦¬ê½‚ëŠ” í”¼ë‹ˆì…” ë¬´ë¸Œ", YaCht_CardRarity.S, "Sprites/Cards/JohnCena/RKO",
     new YaCht_CardAttackSettings
     {
         chargeDuration = 0.38f,
@@ -106,8 +106,8 @@ public static class YaCht_CardDatabase
     "Sounds/Cards/JohnCena/RKO"
 );
 
-    // A·©Å© (20% È®·ü) Naked Choke
-    public static YaCht_CardData NakedChoke = new YaCht_CardData("³×ÀÌÅ°µå ÃÊÅ©", 12, "ÆÈÀ» ÀÌ¿ëÇØ »ó´ë¹æÀÇ °æµ¿¸ÆÀ» Á¶¸£´Â ±â¼ú", YaCht_CardRarity.A, "Sprites/Cards/JohnCena/NakedChoke",
+    // Aë­í¬ (20% í™•ë¥ ) Naked Choke
+    public static YaCht_CardData NakedChoke = new YaCht_CardData("ë„¤ì´í‚¤ë“œ ì´ˆí¬", 12, "íŒ”ì„ ì´ìš©í•´ ìƒëŒ€ë°©ì˜ ê²½ë™ë§¥ì„ ì¡°ë¥´ëŠ” ê¸°ìˆ ", YaCht_CardRarity.A, "Sprites/Cards/JohnCena/NakedChoke",
     new YaCht_CardAttackSettings
     {
         chargeDuration = 0.28f,
@@ -120,7 +120,7 @@ public static class YaCht_CardDatabase
     "Sounds/Cards/JohnCena/NakedChoke"
 );
 
-    public static YaCht_CardData Superkick = new YaCht_CardData("½´ÆÛÅ±", 10, "³ôÀÌ Á¡ÇÁÇÏ¿© »ó´ëÀÇ ÅÎÀ» °¡°İÇÏ´Â °­·ÂÇÑ Å±", YaCht_CardRarity.A, "Sprites/Cards/JohnCena/Superkick",
+    public static YaCht_CardData Superkick = new YaCht_CardData("ìŠˆí¼í‚¥", 10, "ë†’ì´ ì í”„í•˜ì—¬ ìƒëŒ€ì˜ í„±ì„ ê°€ê²©í•˜ëŠ” ê°•ë ¥í•œ í‚¥", YaCht_CardRarity.A, "Sprites/Cards/JohnCena/Superkick",
     new YaCht_CardAttackSettings
     {
         chargeDuration = 0.22f,
@@ -133,8 +133,8 @@ public static class YaCht_CardDatabase
     "Sounds/Cards/JohnCena/Superkick"
 );
 
-    // B·©Å© (30% È®·ü)
-    public static YaCht_CardData ShoulderTackle = new YaCht_CardData("¼ñ´õ ÅÂÅ¬", 8, "¾î±ú·Î »ó´ë¸¦ ¹Ğ¾îºÙÀÌ´Â ±â¼ú", YaCht_CardRarity.B, "Sprites/Cards/JohnCena/ShoulderTackle",
+    // Bë­í¬ (30% í™•ë¥ )
+    public static YaCht_CardData ShoulderTackle = new YaCht_CardData("ìˆ„ë” íƒœí´", 8, "ì–´ê¹¨ë¡œ ìƒëŒ€ë¥¼ ë°€ì–´ë¶™ì´ëŠ” ê¸°ìˆ ", YaCht_CardRarity.B, "Sprites/Cards/JohnCena/ShoulderTackle",
     new YaCht_CardAttackSettings
     {
         chargeDuration = 0f,
@@ -147,7 +147,7 @@ public static class YaCht_CardDatabase
     "Sounds/Cards/JohnCena/ShoulderTackle"
 );
 
-    public static YaCht_CardData Dropkick = new YaCht_CardData("µå·ÓÅ±", 7, "°øÁß¿¡¼­ ¾ç¹ß·Î Â÷´Â ±â¼ú", YaCht_CardRarity.B, "Sprites/Cards/JohnCena/Dropkick",
+    public static YaCht_CardData Dropkick = new YaCht_CardData("ë“œë¡­í‚¥", 7, "ê³µì¤‘ì—ì„œ ì–‘ë°œë¡œ ì°¨ëŠ” ê¸°ìˆ ", YaCht_CardRarity.B, "Sprites/Cards/JohnCena/Dropkick",
     new YaCht_CardAttackSettings
     {
         chargeDuration = 0f,
@@ -160,8 +160,8 @@ public static class YaCht_CardDatabase
     "Sounds/Cards/JohnCena/Dropkick"
 );
 
-    // C·©Å© (40% È®·ü)
-    public static YaCht_CardData IrishWhip = new YaCht_CardData("¾ÆÀÌ¸®½¬ À¬", 6, "»ó´ë¸¦ ·ÎÇÁ·Î ´øÁö´Â ±â¼ú", YaCht_CardRarity.C, "Sprites/Cards/JohnCena/IrishWhip",
+    // Cë­í¬ (40% í™•ë¥ )
+    public static YaCht_CardData IrishWhip = new YaCht_CardData("ì•„ì´ë¦¬ì‰¬ ìœ•", 6, "ìƒëŒ€ë¥¼ ë¡œí”„ë¡œ ë˜ì§€ëŠ” ê¸°ìˆ ", YaCht_CardRarity.C, "Sprites/Cards/JohnCena/IrishWhip",
     new YaCht_CardAttackSettings
     {
         chargeDuration = 0f,
@@ -174,7 +174,7 @@ public static class YaCht_CardDatabase
     "Sounds/Cards/JohnCena/IrishWhip"
 );
 
-    public static YaCht_CardData KitchenSink = new YaCht_CardData("Å°Ä£ ½ÌÅ©", 6, "¹«¸­À» µé¾î »ó´ëÀÇ º¹ºÎ¸¦ °¡°İ", YaCht_CardRarity.C, "Sprites/Cards/JohnCena/KitchenSink",
+    public static YaCht_CardData KitchenSink = new YaCht_CardData("í‚¤ì¹œ ì‹±í¬", 6, "ë¬´ë¦ì„ ë“¤ì–´ ìƒëŒ€ì˜ ë³µë¶€ë¥¼ ê°€ê²©", YaCht_CardRarity.C, "Sprites/Cards/JohnCena/KitchenSink",
     new YaCht_CardAttackSettings
     {
         chargeDuration = 0f,
@@ -187,8 +187,8 @@ public static class YaCht_CardDatabase
     "Sounds/Cards/JohnCena/KitchenSink"
 );
 
-    // D·©Å© (50% È®·ü)
-    public static YaCht_CardData KneeStrike = new YaCht_CardData("´Ï ½ºÆ®¶óÀÌÅ©", 4, "¹«¸­À¸·Î °¡°İÇÏ´Â ±âº» ±â¼ú", YaCht_CardRarity.D, "Sprites/Cards/JohnCena/KneeStrike",
+    // Dë­í¬ (50% í™•ë¥ )
+    public static YaCht_CardData KneeStrike = new YaCht_CardData("ë‹ˆ ìŠ¤íŠ¸ë¼ì´í¬", 4, "ë¬´ë¦ìœ¼ë¡œ ê°€ê²©í•˜ëŠ” ê¸°ë³¸ ê¸°ìˆ ", YaCht_CardRarity.D, "Sprites/Cards/JohnCena/KneeStrike",
     new YaCht_CardAttackSettings
     {
         chargeDuration = 0f,
@@ -201,7 +201,7 @@ public static class YaCht_CardDatabase
     "Sounds/Cards/JohnCena/KneeStrike"
 );
 
-    public static YaCht_CardData Headbutt = new YaCht_CardData("¹ÚÄ¡±â", 5, "¸Ó¸®¸¦ »ç¿ëÇØ¼­ »ó´ë¸¦ Ä¡´Â ±â¼ú", YaCht_CardRarity.D, "Sprites/Cards/JohnCena/Headbutt",
+    public static YaCht_CardData Headbutt = new YaCht_CardData("ë°•ì¹˜ê¸°", 5, "ë¨¸ë¦¬ë¥¼ ì‚¬ìš©í•´ì„œ ìƒëŒ€ë¥¼ ì¹˜ëŠ” ê¸°ìˆ ", YaCht_CardRarity.D, "Sprites/Cards/JohnCena/Headbutt",
     new YaCht_CardAttackSettings
     {
         chargeDuration = 0f,
@@ -214,10 +214,10 @@ public static class YaCht_CardDatabase
     "Sounds/Cards/JohnCena/Headbutt"
 );
 
-// === ¾ğ´õÅ×ÀÌÄ¿ Å×¸¶ Ä«µå ===
+// === ì–¸ë”í…Œì´ì»¤ í…Œë§ˆ ì¹´ë“œ ===
 
-// S·©Å© (10% È®·ü)
-public static YaCht_CardData TombstonePiledriver = new YaCht_CardData("Åù½ºÅæ ÆÄÀÏµå¶óÀÌ¹ö", 22, "¾ğ´õÅ×ÀÌÄ¿ÀÇ ÃÖ°­ ÇÇ´Ï¼Å ¹«ºê", YaCht_CardRarity.S, "Sprites/Cards/Undertaker/TombstonePiledriver",
+// Së­í¬ (10% í™•ë¥ )
+public static YaCht_CardData TombstonePiledriver = new YaCht_CardData("íˆ¼ìŠ¤í†¤ íŒŒì¼ë“œë¼ì´ë²„", 22, "ì–¸ë”í…Œì´ì»¤ì˜ ìµœê°• í”¼ë‹ˆì…” ë¬´ë¸Œ", YaCht_CardRarity.S, "Sprites/Cards/Undertaker/TombstonePiledriver",
     new YaCht_CardAttackSettings
     {
         chargeDuration = 0.42f,
@@ -230,7 +230,7 @@ public static YaCht_CardData TombstonePiledriver = new YaCht_CardData("Åù½ºÅæ ÆÄ
     "Sounds/Cards/Undertaker/TombstonePiledriver"
 );
 
-public static YaCht_CardData HellsGate = new YaCht_CardData("ÇïÁî °ÔÀÌÆ®", 20, "»ó´ë¸¦ Á¦¾ĞÇÏ´Â ¼­ºê¹Ì¼Ç ±â¼ú", YaCht_CardRarity.S, "Sprites/Cards/Undertaker/HellsGate",
+public static YaCht_CardData HellsGate = new YaCht_CardData("í—¬ì¦ˆ ê²Œì´íŠ¸", 20, "ìƒëŒ€ë¥¼ ì œì••í•˜ëŠ” ì„œë¸Œë¯¸ì…˜ ê¸°ìˆ ", YaCht_CardRarity.S, "Sprites/Cards/Undertaker/HellsGate",
     new YaCht_CardAttackSettings
     {
         chargeDuration = 0.38f,
@@ -243,8 +243,8 @@ public static YaCht_CardData HellsGate = new YaCht_CardData("ÇïÁî °ÔÀÌÆ®", 20, "
     "Sounds/Cards/Undertaker/HellsGate"
 );
 
-// A·©Å© (20% È®·ü)
-public static YaCht_CardData MuscleBuster = new YaCht_CardData("¸Ó½½ ¹ö½ºÅÍ", 13, "»ó´ë¸¦ µé¾î¿Ã·Á ³»·ÁÂï´Â °­·ÂÇÑ ±â¼ú", YaCht_CardRarity.A, "Sprites/Cards/Undertaker/MuscleBuster",
+// Aë­í¬ (20% í™•ë¥ )
+public static YaCht_CardData MuscleBuster = new YaCht_CardData("ë¨¸ìŠ¬ ë²„ìŠ¤í„°", 13, "ìƒëŒ€ë¥¼ ë“¤ì–´ì˜¬ë ¤ ë‚´ë ¤ì°ëŠ” ê°•ë ¥í•œ ê¸°ìˆ ", YaCht_CardRarity.A, "Sprites/Cards/Undertaker/MuscleBuster",
     new YaCht_CardAttackSettings
     {
         chargeDuration = 0.32f,
@@ -257,7 +257,7 @@ public static YaCht_CardData MuscleBuster = new YaCht_CardData("¸Ó½½ ¹ö½ºÅÍ", 13
     "Sounds/Cards/Undertaker/MuscleBuster"
 );
 
-public static YaCht_CardData RearNakedChoke = new YaCht_CardData("¸®¾î ³×ÀÌÅ°µå ÃÊÅ©", 11, "»ó´ëÀÇ µÚ¿¡¼­ ¾È°í ¸ñÀ» Á¶¸£´Â ±â¼ú", YaCht_CardRarity.A, "Sprites/Cards/Undertaker/RearNakedChoke",
+public static YaCht_CardData RearNakedChoke = new YaCht_CardData("ë¦¬ì–´ ë„¤ì´í‚¤ë“œ ì´ˆí¬", 11, "ìƒëŒ€ì˜ ë’¤ì—ì„œ ì•ˆê³  ëª©ì„ ì¡°ë¥´ëŠ” ê¸°ìˆ ", YaCht_CardRarity.A, "Sprites/Cards/Undertaker/RearNakedChoke",
     new YaCht_CardAttackSettings
     {
         chargeDuration = 0.27f,
@@ -270,8 +270,8 @@ public static YaCht_CardData RearNakedChoke = new YaCht_CardData("¸®¾î ³×ÀÌÅ°µå 
     "Sounds/Cards/Undertaker/RearNakedChoke"
 );
 
-// B·©Å© (30% È®·ü)
-public static YaCht_CardData ElbowDrop = new YaCht_CardData("¿¤º¸¿ì µå·Ó", 8, "ÆÈ²ŞÄ¡¸¦ ¶³¾î¶ß¸®´Â ±â¼ú", YaCht_CardRarity.B, "Sprites/Cards/Undertaker/ElbowDrop",
+// Bë­í¬ (30% í™•ë¥ )
+public static YaCht_CardData ElbowDrop = new YaCht_CardData("ì—˜ë³´ìš° ë“œë¡­", 8, "íŒ”ê¿ˆì¹˜ë¥¼ ë–¨ì–´ëœ¨ë¦¬ëŠ” ê¸°ìˆ ", YaCht_CardRarity.B, "Sprites/Cards/Undertaker/ElbowDrop",
     new YaCht_CardAttackSettings
     {
         chargeDuration = 0f,
@@ -284,7 +284,7 @@ public static YaCht_CardData ElbowDrop = new YaCht_CardData("¿¤º¸¿ì µå·Ó", 8, "Æ
     "Sounds/Cards/Undertaker/ElbowDrop"
 );
 
-public static YaCht_CardData CornerBodySplash = new YaCht_CardData("ÄÚ³Ê ¹Ùµğ ½ºÇÃ·¡½¬", 8, "ÄÚ³Ê¿¡¼­ ¸öÀ¸·Î ¾Ğ¹ÚÇÏ´Â ±â¼ú", YaCht_CardRarity.B, "Sprites/Cards/Undertaker/CornerBodySplash",
+public static YaCht_CardData CornerBodySplash = new YaCht_CardData("ì½”ë„ˆ ë°”ë”” ìŠ¤í”Œë˜ì‰¬", 8, "ì½”ë„ˆì—ì„œ ëª¸ìœ¼ë¡œ ì••ë°•í•˜ëŠ” ê¸°ìˆ ", YaCht_CardRarity.B, "Sprites/Cards/Undertaker/CornerBodySplash",
     new YaCht_CardAttackSettings
     {
         chargeDuration = 0f,
@@ -297,7 +297,7 @@ public static YaCht_CardData CornerBodySplash = new YaCht_CardData("ÄÚ³Ê ¹Ùµğ ½º
     "Sounds/Cards/Undertaker/CornerBodySplash"
 );
 
-public static YaCht_CardData OldSchool = new YaCht_CardData("¿Ãµå ½ºÄğ", 9, "·ÎÇÁ¸¦ Å¸°í ÆÈÀ» ³»¸®Ä¡´Â ¾ğ´õÅ×ÀÌÄ¿ ½Ã±×´ÏÃ³ ¹«ºê", YaCht_CardRarity.B, "Sprites/Cards/Undertaker/OldSchool",
+public static YaCht_CardData OldSchool = new YaCht_CardData("ì˜¬ë“œ ìŠ¤ì¿¨", 9, "ë¡œí”„ë¥¼ íƒ€ê³  íŒ”ì„ ë‚´ë¦¬ì¹˜ëŠ” ì–¸ë”í…Œì´ì»¤ ì‹œê·¸ë‹ˆì²˜ ë¬´ë¸Œ", YaCht_CardRarity.B, "Sprites/Cards/Undertaker/OldSchool",
     new YaCht_CardAttackSettings
     {
         chargeDuration = 0f,
@@ -310,8 +310,8 @@ public static YaCht_CardData OldSchool = new YaCht_CardData("¿Ãµå ½ºÄğ", 9, "·ÎÇ
     "Sounds/Cards/Undertaker/OldSchool"
 );
 
-// C·©Å© (40% È®·ü)
-public static YaCht_CardData CornerIrishWhip = new YaCht_CardData("ÄÚ³Ê ¾ÆÀÌ¸®½Ã À¬", 6, "»ó´ë¸¦ ÄÚ³Ê·Î ´øÁö´Â ±â¼ú", YaCht_CardRarity.C, "Sprites/Cards/Undertaker/CornerIrishWhip",
+// Cë­í¬ (40% í™•ë¥ )
+public static YaCht_CardData CornerIrishWhip = new YaCht_CardData("ì½”ë„ˆ ì•„ì´ë¦¬ì‹œ ìœ•", 6, "ìƒëŒ€ë¥¼ ì½”ë„ˆë¡œ ë˜ì§€ëŠ” ê¸°ìˆ ", YaCht_CardRarity.C, "Sprites/Cards/Undertaker/CornerIrishWhip",
     new YaCht_CardAttackSettings
     {
         chargeDuration = 0f,
@@ -324,7 +324,7 @@ public static YaCht_CardData CornerIrishWhip = new YaCht_CardData("ÄÚ³Ê ¾ÆÀÌ¸®½Ã
     "Sounds/Cards/Undertaker/CornerIrishWhip"
 );
 
-public static YaCht_CardData LowKick = new YaCht_CardData("·Î¿ìÅ±", 5, "³·Àº ´Ù¸® ³ôÀÌ·Î ºü¸¥ ¼Óµµ·Î ±â¼ú", YaCht_CardRarity.C, "Sprites/Cards/Undertaker/LowKick",
+public static YaCht_CardData LowKick = new YaCht_CardData("ë¡œìš°í‚¥", 5, "ë‚®ì€ ë‹¤ë¦¬ ë†’ì´ë¡œ ë¹ ë¥¸ ì†ë„ë¡œ ê¸°ìˆ ", YaCht_CardRarity.C, "Sprites/Cards/Undertaker/LowKick",
     new YaCht_CardAttackSettings
     {
         chargeDuration = 0f,
@@ -337,8 +337,8 @@ public static YaCht_CardData LowKick = new YaCht_CardData("·Î¿ìÅ±", 5, "³·Àº ´Ù¸
     "Sounds/Cards/Undertaker/LowKick"
 );
 
-// D·©Å© (50% È®·ü)
-public static YaCht_CardData Chop = new YaCht_CardData("Âı", 4, "¼Õ¹Ù´ÚÀ¸·Î Ä¡´Â ±â¼ú", YaCht_CardRarity.D, "Sprites/Cards/Undertaker/Chop",
+// Dë­í¬ (50% í™•ë¥ )
+public static YaCht_CardData Chop = new YaCht_CardData("ì°¹", 4, "ì†ë°”ë‹¥ìœ¼ë¡œ ì¹˜ëŠ” ê¸°ìˆ ", YaCht_CardRarity.D, "Sprites/Cards/Undertaker/Chop",
     new YaCht_CardAttackSettings
     {
         chargeDuration = 0f,
@@ -351,17 +351,17 @@ public static YaCht_CardData Chop = new YaCht_CardData("Âı", 4, "¼Õ¹Ù´ÚÀ¸·Î Ä¡´Â
     "Sounds/Cards/Undertaker/Chop"
 );
     
-    // ¸ğµç Ä«µå ¸ñ·Ï
+    // ëª¨ë“  ì¹´ë“œ ëª©ë¡
     public static YaCht_CardData[] GetAllCards()
     {
         return new YaCht_CardData[]
         {
-            // Á¸ ½Ã³ª Å×¸¶
+            // ì¡´ ì‹œë‚˜ í…Œë§ˆ
             AA, RKO, NakedChoke, Superkick,
             ShoulderTackle, Dropkick, IrishWhip, KitchenSink,
             KneeStrike, Headbutt,
             
-            // ¾ğ´õÅ×ÀÌÄ¿ Å×¸¶
+            // ì–¸ë”í…Œì´ì»¤ í…Œë§ˆ
             TombstonePiledriver, HellsGate, MuscleBuster,
             RearNakedChoke, ElbowDrop, CornerBodySplash, OldSchool,
             CornerIrishWhip, LowKick, Chop
@@ -370,95 +370,75 @@ public static YaCht_CardData Chop = new YaCht_CardData("Âı", 4, "¼Õ¹Ù´ÚÀ¸·Î Ä¡´Â
 }
 
 // ==================================================================================
-// Ä«µå ¼¼Æ® µ¥ÀÌÅÍº£ÀÌ½º (¹Ì¸® Á¤ÀÇµÈ µ¦µé)
+// ì¹´ë“œ ì„¸íŠ¸ ë°ì´í„°ë² ì´ìŠ¤ (ë¯¸ë¦¬ ì •ì˜ëœ ë±ë“¤)
 // ==================================================================================
 public static class YaCht_CardSetDatabase
 {
-    // Á¸ ½Ã³ª µ¦ - Á¸ ½Ã³ª Å×¸¶ÀÇ Ä«µåµé·Î ±¸¼º
+    // ì¡´ ì‹œë‚˜ ë± - ì¡´ ì‹œë‚˜ í…Œë§ˆì˜ ì¹´ë“œë“¤ë¡œ êµ¬ì„±
     public static YaCht_CardSetData JohnCenaSet = new YaCht_CardSetData(
-        "Á¸ ½Ã³ª µ¦",
-        "U CAN'T SEE ME! Á¸ ½Ã³ªÀÇ ½Ã±×´ÏÃ³ ¹«ºêµé·Î ±¸¼ºµÇ¾î ÀÖ½À´Ï´Ù.",
+        "ì¡´ ì„¸ë‚˜ ë±",
+        "U CAN'T SEE ME! ì¡´ ì„¸ë‚˜ì˜ ì‹œê·¸ë‹ˆì²˜ ë¬´ë¸Œë“¤ë¡œ êµ¬ì„±ë˜ì–´ ìˆìŠµë‹ˆë‹¤.",
         YaCht_WrestlerType.JohnCena,
         new List<YaCht_CardData>
         {
-            // S·©Å© (10%)
+            // Së­í¬ (10%)
             YaCht_CardDatabase.AA,
             YaCht_CardDatabase.RKO,
             
-            // A·©Å© (20%)
+            // Aë­í¬ (20%)
             YaCht_CardDatabase.NakedChoke,
             YaCht_CardDatabase.Superkick,
             
-            // B·©Å© (30%)
+            // Bë­í¬ (30%)
             YaCht_CardDatabase.ShoulderTackle,
             YaCht_CardDatabase.Dropkick,
             
-            // C·©Å© (40%)
+            // Cë­í¬ (40%)
             YaCht_CardDatabase.IrishWhip,
             YaCht_CardDatabase.KitchenSink,
             
-            // D·©Å© (50%)
+            // Dë­í¬ (50%)
             YaCht_CardDatabase.KneeStrike,
             YaCht_CardDatabase.Headbutt
         }
     );
     
-    // ¾ğ´õÅ×ÀÌÄ¿ µ¦ - ¾ğ´õÅ×ÀÌÄ¿ Å×¸¶ÀÇ Ä«µåµé·Î ±¸¼º
+    // ì–¸ë”í…Œì´ì»¤ ë± - ì–¸ë”í…Œì´ì»¤ í…Œë§ˆì˜ ì¹´ë“œë“¤ë¡œ êµ¬ì„±
     public static YaCht_CardSetData UndertakerSet = new YaCht_CardSetData(
-        "¾ğ´õÅ×ÀÌÄ¿ µ¦",
-        "REST IN PEACE! ¾ğ´õÅ×ÀÌÄ¿ÀÇ ½Ã±×´ÏÃ³ ¹«ºêµé·Î ±¸¼ºµÇ¾î ÀÖ½À´Ï´Ù.",
+        "ì—…í¼í…Œì´ì»¤ ë±",
+        "REST IN PEACE! ì—…í¼í…Œì´ì»¤ì˜ ì‹œê·¸ë‹ˆì²˜ ë¬´ë¸Œë“¤ë¡œ êµ¬ì„±ë˜ì–´ ìˆìŠµë‹ˆë‹¤.",
         YaCht_WrestlerType.Undertaker,
         new List<YaCht_CardData>
         {
-            // S·©Å© (10%)
+            // Së­í¬ (10%)
             YaCht_CardDatabase.TombstonePiledriver,
             YaCht_CardDatabase.HellsGate,
             
-            // A·©Å© (20%)
+            // Aë­í¬ (20%)
             YaCht_CardDatabase.MuscleBuster,            
             YaCht_CardDatabase.RearNakedChoke,
             
-            // B·©Å© (30%)
+            // Bë­í¬ (30%)
             YaCht_CardDatabase.ElbowDrop,
             YaCht_CardDatabase.CornerBodySplash,
             YaCht_CardDatabase.OldSchool,
             
-            // C·©Å© (40%)
+            // Cë­í¬ (40%)
             YaCht_CardDatabase.CornerIrishWhip,
             YaCht_CardDatabase.LowKick,
             
-            // D·©Å© (50%)
+            // Dë­í¬ (50%)
             YaCht_CardDatabase.Chop
         }
-    );
-
-    public static YaCht_CardSetData TestSet = new YaCht_CardSetData(
-        "±âº» ±â¼ú ¼¼Æ®",
-        "D·©Å© ±â¼ú¸¸À¸·Î ±¸¼ºµÈ Å×½ºÆ® ¼¼Æ®ÀÔ´Ï´Ù.",
-        YaCht_WrestlerType.None,
-        new List<YaCht_CardData>
-        {
-            YaCht_CardDatabase.KneeStrike,
-            YaCht_CardDatabase.KneeStrike,
-            YaCht_CardDatabase.KneeStrike,
-            YaCht_CardDatabase.KneeStrike,
-            YaCht_CardDatabase.KneeStrike,
-            YaCht_CardDatabase.Headbutt,
-            YaCht_CardDatabase.Headbutt,
-            YaCht_CardDatabase.Headbutt,
-            YaCht_CardDatabase.Chop,
-            YaCht_CardDatabase.Chop
-        }
-    );
+    );  
     
-    // ¸ğµç Ä«µå ¼¼Æ® ¸ñ·Ï
+    // ëª¨ë“  ì¹´ë“œ ì„¸íŠ¸ ëª©ë¡
     public static YaCht_CardSetData[] GetAllSets()
     {
         return new YaCht_CardSetData[]
         {
             JohnCenaSet,
             UndertakerSet,
-            TestSet
         };
     }
 }

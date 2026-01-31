@@ -8,38 +8,41 @@ public class YaCht_WWECard : MonoBehaviour, IPointerClickHandler
 {
     private YaCht_CardData m_cardData;
     public YaCht_CardData GetCardData => m_cardData;
-    
+
     public Canvas m_cardCanvas;
     public Image m_cardImage;
-    public TextMeshProUGUI m_cardRarity;      // µî±Ş Ç¥½Ã ÅØ½ºÆ®
+    public TextMeshProUGUI m_cardRarity;      // ì¹´ë“œ ë ˆì–´ë„ í‘œì‹œ
 
     private bool m_isPreviewCard = false;
     public bool IsPreviewCard => m_isPreviewCard;
 
     private bool m_isSetup = false;
     public bool IsSetup => m_isSetup;
-    
+
+    private bool m_isFixedCard = false; // FixedMaskë¡œ ìƒì„±ëœ ê³ ì • ì¹´ë“œì¸ì§€ ì—¬ë¶€
+    public bool IsFixedCard => m_isFixedCard;
+
     private int m_setupSlotIndex = -1;
     public int SetupSlotIndex => m_setupSlotIndex;
-    
+
     private int m_drawOrderId = -1;
     public int DrawOrderId => m_drawOrderId;
-    
+
     private Transform m_originalParent;
-    
+
     public void Init(YaCht_CardData _cardData, bool isPreviewCard = false)
     {
-        m_cardData = _cardData;        
-        m_cardCanvas.worldCamera = Camera.main;      
-        
-        // µî±Ş Ç¥½Ã ¾÷µ¥ÀÌÆ®
+        m_cardData = _cardData;
+        m_cardCanvas.worldCamera = Camera.main;
+
+        // ì¹´ë“œ ë ˆì–´ë„ í‘œì‹œ
         UpdateRarityDisplay();
-        
-        // Ä«µå ÀÌ¹ÌÁö ·Îµå
+
+        // ì¹´ë“œ ì´ë¯¸ì§€ ë¡œë“œ
         LoadCardImage();
-        
+
         m_isPreviewCard = isPreviewCard;
-        
+
         if (m_isPreviewCard)
         {
             m_cardCanvas.sortingOrder = 100;
@@ -54,26 +57,20 @@ public class YaCht_WWECard : MonoBehaviour, IPointerClickHandler
     public void UpdateCardData(YaCht_CardData _cardData)
     {
         m_cardData = _cardData;
-        
-        // µî±Ş Ç¥½Ã ¾÷µ¥ÀÌÆ®
+
         UpdateRarityDisplay();
-        
-        // Ä«µå ÀÌ¹ÌÁö ·Îµå
+
         LoadCardImage();
     }
-    
-    /// <summary>
-    /// Ä«µå ÀÌ¹ÌÁö¸¦ Resources¿¡¼­ ·Îµå
-    /// </summary>
+
     private void LoadCardImage()
     {
         if (m_cardImage == null)
         {
-            Debug.LogWarning("[Card] Image ÄÄÆ÷³ÍÆ®°¡ ¾ø½À´Ï´Ù!");
+            Debug.LogWarning("[Card] Image ì»´í¬ë„ŒíŠ¸ê°€ ì¡´ì¬í•˜ì§€ ì•ŠìŠµë‹ˆë‹¤!");
             return;
         }
 
-        // ÀÌ¹ÌÁö °æ·Î°¡ ÁöÁ¤µÇ¾î ÀÖÀ¸¸é ·Îµå
         if (!string.IsNullOrEmpty(m_cardData.m_imageResourcePath))
         {
             Sprite loadedSprite = Resources.Load<Sprite>(m_cardData.m_imageResourcePath);
@@ -81,24 +78,23 @@ public class YaCht_WWECard : MonoBehaviour, IPointerClickHandler
             if (loadedSprite != null)
             {
                 m_cardImage.sprite = loadedSprite;
-                Debug.Log($"[Card] ÀÌ¹ÌÁö ·Îµå ¼º°ø: {m_cardData.m_imageResourcePath}");
+                Debug.Log($"[Card] ì¹´ë“œ ì´ë¯¸ì§€ ë¡œë“œ: {m_cardData.m_imageResourcePath}");
             }
         }
-    }   
-    
-    /// <summary>
-    /// µî±Ş Ç¥½Ã ¾÷µ¥ÀÌÆ®
-    /// </summary>
+    }
+
+
     private void UpdateRarityDisplay()
     {
         if (m_cardRarity != null)
         {
             m_cardRarity.text = GetRarityText(m_cardData.m_rarity);
-        }         
+            m_cardRarity.color = GetRarityColor(m_cardData.m_rarity);
+        }
     }
-    
+
     /// <summary>
-    /// µî±Ş ÅØ½ºÆ® ¹İÈ¯
+    /// ë ˆì–´ë„ì— ë”°ë¥¸ í…ìŠ¤íŠ¸ ë°˜í™˜
     /// </summary>
     private string GetRarityText(YaCht_CardRarity rarity)
     {
@@ -117,50 +113,105 @@ public class YaCht_WWECard : MonoBehaviour, IPointerClickHandler
             default:
                 return "?";
         }
-    }       
+    }
+
+    /// <summary>
+    /// ë ˆì–´ë„ì— ë”°ë¥¸ ìƒ‰ìƒ ë°˜í™˜
+    /// </summary>
+    private Color GetRarityColor(YaCht_CardRarity rarity)
+    {
+        switch (rarity)
+        {
+            case YaCht_CardRarity.S:
+                return Color.yellow;
+            case YaCht_CardRarity.A:
+                return Color.red;
+            case YaCht_CardRarity.B:
+                return Color.skyBlue;
+            case YaCht_CardRarity.C:
+                return Color.green;
+            case YaCht_CardRarity.D:
+                return Color.grey;
+            default:
+                return Color.white;
+        }
+    }
     public void OnPointerClick(PointerEventData eventData)
     {
         YaCht_WWEMainGame testGame = FindFirstObjectByType<YaCht_WWEMainGame>();
         if (testGame == null) return;
 
-        // Ä«µå »óÅÂ¿¡ µû¶ó ÀûÀıÇÑ ¸Ş¼­µå È£Ãâ
         if (m_isPreviewCard)
         {
             testGame.OnPreviewCardClicked();
         }
         else if (m_isSetup)
         {
-            testGame.RemoveTopCardFromSlot(m_setupSlotIndex);
+            // ê³ ì • ì¹´ë“œëŠ” ì œê±°í•  ìˆ˜ ì—†ìŒ
+            if (!m_isFixedCard)
+            {
+                testGame.RemoveTopCardFromSlot(m_setupSlotIndex);
+            }
         }
         else
         {
             testGame.OnHandCardClicked(this);
         }
     }
-    
+
     public void SetupCard(Transform setupParent, int slotIndex, Vector3 offset)
     {
-        // ºÎ¸ğ°¡ º¯°æµÉ ¶§¸¸ m_originalParent ÀúÀå (ÇÑ ¹ø¸¸!)
         if (!m_isSetup && transform.parent != setupParent)
         {
             m_originalParent = transform.parent;
         }
-        
+
         m_isSetup = true;
         m_setupSlotIndex = slotIndex;
-                
+
         transform.SetParent(setupParent);
         transform.localPosition = offset;
         transform.localRotation = Quaternion.identity;
         transform.localScale = Vector3.one;
         transform.SetAsLastSibling();
+        
+        // ê³ ì • ì¹´ë“œ í•˜ì´ë¼ì´íŠ¸ ì—…ë°ì´íŠ¸
+        UpdateFixedCardHighlight();
     }
     
+    /// <summary>
+    /// ê³ ì • ì¹´ë“œë¡œ ì„¤ì •
+    /// </summary>
+    public void SetFixedCard(bool isFixed)
+    {
+        m_isFixedCard = isFixed;
+        UpdateFixedCardHighlight();
+    }
+    
+    /// <summary>
+    /// ê³ ì • ì¹´ë“œ í•˜ì´ë¼ì´íŠ¸ ì—…ë°ì´íŠ¸
+    /// </summary>
+    private void UpdateFixedCardHighlight()
+    {
+        if (m_cardImage != null)
+        {
+            // ê³ ì • ì¹´ë“œëŠ” ë…¸ë€ìƒ‰ í•˜ì´ë¼ì´íŠ¸ ì ìš©
+            if (m_isFixedCard && m_isSetup)
+            {
+                m_cardImage.color = new Color(1f, 1f, 0.7f, 1f); // ë…¸ë€ìƒ‰ í•˜ì´ë¼ì´íŠ¸
+            }
+            else
+            {
+                m_cardImage.color = Color.white; // ê¸°ë³¸ ìƒ‰ìƒ
+            }
+        }
+    }
+
     public void ReleaseSetup()
     {
         m_isSetup = false;
         m_setupSlotIndex = -1;
-        
+
         if (m_originalParent != null)
         {
             transform.SetParent(m_originalParent);
@@ -168,54 +219,54 @@ public class YaCht_WWECard : MonoBehaviour, IPointerClickHandler
     }
 
     /// <summary>
-    /// Ä«µå°¡ ÀûÀ» ÇâÇØ µ¹ÁøÇÏ¸ç Å¸°İÇÏ´Â ¿¬Ãâ
+    /// ì  ê³µê²© ì½”ë£¨í‹´ ì‹¤í–‰
     /// </summary>
     public IEnumerator AttackEnemyCoroutine(Transform enemyPosition, float attackDuration = 0.5f)
     {
         Vector3 startPosition = transform.position;
         Vector3 targetPosition = enemyPosition.position;
-        
+
         YaCht_CardAttackSettings attackSettings = m_cardData.m_attackSettings;
 
-        // Â÷Â¡ ´Ü°è
+        // ì°¨ì§• ì´ë™ ì‹¤í–‰
         if (attackSettings.chargeDuration > 0)
         {
             yield return StartCoroutine(ChargeMovement(startPosition, attackSettings, targetPosition));
         }
 
-        // Â÷Â¡ ÈÄ µô·¹ÀÌ
+        // ì°¨ì§• ë”œë ˆì´ ì‹¤í–‰
         if (attackSettings.chargeDelay > 0)
         {
             yield return new WaitForSeconds(attackSettings.chargeDelay);
         }
 
-        // µ¹Áø ´Ü°è - »ç¿îµå¿Í ÀÌÆåÆ® Å¸ÀÌ¹Ö Æ÷ÇÔ
-        yield return StartCoroutine(AttackMovementWithEffects(startPosition, targetPosition, attackSettings));       
+        // ê³µê²© ì´ë™ ì‹¤í–‰
+        yield return StartCoroutine(AttackMovementWithEffects(startPosition, targetPosition, attackSettings));
     }
 
     /// <summary>
-    /// Â÷Â¡ ¹«ºê¸ÕÆ® (Àû°ú ¹İ´ë ¹æÇâÀ¸·Î µÚ·Î ¹°·¯³ª´Â È¿°ú)
+    /// ì°¨ì§• ì´ë™ (ì°¨ì§• ì´ë™ ê±°ë¦¬ë§Œí¼ ë’¤ë¡œ ì´ë™)
     /// </summary>
     private IEnumerator ChargeMovement(Vector3 originalPosition, YaCht_CardAttackSettings settings, Vector3 targetPosition)
     {
-        // Àû ¹æÇâ °è»ê
+        // ì  ë°©í–¥ ê³„ì‚°
         Vector3 directionToEnemy = (targetPosition - originalPosition).normalized;
-        // Àû°ú ¹İ´ë ¹æÇâ
+        // ì°¨ì§• ì´ë™ ë°©í–¥ ê³„ì‚°
         Vector3 chargeBackDirection = -directionToEnemy;
-        // Â÷Â¡ À§Ä¡ °è»ê (¹İ´ë ¹æÇâÀ¸·Î ÀÌµ¿)
+        // ì°¨ì§• ì´ë™ ìœ„ì¹˜ ê³„ì‚°
         Vector3 chargeBackPosition = originalPosition + chargeBackDirection * settings.chargeMoveDistance;
-        
+
         float elapsed = 0f;
 
         while (elapsed < settings.chargeDuration)
         {
             elapsed += Time.deltaTime;
             float t = elapsed / settings.chargeDuration;
-            
-            // ºÎµå·¯¿î ÀÌµ¿
+
+            // ì´ë™ ì†ë„ ê³„ì‚°
             float easeT = t * t;
             transform.position = Vector3.Lerp(originalPosition, chargeBackPosition, easeT);
-            
+
             yield return null;
         }
 
@@ -223,9 +274,9 @@ public class YaCht_WWECard : MonoBehaviour, IPointerClickHandler
     }
 
     /// <summary>
-    /// µ¹Áø ¹«ºê¸ÕÆ® + »ç¿îµå/ÀÌÆåÆ® Å¸ÀÌ¹Ö
+    /// ê³µê²© ì´ë™ + ê³µê²© ì´í™íŠ¸ ì‹¤í–‰
     /// </summary>
-    private IEnumerator AttackMovementWithEffects(Vector3 startPosition, Vector3 targetPosition, 
+    private IEnumerator AttackMovementWithEffects(Vector3 startPosition, Vector3 targetPosition,
         YaCht_CardAttackSettings settings)
     {
         float elapsed = 0f;
@@ -236,32 +287,32 @@ public class YaCht_WWECard : MonoBehaviour, IPointerClickHandler
         {
             elapsed += Time.deltaTime;
             float t = elapsed / settings.attackDuration;
-            
-            // »ç¿îµå Å¸ÀÌ¹Ö
+
+            // ê³µê²© ì‚¬ìš´ë“œ ì‹¤í–‰
             if (!soundPlayed && t >= settings.soundTriggerTime)
             {
                 PlayAttackSound();
                 soundPlayed = true;
             }
 
-            // ÀÌÆåÆ® Å¸ÀÌ¹Ö
+            // ê³µê²© ì´í™íŠ¸ ì‹¤í–‰
             if (!effectPlayed && t >= settings.effectTriggerTime)
             {
                 PlayAttackEffect(targetPosition);
                 effectPlayed = true;
             }
-            
-            // Ease-out °î¼±À¸·Î ÀÚ¿¬½º·¯¿î ¿òÁ÷ÀÓ
+
+            // Ease-out ê³¡ì„  ê³„ì‚°
             float easeT = 1f - Mathf.Pow(1f - t, 3f);
             transform.position = Vector3.Lerp(startPosition, targetPosition, easeT);
-            
+
             yield return null;
         }
 
-        // ÃÖÁ¾ À§Ä¡ È®Á¤
+        // ê³µê²© ìœ„ì¹˜ ì„¤ì •
         transform.position = targetPosition;
 
-        // ¾ÆÁ÷ »ç¿îµå/ÀÌÆåÆ®°¡ Àç»ıµÇÁö ¾Ê¾ÒÀ¸¸é ¸¶Áö¸·¿¡ ½ÇÇà
+        // ê³µê²© ì‚¬ìš´ë“œ ì‹¤í–‰
         if (!soundPlayed)
         {
             PlayAttackSound();
@@ -271,18 +322,28 @@ public class YaCht_WWECard : MonoBehaviour, IPointerClickHandler
             PlayAttackEffect(targetPosition);
         }
 
-        m_cardImage.enabled = false;
+        YaCht_WWEMainGame wweMainGame = FindFirstObjectByType<YaCht_WWEMainGame>();
+
+        if(wweMainGame.CurrentEnemy.GetShakeCoroutine != null)
+            wweMainGame.CurrentEnemy.StopCoroutine(wweMainGame.CurrentEnemy.GetShakeCoroutine);
+        if (wweMainGame.CurrentEnemy.GetFlashCoroutine != null)
+            wweMainGame.CurrentEnemy.StopCoroutine(wweMainGame.CurrentEnemy.GetFlashCoroutine);
+        
+        StartCoroutine(wweMainGame.CurrentEnemy.ShakeCoroutine());
+        StartCoroutine(wweMainGame.CurrentEnemy.FlashCoroutine());
+
+        m_cardImage.gameObject.SetActive(false);
     }
 
     /// <summary>
-    /// Ä«µå »ç¿îµå Àç»ı
+    /// ê³µê²© ì‚¬ìš´ë“œ ì‹¤í–‰
     /// </summary>
     private void PlayAttackSound()
     {
-        // °ÔÀÓÀÇ È¿°úÀ½ ½Ã½ºÅÛÀÌ ÀÖ´Ù¸é ¿©±â¿¡ ÅëÇÕ
+        // ê³µê²© ì‚¬ìš´ë“œ ë¦¬ì†ŒìŠ¤ ê²½ë¡œê°€ ë¹„ì–´ìˆì§€ ì•Šìœ¼ë©´ ì‹¤í–‰
         if (!string.IsNullOrEmpty(m_cardData.m_soundResourcePath))
         {
-            Debug.Log($"[Sound] {m_cardData.m_name}: {m_cardData.m_soundResourcePath} Àç»ı");
+            Debug.Log($"[Sound] {m_cardData.m_name}: {m_cardData.m_soundResourcePath} ì‹¤í–‰");
             // AudioClip soundClip = Resources.Load<AudioClip>(m_cardData.m_soundResourcePath);
             // if (soundClip != null)
             // {
@@ -296,12 +357,12 @@ public class YaCht_WWECard : MonoBehaviour, IPointerClickHandler
     }
 
     /// <summary>
-    /// Ä«µå ÀÌÆåÆ® Àç»ı
+    /// ê³µê²© ì´í™íŠ¸ ì‹¤í–‰
     /// </summary>
     private void PlayAttackEffect(Vector3 targetPosition)
     {
-        // °ÔÀÓÀÇ ÀÌÆåÆ® ½Ã½ºÅÛÀÌ ÀÖ´Ù¸é ¿©±â¿¡ ÅëÇÕ
-        Debug.Log($"[Effect] {m_cardData.m_name}: ÀÌÆåÆ® Àç»ı - Àû À§Ä¡: {targetPosition}");
+        // ê³µê²© ì´í™íŠ¸ ë¦¬ì†ŒìŠ¤ ê²½ë¡œê°€ ë¹„ì–´ìˆì§€ ì•Šìœ¼ë©´ ì‹¤í–‰
+        Debug.Log($"[Effect] {m_cardData.m_name}: ê³µê²© ì´í™íŠ¸ ì‹¤í–‰ - ê³µê²© ìœ„ì¹˜: {targetPosition}");
         // EffectManager.PlayEffect("CardAttackEffect", targetPosition);
     }
 }

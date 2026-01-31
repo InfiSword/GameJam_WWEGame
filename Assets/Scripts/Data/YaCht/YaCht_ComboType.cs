@@ -1,6 +1,6 @@
 using UnityEngine;
 
-// ·¹½½·¯ Å¸ÀÔ
+// ë ˆìŠ¬ëŸ¬ íƒ€ì…
 public enum YaCht_WrestlerType
 {
     None,
@@ -8,7 +8,7 @@ public enum YaCht_WrestlerType
     Undertaker
 }
 
-// ÄŞº¸ ·¹º§
+// ì½¤ë³´ ë ˆë²¨
 public enum YaCht_ComboLevel
 {
     None = 0,
@@ -18,25 +18,25 @@ public enum YaCht_ComboLevel
     Combo6 = 6
 }
 
-// Á¶ÇÕ Á¾·ù Å¸ÀÔ
+// ì¡°í•© ì¢…ë¥˜ íƒ€ì…
 public enum YaCht_ComboType
 {
     None,
     
-    // Á¸ ½Ã³ª ÄŞº¸
+    // ì¡´ ì‹œë‚˜ ì½¤ë³´
     JohnCena_Combo3,
     JohnCena_Combo4,
     JohnCena_Combo5,
     JohnCena_Combo6,
     
-    // ¾ğ´õÅ×ÀÌÄ¿ ÄŞº¸
+    // ì–¸ë”í…Œì´ì»¤ ì½¤ë³´
     Undertaker_Combo3,
     Undertaker_Combo4,
     Undertaker_Combo5,
     Undertaker_Combo6
 }
 
-// Á¶ÇÕ Á¤º¸ µ¥ÀÌÅÍ
+// ì¡°í•© ë°ì´í„° êµ¬ì¡°ì²´
 [System.Serializable]
 public class YaCht_ComboData
 {
@@ -47,6 +47,7 @@ public class YaCht_ComboData
     public string description;
     public int scoreMultiplier;
     public float damageMultiplier;
+    public string requiredPattern; // í•„ìš”í•œ ë“±ê¸‰ íŒ¨í„´ (ì˜ˆ: "BBB", "BBCC", "SSAABB")
     
     public YaCht_ComboData(
         YaCht_ComboType type, 
@@ -55,7 +56,8 @@ public class YaCht_ComboData
         string name, 
         string desc, 
         int score, 
-        float damage)
+        float damage,
+        string pattern = "") // íŒ¨í„´ ê¸°ë³¸ê°’
     {
         comboType = type;
         wrestlerType = wrestler;
@@ -64,101 +66,132 @@ public class YaCht_ComboData
         description = desc;
         scoreMultiplier = score;
         damageMultiplier = damage;
+        requiredPattern = pattern;
     }
 }
 
-// Á¶ÇÕ µ¥ÀÌÅÍº£ÀÌ½º
+// ì¡°í•© ë°ì´í„°ë² ì´ìŠ¤
 public static class YaCht_ComboDatabase
 {
-    // Á¸ ½Ã³ª ÄŞº¸ (¾ßÃß ±ÔÄ¢ Àû¿ë)
+    // ì¡´ ì‹œë‚˜ ì½¤ë³´ (ì•¼ì¶” ê·œì¹™ ê¸°ë°˜)
     public static readonly YaCht_ComboData[] JohnCenaCombos = new YaCht_ComboData[]
     {
-        // 3°³ Á¶ÇÕ: Three of a Kind (C/D µî±Ş 3°³)
+        // 3ì¥ ì½¤ë³´ - Cë“±ê¸‰ 3ì¥
         new YaCht_ComboData(
             YaCht_ComboType.JohnCena_Combo3, 
             YaCht_WrestlerType.JohnCena, 
             YaCht_ComboLevel.Combo3,
-            "Three of a Kind", 
-            "C or D µî±Ş Ä«µå 3°³ ¿¬¼Ó\nEx) ¹ÚÄ¡±â x3", 
+            "Three of a Kind (C)", 
+            "C ë“±ê¸‰ ì¹´ë“œ 3ê°œ ì—°ì†\nEx) ì•„ì´ë¦¬ì‰¬ ìœ• x3", 
             100, 
-            1.5f),
+            1.5f,
+            "CCC"), // íŒ¨í„´: C 3ì¥
+        
+        // 3ì¥ ì½¤ë³´ - Dë“±ê¸‰ 3ì¥    
+        new YaCht_ComboData(
+            YaCht_ComboType.JohnCena_Combo3, 
+            YaCht_WrestlerType.JohnCena, 
+            YaCht_ComboLevel.Combo3,
+            "Three of a Kind (D)", 
+            "D ë“±ê¸‰ ì¹´ë“œ 3ê°œ ì—°ì†\nEx) ë°•ì¹˜ê¸° x3", 
+            100, 
+            1.5f,
+            "DDD"), // íŒ¨í„´: D 3ì¥
             
-        // 4°³ Á¶ÇÕ: Two Pair (Cµî±Ş 2Àå + Bµî±Ş 2Àå)
+        // 4ì¥ ì½¤ë³´: Two Pair (Cë“±ê¸‰ 2ì¥ + Bë“±ê¸‰ 2ì¥)
         new YaCht_ComboData(
             YaCht_ComboType.JohnCena_Combo4, 
             YaCht_WrestlerType.JohnCena, 
             YaCht_ComboLevel.Combo4,
             "Two Pair", 
-            "Cµî±Ş 2Àå + Bµî±Ş 2Àå\nEx) ¾ÆÀÌ¸®½¬ À¬ x2 + ¼ñ´õ ÅÂÅ¬ x2", 
+            "Cë“±ê¸‰ 2ì¥ + Bë“±ê¸‰ 2ì¥\nEx) ì•„ì´ë¦¬ì‰¬ ìœ• x2 + ìˆ„ë” íƒœí´ x2", 
             250, 
-            2.0f),
+            2.0f,
+            "BBCC"), // íŒ¨í„´: B 2ì¥ + C 2ì¥
             
-        // 5°³ Á¶ÇÕ: Full House (Bµî±Ş 2Àå + Aµî±Ş 3Àå)
+        // 5ì¥ ì½¤ë³´: Full House (Bë“±ê¸‰ 2ì¥ + Aë“±ê¸‰ 3ì¥)
         new YaCht_ComboData(
             YaCht_ComboType.JohnCena_Combo5, 
             YaCht_WrestlerType.JohnCena, 
             YaCht_ComboLevel.Combo5,
             "Full House", 
-            "Bµî±Ş 2Àå + Aµî±Ş 3Àå\nEx) ¼ñ´õ ÅÂÅ¬ x2 + ÆÄÀÌºê ³ÊÅ¬ ¼ÅÇÃ x3", 
+            "Bë“±ê¸‰ 2ì¥ + Aë“±ê¸‰ 3ì¥\nEx) ìˆ„ë” íƒœí´ x2 + íŒŒì´ë¸Œ ë„ˆí´ ì…”í”Œ x3", 
             500, 
-            3.0f),
+            3.0f,
+            "AAABB"), // íŒ¨í„´: A 3ì¥ + B 2ì¥
             
-        // 6°³ Á¶ÇÕ: Triple Pair (Sµî±Ş 2Àå + Aµî±Ş 2Àå + Bµî±Ş 2Àå)
+        // 6ì¥ ì½¤ë³´: Triple Pair (Së“±ê¸‰ 2ì¥ + Aë“±ê¸‰ 2ì¥ + Bë“±ê¸‰ 2ì¥)
         new YaCht_ComboData(
             YaCht_ComboType.JohnCena_Combo6, 
             YaCht_WrestlerType.JohnCena, 
             YaCht_ComboLevel.Combo6,
             "Triple Pair", 
-            "Sµî±Ş 2Àå + Aµî±Ş 2Àå + Bµî±Ş 2Àå\nEx) AA x2 + RKO x2 + ½´ÆÛÅ± x2 + µå·ÓÅ± x2", 
+            "Së“±ê¸‰ 2ì¥ + Aë“±ê¸‰ 2ì¥ + Bë“±ê¸‰ 2ì¥\nEx) AA x2 + RKO x2 + ìŠˆí¼í‚¥ x2 + ë“œë¡­í‚¥ x2", 
             1000, 
-            5.0f)
+            5.0f,
+            "SSAABB") // íŒ¨í„´: S 2ì¥ + A 2ì¥ + B 2ì¥
     };
     
-    // ¾ğ´õÅ×ÀÌÄ¿ ÄŞº¸ (¾ßÃß ±ÔÄ¢ Àû¿ë)
+    // ì–¸ë”í…Œì´ì»¤ ì½¤ë³´ (ì•¼ì¶” ê·œì¹™ ê¸°ë°˜)
     public static readonly YaCht_ComboData[] UndertakerCombos = new YaCht_ComboData[]
     {
-        // 3°³ Á¶ÇÕ: Three of a Kind (C/D °¢ 1°³¾¿)
+        // 3ì¥ ì½¤ë³´ - Cë“±ê¸‰ 3ì¥
         new YaCht_ComboData(
             YaCht_ComboType.Undertaker_Combo3, 
             YaCht_WrestlerType.Undertaker, 
             YaCht_ComboLevel.Combo3,
-            "Three of a Kind", 
-            "C or D µî±Ş Ä«µå °¢ 1°³¾¿ 3°³ ¹èÄ¡\nEx) ·Î¿ìÅ± + Âı + ÄÚ³Ê ¾ÆÀÌ¸®½¬ À¬", 
+            "Three of a Kind (C)", 
+            "C ë“±ê¸‰ ì¹´ë“œ 3ì¥ ì¡°í•©\nEx) ì½”ë„ˆ íŒŒì¼ë“œë¼ì´ë²„ x3", 
             100, 
-            1.5f),
+            1.5f,
+            "CCC"), // íŒ¨í„´: C 3ì¥
+        
+        // 3ì¥ ì½¤ë³´ - Dë“±ê¸‰ 3ì¥
+        new YaCht_ComboData(
+            YaCht_ComboType.Undertaker_Combo3, 
+            YaCht_WrestlerType.Undertaker, 
+            YaCht_ComboLevel.Combo3,
+            "Three of a Kind (D)", 
+            "D ë“±ê¸‰ ì¹´ë“œ 3ì¥ ì¡°í•©\nEx) ì½ x3", 
+            100, 
+            1.5f,
+            "DDD"), // íŒ¨í„´: D 3ì¥
             
-        // 4°³ Á¶ÇÕ: Four of a Kind (C 1°³ + B 3°³)
+        // 4ì¥ ì½¤ë³´: Four of a Kind (C 1ì¥ + B 3ì¥)
         new YaCht_ComboData(
             YaCht_ComboType.Undertaker_Combo4, 
             YaCht_WrestlerType.Undertaker, 
             YaCht_ComboLevel.Combo4,
             "Four of a Kind", 
-            "Cµî±Ş 1Àå + Bµî±Ş 3Àå\nEx) ÄÚ³Ê ¾ÆÀÌ¸®½¬ À¬ + ¿Ãµå ½ºÄğ x2 + ¿¤º¸¿ì µå·Ó", 
+            "Cë“±ê¸‰ 1ì¥ + Bë“±ê¸‰ 3ì¥\nEx) ì½”ë„ˆ íŒŒì¼ë“œë¼ì´ë²„ + ì´‰í†  ìŠ¬ë¨ x2 + ì˜¬ë“œìŠ¤ì¿¨ í€ì¹˜", 
             250, 
-            2.0f),
+            2.0f,
+            "CBBB"), // íŒ¨í„´: C 1ì¥ + B 3ì¥
             
-        // 5°³ Á¶ÇÕ: Four Cards (Aµî±Ş 4Àå)
+        // 5ì¥ ì½¤ë³´: Four Cards (Aë“±ê¸‰ 4ì¥)
         new YaCht_ComboData(
             YaCht_ComboType.Undertaker_Combo5, 
             YaCht_WrestlerType.Undertaker, 
             YaCht_ComboLevel.Combo5,
             "Four Cards", 
-            "Aµî±Ş 4Àå ÀÌ»ó\nEx) ¸Ó½½ ¹ö½ºÅÍ + ¸®¾î ³×ÀÌÅ°µå ÃÊÅ© x3", 
+            "Aë“±ê¸‰ 4ì¥ ì´ìƒ\nEx) í—¬ìŠ¤ ê²Œì´íŠ¸ + ë¼ìŠ¤íŠ¸ ë¼ì´ë“œí‚¥ íƒ±í¬ x3", 
             500, 
-            3.0f),
+            3.0f,
+            "AAAA"), // íŒ¨í„´: A 4ì¥
             
-        // 6°³ Á¶ÇÕ: Triple Pair (S 2°³ + A 3°³ + B 1°³)
+        // 6ì¥ ì½¤ë³´: Triple Pair (S 2ì¥ + A 3ì¥ + B 1ì¥)
         new YaCht_ComboData(
             YaCht_ComboType.Undertaker_Combo6, 
             YaCht_WrestlerType.Undertaker, 
             YaCht_ComboLevel.Combo6,
             "Triple Pair", 
-            "Sµî±Ş 2Àå + Aµî±Ş 3Àå + Bµî±Ş 1Àå\nEx) Åù½ºÅæ x2 + ¶ó½ºÆ® ¶óÀÌµå x3 + ·¹±× µå·Ó", 
+            "Së“±ê¸‰ 2ì¥ + Aë“±ê¸‰ 3ì¥ + Bë“±ê¸‰ 1ì¥\nEx) í†°ìŠ¤í†¤ x2 + ë¼ìŠ¤íŠ¸ ë¼ì´ë“œ x3 + ì´‰í†  ìŠ¬ë¨", 
             1000, 
-            5.0f)
+            5.0f,
+            "SSAAAB") // íŒ¨í„´: S 2ì¥ + A 3ì¥ + B 1ì¥
     };
     
-    // ·¹½½·¯ Å¸ÀÔ¿¡ µû¸¥ ÄŞº¸ °¡Á®¿À±â
+    // ë ˆìŠ¬ëŸ¬ íƒ€ì…ì— ë”°ë¥¸ ì½¤ë³´ ê°€ì ¸ì˜¤ê¸°
     public static YaCht_ComboData[] GetCombosByWrestler(YaCht_WrestlerType wrestlerType)
     {
         switch (wrestlerType)
@@ -172,7 +205,7 @@ public static class YaCht_ComboDatabase
         }
     }
     
-    // ·¹½½·¯¿Í ÄŞº¸ ·¹º§·Î ÄŞº¸ Å¸ÀÔ °¡Á®¿À±â
+    // ë ˆìŠ¬ëŸ¬ì™€ ì½¤ë³´ ë ˆë²¨ë¡œ ì½¤ë³´ íƒ€ì… ê°€ì ¸ì˜¤ê¸°
     public static YaCht_ComboType GetComboType(YaCht_WrestlerType wrestlerType, YaCht_ComboLevel comboLevel)
     {
         if (comboLevel == YaCht_ComboLevel.None)
@@ -204,7 +237,7 @@ public static class YaCht_ComboDatabase
         return YaCht_ComboType.None;
     }
     
-    // ÄŞº¸ µ¥ÀÌÅÍ °¡Á®¿À±â
+    // ì½¤ë³´ ë°ì´í„° ê°€ì ¸ì˜¤ê¸°
     public static YaCht_ComboData GetComboData(YaCht_WrestlerType wrestlerType, YaCht_ComboType type)
     {
         switch(wrestlerType)
@@ -225,13 +258,13 @@ public static class YaCht_ComboDatabase
                 break;  
         }
         
-        // None ¹İÈ¯
+        // None ë°˜í™˜
         return new YaCht_ComboData(
             YaCht_ComboType.None, 
             YaCht_WrestlerType.None, 
             YaCht_ComboLevel.None,
-            "Á¶ÇÕ ¾øÀ½", 
-            "Ä«µå¸¦ Á¶ÇÕÇÏ¼¼¿ä", 
+            "ì¡°í•© ì—†ìŒ", 
+            "ì¹´ë“œë¥¼ ì¡°í•©í•˜ì„¸ìš”", 
             0, 
             1.0f);
     }

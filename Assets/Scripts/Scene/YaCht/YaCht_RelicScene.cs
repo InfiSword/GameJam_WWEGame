@@ -17,21 +17,23 @@ public class YaCht_RelicScene : MonoBehaviour
     private List<YaCht_RelicType> m_availableRelics = new List<YaCht_RelicType>();
     private YaCht_RelicType m_selectedRelic;
     private bool m_isFromDeckSelection;
+    private List<YaCht_RelicItem> m_relicItems = new List<YaCht_RelicItem>(); // ìƒì„±ëœ ìœ ë¬¼ ì•„ì´í…œë“¤
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        // ¾îµğ¼­ ¿Ô´ÂÁö È®ÀÎ
+        // ë±ì—ì„œ ì™”ëŠ”ì§€ í™•ì¸
         m_isFromDeckSelection = YaCht_GameManager.IsRelicSceneFromDeckSelection();
 
-        // ¼±ÅÃ °¡´ÉÇÑ À¯¹° 3°³ ·£´ı »ı¼º
+        // ì„ íƒ ê°€ëŠ¥í•œ ìœ ë¬¼ì„ 3ê°œ ìƒì„±
+
         GenerateRandomRelics();
 
-        // ¹öÆ° ÀÌº¥Æ®
+        // í™•ì¸ ë²„íŠ¼ ì´ë²¤íŠ¸ ì¶”ê°€
         if (m_confirmButton != null)
         {
             m_confirmButton.onClick.AddListener(OnConfirmClicked);
-            m_confirmButton.interactable = false; // ¼±ÅÃ Àü±îÁö ºñÈ°¼ºÈ­
+            m_confirmButton.interactable = false; // ì„ íƒëœ ìœ ë¬¼ì´ ì—†ìœ¼ë©´ ë¹„í™œì„±í™”
         }
 
         if (m_skipButton != null)
@@ -39,58 +41,51 @@ public class YaCht_RelicScene : MonoBehaviour
             m_skipButton.onClick.AddListener(OnSkipClicked);
         }
 
-        // Å¸ÀÌÆ² ¹× Á¤º¸ ¼³Á¤
+        // ì»¨í…ìŠ¤íŠ¸ì— ë”°ë¼ UI ì—…ë°ì´íŠ¸
         UpdateUIBasedOnContext();
     }
 
-    // ÄÁÅØ½ºÆ®¿¡ µû¶ó UI ¾÷µ¥ÀÌÆ®
+    // ì»¨í…ìŠ¤íŠ¸ì— ë”°ë¼ UI ì—…ë°ì´íŠ¸
     private void UpdateUIBasedOnContext()
     {
         if (m_isFromDeckSelection)
         {
-            // µ¦ ¼±ÅÃ ÈÄ Ã¹ À¯¹° ¼±ÅÃ
-            if (m_titleText != null)
-            {
-                m_titleText.text = "½ÃÀÛ À¯¹°À» ¼±ÅÃÇÏ¼¼¿ä";
-            }
-
-            if (m_stageInfoText != null)
-            {
-                m_stageInfoText.text = "¸ğÇèÀ» ½ÃÀÛÇÕ´Ï´Ù!";
-            }
+            // ë±ì—ì„œ ì™”ì„ ë•Œ
+            m_titleText.text = "ì²˜ìŒ ìœ ë¬¼ì„ ì„ íƒí•´ì£¼ì„¸ìš”";
+                       
         }
         else
         {
-            // º¸½º Ã³Ä¡ ÈÄ À¯¹° ¼±ÅÃ
+            // ë³´ìŠ¤ ìŠ¤í…Œì´ì§€ì—ì„œ ì™”ì„ ë•Œ
             if (m_titleText != null)
             {
-                m_titleText.text = "º¸½º Ã³Ä¡! À¯¹°À» ¼±ÅÃÇÏ¼¼¿ä";
+                m_titleText.text = "ë³´ìŠ¤ ë³´ìƒìœ ë¬¼ì„ ì„ íƒí•´ì£¼ì„¸ìš”!";
             }
 
             if (m_stageInfoText != null && YaCht_GameManager.StageManager != null)
             {
                 int currentChapter = YaCht_GameManager.StageManager.GetCurrentChapterNumber();
                 int currentStage = YaCht_GameManager.StageManager.CurrentStageNumber;
-                m_stageInfoText.text = $"Ã©ÅÍ {currentChapter} Å¬¸®¾î! (½ºÅ×ÀÌÁö {currentStage})";
+                m_stageInfoText.text = $"ë³´ìŠ¤ {currentChapter} ìŠ¤í…Œì´ì§€! (ìŠ¤í…Œì´ì§€ {currentStage})";
             }
         }
     }
 
-    // ·£´ı À¯¹° 3°³ »ı¼º
+    // ì„ íƒ ê°€ëŠ¥í•œ ìœ ë¬¼ 3ê°œ ìƒì„±
     private void GenerateRandomRelics()
     {
         YaCht_RelicData[] allRelics = YaCht_RelicDatabase.GetAllRelics();
         YaCht_WrestlerType currentWrestler = YaCht_GameManager.nowPlayerData.wrestlerType;
 
-        // ÇöÀç Ä³¸¯ÅÍ°¡ »ç¿ë °¡´ÉÇÑ À¯¹° ÇÊÅÍ¸µ
+        // ì„ íƒ ê°€ëŠ¥í•œ ìœ ë¬¼ ë°ì´í„° ë¦¬ìŠ¤íŠ¸ ì´ˆê¸°í™”
         List<YaCht_RelicData> availableRelicData = new List<YaCht_RelicData>();
         foreach (var relic in allRelics)
         {
-            // °ø¿ë À¯¹°ÀÌ°Å³ª ÇöÀç Ä³¸¯ÅÍ Àü¿ë À¯¹°
+            // ìœ ë¬¼ í•„ìš” ìºë¦­í„°ê°€ ì—†ê±°ë‚˜ í˜„ì¬ ìºë¦­í„°ì™€ ì¼ì¹˜í•˜ë©´ ì¶”ê°€
             if (relic.requiredWrestler == YaCht_WrestlerType.None || 
                 relic.requiredWrestler == currentWrestler)
             {
-                // ÀÌ¹Ì º¸À¯ÇÏÁö ¾ÊÀº À¯¹°¸¸
+                // ì´ë¯¸ ë³´ìŠ¤ ë³´ìƒìœ¼ë¡œ íšë“í•œ ìœ ë¬¼ì€ ì œì™¸
                 if (!YaCht_GameManager.RelicManager.HasRelic(relic.relicType))
                 {
                     availableRelicData.Add(relic);
@@ -98,23 +93,23 @@ public class YaCht_RelicScene : MonoBehaviour
             }
         }
 
-        // ¼±ÅÃ °¡´ÉÇÑ À¯¹°ÀÌ ¾øÀ¸¸é °æ°í
+        // ì„ íƒ ê°€ëŠ¥í•œ ìœ ë¬¼ì´ ì—†ì„ ë•Œ
         if (availableRelicData.Count == 0)
         {
-            Debug.LogWarning("[RelicScene] ¼±ÅÃ °¡´ÉÇÑ À¯¹°ÀÌ ¾ø½À´Ï´Ù! ¸ğµç À¯¹°À» ÀÌ¹Ì º¸À¯ ÁßÀÔ´Ï´Ù.");
+            Debug.LogWarning("[RelicScene] ì„ íƒ ê°€ëŠ¥í•œ ìœ ë¬¼ì´ ì—†ìŠµë‹ˆë‹¤! ëª¨ë“  ìœ ë¬¼ì´ ì´ë¯¸ ë³´ìŠ¤ ë³´ìƒìœ¼ë¡œ íšë“ë˜ì—ˆìŠµë‹ˆë‹¤.");
             
-            // °Ç³Ê¶Ù±â·Î ÀÚµ¿ ÁøÇà
+            // ìŠ¤í‚µ ë²„íŠ¼ í´ë¦­
             if (m_titleText != null)
             {
-                m_titleText.text = "È¹µæ °¡´ÉÇÑ À¯¹°ÀÌ ¾ø½À´Ï´Ù";
+                m_titleText.text = "ë³´ìŠ¤ ë³´ìƒìœ ë¬¼ì„ ì„ íƒí•´ì£¼ì„¸ìš”!";
             }
             
-            // 2ÃÊ ÈÄ ÀÚµ¿À¸·Î ´ÙÀ½À¸·Î ÁøÇà
+            // 2ì´ˆ í›„ ìŠ¤í‚µ ë²„íŠ¼ í´ë¦­
             Invoke(nameof(OnSkipClicked), 2f);
             return;
         }
 
-        // ·£´ıÇÏ°Ô 3°³ ¼±ÅÃ
+        // ì„ íƒ ê°€ëŠ¥í•œ ìœ ë¬¼ 3ê°œ ìƒì„±
         int count = Mathf.Min(3, availableRelicData.Count);
         for (int i = 0; i < count; i++)
         {
@@ -123,106 +118,128 @@ public class YaCht_RelicScene : MonoBehaviour
             availableRelicData.RemoveAt(randomIndex);
         }
 
-        // UI »ı¼º
+        // UI ìƒì„±
         CreateRelicUI();
     }
 
-    // À¯¹° UI »ı¼º
+    // ìœ ë¬¼ UI ìƒì„±
     private void CreateRelicUI()
     {
         if (m_relicContainer == null || m_relicItemPrefab == null)
         {
-            Debug.LogError("[RelicScene] Container ¶Ç´Â PrefabÀÌ ¾ø½À´Ï´Ù!");
+            Debug.LogError("[RelicScene] Container ì—†ê±°ë‚˜ Prefabì´ ì—†ìŠµë‹ˆë‹¤!");
             return;
         }
+
+        m_relicItems.Clear();
 
         foreach (var relicType in m_availableRelics)
         {
             GameObject itemObj = Instantiate(m_relicItemPrefab, m_relicContainer);
             YaCht_RelicData relicData = YaCht_RelicDatabase.GetRelicData(relicType);
 
-            // UI ¼³Á¤ (RelicItem ÄÄÆ÷³ÍÆ® ÇÊ¿ä)
+            // UI ìƒì„± (RelicItem ìƒì„±)  
             var itemComponent = itemObj.GetComponent<YaCht_RelicItem>();
             if (itemComponent != null)
             {
                 itemComponent.Init(relicData, () => OnRelicSelected(relicType));
+                m_relicItems.Add(itemComponent);
             }
         }
     }
 
-    // À¯¹° ¼±ÅÃ ½Ã
+    // ìœ ë¬¼ ì„ íƒ ì´ë²¤íŠ¸
     private void OnRelicSelected(YaCht_RelicType relicType)
     {
+        // ì´ì „ ì„ íƒ í•´ì œ
+        foreach (var item in m_relicItems)
+        {
+            if (item != null)
+            {
+                item.SetSelected(false);
+            }
+        }
+
         m_selectedRelic = relicType;
+        
+        // ì„ íƒëœ ìœ ë¬¼ ì‹œê°ì  íš¨ê³¼ ì ìš©
+        foreach (var item in m_relicItems)
+        {
+            if (item != null && item.GetRelicType() == relicType)
+            {
+                item.SetSelected(true);
+                break;
+            }
+        }
         
         if (m_confirmButton != null)
         {
             m_confirmButton.interactable = true;
         }
 
-        Debug.Log($"[RelicScene] ¼±ÅÃ: {YaCht_RelicDatabase.GetRelicData(relicType).name}");
+        Debug.Log($"[RelicScene] ì„ íƒëœ ìœ ë¬¼: {YaCht_RelicDatabase.GetRelicData(relicType).name}");
     }
 
-    // È®ÀÎ ¹öÆ° Å¬¸¯
+    // í™•ì¸ ë²„íŠ¼ í´ë¦­
     private void OnConfirmClicked()
     {
-        // À¯¹° Ãß°¡
+        // ìœ ë¬¼ ì¶”ê°€
         YaCht_GameManager.RelicManager.AddRelic(m_selectedRelic);
         
-        Debug.Log($"[RelicScene] À¯¹° È¹µæ: {YaCht_RelicDatabase.GetRelicData(m_selectedRelic).name}");
+        Debug.Log($"[RelicScene] ì„ íƒëœ ìœ ë¬¼: {YaCht_RelicDatabase.GetRelicData(m_selectedRelic).name}");
 
-        // ´ÙÀ½ ¾ÀÀ¸·Î ÀÌµ¿
+        // ë‹¤ìŒ ìŠ¤í…Œì´ì§€ë¡œ ì´ë™
         ProceedToNextScene();
     }
 
-    // °Ç³Ê¶Ù±â ¹öÆ° Å¬¸¯
+    // ìŠ¤í‚µ ë²„íŠ¼ í´ë¦­
     private void OnSkipClicked()
     {
-        Debug.Log("[RelicScene] À¯¹° ¼±ÅÃ °Ç³Ê¶Ù±â");
+        Debug.Log("[RelicScene] ìŠ¤í‚µ ë²„íŠ¼ í´ë¦­");
         ProceedToNextScene();
     }
 
-    // ´ÙÀ½ ¾ÀÀ¸·Î ÁøÇà
+    // ë‹¤ìŒ ìŠ¤í…Œì´ì§€ë¡œ ì´ë™
     private void ProceedToNextScene()
     {
         if (m_isFromDeckSelection)
         {
-            // µ¦ ¼±ÅÃ ÈÄ -> °ÔÀÓ ½ÃÀÛ (Ã¹ ½ºÅ×ÀÌÁö)
-            Debug.Log("[RelicScene] °ÔÀÓ ½ÃÀÛ! ½ºÅ×ÀÌÁö 1·Î ÀÌµ¿");
+            // ë±ì—ì„œ ì™”ì„ ë•Œ -> ë³´ìŠ¤ ìŠ¤í…Œì´ì§€ (ìœ ë¬¼ 1ê°œ ì„ íƒ)
+            Debug.Log("[RelicScene] ë±ì—ì„œ ì™”ìŠµë‹ˆë‹¤! ë³´ìŠ¤ ìŠ¤í…Œì´ì§€ (ìœ ë¬¼ 1ê°œ ì„ íƒ)");
             YaCht_GameManager.StartNewStage(1);
             SceneManager.LoadScene("YaCht_GameScene");
         }
         else
         {
-            // º¸½º Ã³Ä¡ ÈÄ -> ´ÙÀ½ ½ºÅ×ÀÌÁö·Î
+            // ë³´ìŠ¤ ìŠ¤í…Œì´ì§€ì—ì„œ ì™”ì„ ë•Œ -> ë‹¤ìŒ ìŠ¤í…Œì´ì§€ë¡œ ì´ë™
             MoveToNextStage();
         }
     }
 
-    // ´ÙÀ½ ½ºÅ×ÀÌÁö·Î ÀÌµ¿ (º¸½º Ã³Ä¡ ÈÄ¸¸ »ç¿ë)
+    // ë‹¤ìŒ ìŠ¤í…Œì´ì§€ë¡œ ì´ë™ (ë³´ìŠ¤ ìŠ¤í…Œì´ì§€ì—ì„œ ì™”ì„ ë•Œ)
     private void MoveToNextStage()
     {
-        // ´ÙÀ½ ½ºÅ×ÀÌÁö°¡ ÀÖ´ÂÁö È®ÀÎ
+        // í˜„ì¬ ìŠ¤í…Œì´ì§€ê°€ ì´ ìŠ¤í…Œì´ì§€ ìˆ˜ë³´ë‹¤ í¬ê±°ë‚˜ ê°™ì„ ë•Œ
         if (YaCht_GameManager.StageManager.CurrentStageNumber >= YaCht_EnemyDatabase.GetTotalStageCount())
         {
-            // ¸ğµç ½ºÅ×ÀÌÁö Å¬¸®¾î!
-            Debug.Log("[RelicScene] ¡Ú¡Ú¡Ú ¸ğµç ½ºÅ×ÀÌÁö Å¬¸®¾î! °ÔÀÓ ¿Ï·á! ¡Ú¡Ú¡Ú");
-            // TODO: ¿£µù ¾ÀÀ¸·Î ÀÌµ¿
-            SceneManager.LoadScene("YaCht_TitleScene"); // ÀÓ½Ã·Î Å¸ÀÌÆ²·Î
+            // ìµœì¢… ìŠ¤í…Œì´ì§€!
+            Debug.Log("[RelicScene] ìµœì¢… ìŠ¤í…Œì´ì§€! ê²Œì„ ì¢…ë£Œ! ìµœì¢… ìŠ¤í…Œì´ì§€!");
+            // TODO: ê²Œì„ ì¢…ë£Œ
+            SceneManager.LoadScene("YaCht_TitleScene"); // íƒ€ì´í‹€ ì”¬ìœ¼ë¡œ ì´ë™
             return;
         }
 
-        // ´ÙÀ½ ½ºÅ×ÀÌÁö ·Îµå
+        // ë‹¤ìŒ ìŠ¤í…Œì´ì§€ë¡œ ì´ë™
         bool success = YaCht_GameManager.MoveToNextStage();
         
         if (success)
         {
-            Debug.Log($"[RelicScene] ´ÙÀ½ ½ºÅ×ÀÌÁö {YaCht_GameManager.StageManager.CurrentStageNumber}·Î ÀÌµ¿");
+            Debug.Log($"[RelicScene] ë‹¤ìŒ ìŠ¤í…Œì´ì§€ë¡œ ì´ë™: {YaCht_GameManager.StageManager.CurrentStageNumber}");
             SceneManager.LoadScene("YaCht_GameScene");
         }
         else
         {
-            Debug.LogError("[RelicScene] ´ÙÀ½ ½ºÅ×ÀÌÁö·Î ÀÌµ¿ ½ÇÆĞ!");
+            Debug.LogError("[RelicScene] ë‹¤ìŒ ìŠ¤í…Œì´ì§€ë¡œ ì´ë™ ì‹¤íŒ¨!");
             SceneManager.LoadScene("YaCht_TitleScene");
         }
     }

@@ -2,14 +2,14 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// ½ºÅ×ÀÌÁöº° ¹è°æ, BGM, Æ¯¼öÈ¿°ú¸¦ °ü¸®ÇÏ´Â µ¥ÀÌÅÍº£ÀÌ½º
+/// ì— ë¸”ëŸ¼ ìŠ¤í…Œì´ì§€ ë°ì´í„° ê´€ë¦¬
 /// </summary>
 public static class YaCht_StageDatabase
 {
     private static Dictionary<int, YaCht_StageData> s_stageDataMap = null;
 
     /// <summary>
-    /// µ¥ÀÌÅÍº£ÀÌ½º ÃÊ±âÈ­
+    /// ì— ë¸”ëŸ¼ ìŠ¤í…Œì´ì§€ ë°ì´í„° ì´ˆê¸°í™”
     /// </summary>
     public static void Initialize()
     {
@@ -18,167 +18,162 @@ public static class YaCht_StageDatabase
 
         s_stageDataMap = new Dictionary<int, YaCht_StageData>();
 
-        // ====================================
-        // 1Ã©ÅÍ - ÃÊ±Ş (½ºÅ×ÀÌÁö 1~4)
-        // ====================================
-        
-        // ½ºÅ×ÀÌÁö 1: ¾àÇÑ »ó´ë - ±âº» ¹è°æ
         s_stageDataMap.Add(1, new YaCht_StageData(
             stageNumber: 1,
             chapterNumber: 1,
             backgroundPath: "Sprites/BG/Chapter1/1_1",
             bgmPath: "Audio/BGM/Chapter1/Normal",
             isBoss: false,
-            description: "Ã¹ ¹øÂ° µµÀü"
+            description: "ì´ˆê¸° ìŠ¤í…Œì´ì§€"
         ));
 
-        // ½ºÅ×ÀÌÁö 2: ¾àÇÑ ¶óÀÌ¹ú - ±âº» ¹è°æ
         s_stageDataMap.Add(2, new YaCht_StageData(
             stageNumber: 2,
             chapterNumber: 1,
             backgroundPath: "Sprites/BG/Chapter1/1_2",
             bgmPath: "Audio/BGM/Chapter1/Normal",
             isBoss: false,
-            description: "¶óÀÌ¹ú°úÀÇ ´ë°á"
+            description: "ì´ˆê¸° ìŠ¤í…Œì´ì§€"
         ));
 
-        // ½ºÅ×ÀÌÁö 3: Ã¼±ŞÀ» ¶Ù¾î³Ñ´Â µµÀü - ±âº» ¹è°æ
         s_stageDataMap.Add(3, new YaCht_StageData(
             stageNumber: 3,
             chapterNumber: 1,
             backgroundPath: "Sprites/BG/Chapter1/1_3",
             bgmPath: "Audio/BGM/Chapter1/Normal",
             isBoss: false,
-            description: "Ã¼±ŞÀ» ³Ñ¾î¼­"
+            description: "ì´ˆê¸° ìŠ¤í…Œì´ì§€"
         ));
 
-        // ½ºÅ×ÀÌÁö 4: ÃÊ±Ş Ã¨ÇÇ¾ğ½Ê - º¸½ºÀü (Æ¯¼ö ¹è°æ + Æ¯¼ö BGM + Æ¯¼ö È¿°ú)
         s_stageDataMap.Add(4, new YaCht_StageData(
             stageNumber: 4,
             chapterNumber: 1,
             backgroundPath: "Sprites/BG/Chapter1/1_4",
             bgmPath: "Audio/BGM/Chapter1/Boss",
             isBoss: true,
-            description: "ÃÊ±Ş Ã¨ÇÇ¾ğ½Ê °áÀü",
+            description: "ì´ˆê¸° ìŠ¤í…Œì´ì§€",
             effectPath: "Effects/Chapter1/BossAura"
         ));
 
-        // ====================================
-        // 2Ã©ÅÍ - Áß±ŞÀü (½ºÅ×ÀÌÁö 5~8)
-        // ====================================
-        
-        // ½ºÅ×ÀÌÁö 5: Àü±¹´ëÈ¸ ÁøÃâ
         s_stageDataMap.Add(5, new YaCht_StageData(
             stageNumber: 5,
             chapterNumber: 2,
             backgroundPath: "Sprites/BG/Chapter2/2_1",
             bgmPath: "Audio/BGM/Chapter2/Normal",
             isBoss: false,
-            description: "Àü±¹´ëÈ¸ ½ÃÀÛ"
+            description: "ì¤‘ê°„ ìŠ¤í…Œì´ì§€"
         ));
 
-        // ½ºÅ×ÀÌÁö 6: ·©Ä¿ 
         s_stageDataMap.Add(6, new YaCht_StageData(
             stageNumber: 6,
             chapterNumber: 2,
             backgroundPath: "Sprites/BG/Chapter2/2_2",
             bgmPath: "Audio/BGM/Chapter2/Normal",
             isBoss: false,
-            description: "·©Ä¿¿ÍÀÇ ´ë°á"
+            description: "ì¤‘ê°„ ìŠ¤í…Œì´ì§€"
         ));
 
-        // ½ºÅ×ÀÌÁö 7: ÁØ°á½ÂÀü 
         s_stageDataMap.Add(7, new YaCht_StageData(
             stageNumber: 7,
             chapterNumber: 2,
             backgroundPath: "Sprites/BG/Chapter2/2_3",
             bgmPath: "Audio/BGM/Chapter2/Normal",
             isBoss: false,
-            description: "ÁØ°á½Â ÁøÃâ"
+            description: "ì¤‘ê°„ ìŠ¤í…Œì´ì§€"
         ));
 
-        // ½ºÅ×ÀÌÁö 8: WWE Ã¨ÇÇ¾ğ - º¸½ºÀü (2ÆäÀÌÁî)
         s_stageDataMap.Add(8, new YaCht_StageData(
             stageNumber: 8,
             chapterNumber: 2,
-            backgroundPath: "Sprites/BG/Chapter2/2_4_1",  // 1ÆäÀÌÁî ¹è°æ
+            backgroundPath: "Sprites/BG/Chapter2/2_4_1",  // 1ì¤‘ê°„ ìŠ¤í…Œì´ì§€
             bgmPath: "Audio/BGM/Chapter2/Boss",
             isBoss: true,
-            description: "WWE Ã¨ÇÇ¾ğ °áÀü",
+            description: "ì¤‘ê°„ ìŠ¤í…Œì´ì§€",
             effectPath: "Effects/Chapter2/BossAura",
             phases: new YaCht_PhaseData[]
             {
-                // ÆäÀÌÁî 1: Ã¼·Â 100% ~ 50%
+                // ì¤‘ê°„ ìŠ¤í…Œì´ì§€ 1: ì¤‘ê°„ ìŠ¤í…Œì´ì§€ 100% ~ 50%
                 new YaCht_PhaseData(
                     phaseNumber: 1,
                     healthThreshold: 1.0f,
                     backgroundPath: "Sprites/BG/Chapter2/2_4_1",
-                    description: "WWE Ã¨ÇÇ¾ğÀÇ Ã¹ ¹øÂ° ÇüÅÂ",
-                    bgmPath: "",  // BGM À¯Áö
+                    description: "ì¤‘ê°„ ìŠ¤í…Œì´ì§€ 1",
+                    bgmPath: "",  // BGM ì¤‘ê°„ ìŠ¤í…Œì´ì§€
                     effectPath: "Effects/Chapter2/BossAura"
                 ),
-                // ÆäÀÌÁî 2: Ã¼·Â 50% ÀÌÇÏ
+                // ì¤‘ê°„ ìŠ¤í…Œì´ì§€ 2: ì¤‘ê°„ ìŠ¤í…Œì´ì§€ 50% ì¤‘ê°„ ìŠ¤í…Œì´ì§€
                 new YaCht_PhaseData(
                     phaseNumber: 2,
                     healthThreshold: 0.5f,
-                    backgroundPath: "Sprites/BG/Chapter2/2_4_2",  // 2ÆäÀÌÁî ¹è°æ
-                    description: "WWE Ã¨ÇÇ¾ğÀÇ °¢¼º ÇüÅÂ!",
-                    bgmPath: "Audio/BGM/Chapter2/BossPhase2",  // 2ÆäÀÌÁî Àü¿ë BGM (¼±ÅÃ»çÇ×)
-                    effectPath: "Effects/Chapter2/BossAuraPhase2"  // 2ÆäÀÌÁî Àü¿ë È¿°ú (¼±ÅÃ»çÇ×)
+                    backgroundPath: "Sprites/BG/Chapter2/2_4_2",  // 2ì¤‘ê°„ ìŠ¤í…Œì´ì§€
+                    description: "ì¤‘ê°„ ìŠ¤í…Œì´ì§€ 2",
+                    bgmPath: "Audio/BGM/Chapter2/BossPhase2",  // 2ì¤‘ê°„ ìŠ¤í…Œì´ì§€ BGM (ì¤‘ê°„ ìŠ¤í…Œì´ì§€)
+                    effectPath: "Effects/Chapter2/BossAuraPhase2"  // 2ì¤‘ê°„ ìŠ¤í…Œì´ì§€ íŠ¹ìˆ˜ íš¨ê³¼ (ì¤‘ê°„ ìŠ¤í…Œì´ì§€)
                 )
             }
         ));
 
-        // ====================================
-        // 3Ã©ÅÍ - ÃÖ°í (½ºÅ×ÀÌÁö 9~12)
-        // ====================================
-        
-        // ½ºÅ×ÀÌÁö 9: Àü¼³ µµÀü
         s_stageDataMap.Add(9, new YaCht_StageData(
             stageNumber: 9,
             chapterNumber: 3,
             backgroundPath: "Sprites/BG/Chapter3/3_1",
             bgmPath: "Audio/BGM/Chapter3/Normal",
             isBoss: false,
-            description: "Àü¼³°úÀÇ ´ë°á"
+            description: "ì¢…ë£Œ ìŠ¤í…Œì´ì§€"
         ));
 
-        // ½ºÅ×ÀÌÁö 10: ÇÏÀÌºê¸®µå º´±â
         s_stageDataMap.Add(10, new YaCht_StageData(
             stageNumber: 10,
             chapterNumber: 3,
             backgroundPath: "Sprites/BG/Chapter3/3_2",
             bgmPath: "Audio/BGM/Chapter3/Normal",
             isBoss: false,
-            description: "ÃÖ°­ÀÇ µµÀüÀÚ"
+            description: "ì¢…ë£Œ ìŠ¤í…Œì´ì§€"
         ));
 
-        // ½ºÅ×ÀÌÁö 11: ÁøÁ¤ ¾ğ´õÅ×ÀÌÅ©
         s_stageDataMap.Add(11, new YaCht_StageData(
             stageNumber: 11,
             chapterNumber: 3,
             backgroundPath: "Sprites/BG/Chapter3/3_3",
             bgmPath: "Audio/BGM/Chapter3/Normal",
             isBoss: false,
-            description: "ÃÖÈÄÀÇ °ü¹®"
+            description: "ì¢…ë£Œ ìŠ¤í…Œì´ì§€"
         ));
 
-        // ½ºÅ×ÀÌÁö 12: ÃÖÁ¾ Ã¨ÇÇ¾ğ - º¸½ºÀü
         s_stageDataMap.Add(12, new YaCht_StageData(
             stageNumber: 12,
             chapterNumber: 3,
-            backgroundPath: "Sprites/BG/Chapter3/3_4",
+            backgroundPath: "Sprites/BG/Chapter3/3_4_1",
             bgmPath: "Audio/BGM/Chapter3/Boss",
             isBoss: true,
-            description: "ÃÖÁ¾ Ã¨ÇÇ¾ğ °áÀü",
-            effectPath: "Effects/Chapter3/BossAura"
+            description: "ì¢…ë£Œ ìŠ¤í…Œì´ì§€",
+            effectPath: "Effects/Chapter3/BossAura",
+            phases: new YaCht_PhaseData[]
+            {
+                new YaCht_PhaseData(
+                    phaseNumber: 1,
+                    healthThreshold: 1.0f,
+                    backgroundPath: "Sprites/BG/Chapter3/3_4_1",
+                    description: "ì¢…ë£Œ ìŠ¤í…Œì´ì§€ 1",
+                    bgmPath: "",
+                    effectPath: "Effects/Chapter3/BossAura"
+                ),
+                new YaCht_PhaseData(
+                    phaseNumber: 2,
+                    healthThreshold: 0.5f,
+                    backgroundPath: "Sprites/BG/Chapter3/3_4_2",
+                    description: "ì¢…ë£Œ ìŠ¤í…Œì´ì§€ 2",
+                    bgmPath: "Audio/BGM/Chapter3/BossPhase2",
+                    effectPath: "Effects/Chapter3/BossAuraPhase2"
+                )
+            }
         ));
 
-        Debug.Log("YaCht_StageDatabase ÃÊ±âÈ­ ¿Ï·á: ÃÑ 12°³ ½ºÅ×ÀÌÁö ¸®¼Ò½º ¼³Á¤");
+        Debug.Log("YaCht_StageDatabase ì´ˆê¸°í™” ì™„ë£Œ: 12ê°œ ì— ë¸”ëŸ¼ ìŠ¤í…Œì´ì§€ ë°ì´í„° ë¡œë“œ");
     }
 
     /// <summary>
-    /// ½ºÅ×ÀÌÁö ¹øÈ£·Î ½ºÅ×ÀÌÁö µ¥ÀÌÅÍ °¡Á®¿À±â
+    /// ì— ë¸”ëŸ¼ ìŠ¤í…Œì´ì§€ ë²ˆí˜¸ì— í•´ë‹¹í•˜ëŠ” ìŠ¤í…Œì´ì§€ ë°ì´í„° ë°˜í™˜
     /// </summary>
     public static YaCht_StageData GetStageData(int stageNumber)
     {
@@ -189,12 +184,12 @@ public static class YaCht_StageDatabase
             return s_stageDataMap[stageNumber];
         }
 
-        Debug.LogError($"Àß¸øµÈ ½ºÅ×ÀÌÁö ¹øÈ£: {stageNumber}");
+        Debug.LogError($"ì— ë¸”ëŸ¼ ìŠ¤í…Œì´ì§€ ë²ˆí˜¸: {stageNumber}");
         return default(YaCht_StageData);
     }
 
     /// <summary>
-    /// Ã©ÅÍº° ¸ğµç ½ºÅ×ÀÌÁö µ¥ÀÌÅÍ °¡Á®¿À±â
+    /// ì±•í„° ë²ˆí˜¸ì— í•´ë‹¹í•˜ëŠ” ìŠ¤í…Œì´ì§€ ë°ì´í„° ëª©ë¡ ë°˜í™˜
     /// </summary>
     public static List<YaCht_StageData> GetStagesByChapter(int chapterNumber)
     {
@@ -210,14 +205,14 @@ public static class YaCht_StageDatabase
             }
         }
 
-        // ½ºÅ×ÀÌÁö ¹øÈ£·Î Á¤·Ä
+        // ìŠ¤í…Œì´ì§€ ë²ˆí˜¸ ìˆœì„œë¡œ ì •ë ¬
         chapterStages.Sort((a, b) => a.m_stageNumber.CompareTo(b.m_stageNumber));
 
         return chapterStages;
     }
 
     /// <summary>
-    /// º¸½º ½ºÅ×ÀÌÁöÀÎÁö È®ÀÎ
+    /// ë³´ìŠ¤ ìŠ¤í…Œì´ì§€ ì—¬ë¶€ ì²´í¬
     /// </summary>
     public static bool IsBossStage(int stageNumber)
     {
@@ -226,7 +221,7 @@ public static class YaCht_StageDatabase
     }
 
     /// <summary>
-    /// ¹è°æ ¸®¼Ò½º °æ·Î °¡Á®¿À±â
+    /// ë°°ê²½ ê²½ë¡œ ë°˜í™˜
     /// </summary>
     public static string GetBackgroundPath(int stageNumber)
     {
@@ -235,7 +230,7 @@ public static class YaCht_StageDatabase
     }
 
     /// <summary>
-    /// BGM ¸®¼Ò½º °æ·Î °¡Á®¿À±â
+    /// BGM ê²½ë¡œ ë°˜í™˜
     /// </summary>
     public static string GetBGMPath(int stageNumber)
     {
@@ -244,7 +239,7 @@ public static class YaCht_StageDatabase
     }
 
     /// <summary>
-    /// Æ¯¼ö È¿°ú ¸®¼Ò½º °æ·Î °¡Á®¿À±â
+    /// íŠ¹ìˆ˜ íš¨ê³¼ ê²½ë¡œ ë°˜í™˜
     /// </summary>
     public static string GetSpecialEffectPath(int stageNumber)
     {
@@ -253,7 +248,7 @@ public static class YaCht_StageDatabase
     }
 
     /// <summary>
-    /// ÀüÃ¼ ½ºÅ×ÀÌÁö ¼ö
+    /// ì´ ìŠ¤í…Œì´ì§€ ê°œìˆ˜ ë°˜í™˜
     /// </summary>
     public static int GetTotalStageCount()
     {
@@ -262,7 +257,7 @@ public static class YaCht_StageDatabase
     }
 
     /// <summary>
-    /// ½ºÅ×ÀÌÁö ¼³¸í °¡Á®¿À±â
+    /// ìŠ¤í…Œì´ì§€ ì„¤ëª… ë¬¸ìì—´ ë°˜í™˜
     /// </summary>
     public static string GetStageDescription(int stageNumber)
     {

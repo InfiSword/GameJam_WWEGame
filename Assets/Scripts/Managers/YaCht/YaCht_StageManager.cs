@@ -1,9 +1,6 @@
 using UnityEngine;
 using System;
 
-/// <summary>
-/// ½ºÅ×ÀÌÁö ÁøÇà°ú Àû Á¤º¸¸¦ °ü¸®ÇÏ´Â ¸Å´ÏÀú
-/// </summary>
 public class YaCht_StageManager : MonoBehaviour
 {
     private static YaCht_StageManager s_instance;
@@ -21,16 +18,16 @@ public class YaCht_StageManager : MonoBehaviour
         }
     }
 
-    // ÇöÀç ½ºÅ×ÀÌÁö Á¤º¸
+    // í˜„ì¬ ìŠ¤í…Œì´ì§€ ë²ˆí˜¸ ê´€ë¦¬
     public int CurrentStageNumber { get; private set; } = 1;
     public YaCht_StageData CurrentStageData { get; private set; }
-    public int CurrentPhase { get; private set; } = 1;  // ÇöÀç ÆäÀÌÁî
+    public int CurrentPhase { get; private set; } = 1;
     
-    // ÇöÀç Àû ÀÎ½ºÅÏ½º
+    // í˜„ì¬ ìŠ¤í…Œì´ì§€ ì  ì¸ìŠ¤í„´ìŠ¤ ê´€ë¦¬
     private YaCht_Enemy m_currentEnemyInstance;
     public YaCht_Enemy CurrentEnemyInstance => m_currentEnemyInstance;
     
-    // ÇöÀç Àû µ¥ÀÌÅÍ
+    // í˜„ì¬ ìŠ¤í…Œì´ì§€ ì  ë°ì´í„° ê´€ë¦¬
     public YaCht_EnemyData CurrentEnemy
     {
         get
@@ -39,16 +36,16 @@ public class YaCht_StageManager : MonoBehaviour
         }
     }
     
-    // ÇöÀç Àû Ã¼·Â
+    // í˜„ì¬ ìŠ¤í…Œì´ì§€ ì  ì²´ë ¥ ê´€ë¦¬
     public float CurrentEnemyHealth => m_currentEnemyInstance != null ? m_currentEnemyInstance.CurrentHealth : 0f;
 
-    // ÀÌº¥Æ®: º¸½º Ã³Ä¡ ½Ã È£Ãâ
+    // ì´ë²¤íŠ¸: ë³´ìŠ¤ ì  ì²˜ì¹˜ ì´ë²¤íŠ¸
     public event Action OnBossDefeated;
     
-    // ÀÌº¥Æ®: ÀÏ¹İ Àû Ã³Ä¡ ½Ã È£Ãâ
+    // ì´ë²¤íŠ¸: ì¼ë°˜ ì  ì²˜ì¹˜ ì´ë²¤íŠ¸
     public event Action OnEnemyDefeatedNormal;
     
-    // ÀÌº¥Æ®: ÆäÀÌÁî ÀüÈ¯ ½Ã È£Ãâ
+    // ì´ë²¤íŠ¸: í˜ì´ì¦ˆ ë³€ê²½ ì´ë²¤íŠ¸
     public event Action<int, YaCht_PhaseData> OnPhaseChanged;
 
     private void Awake()
@@ -67,11 +64,11 @@ public class YaCht_StageManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ÇöÀç Àû ÀÎ½ºÅÏ½º µî·Ï
+    /// í˜„ì¬ ìŠ¤í…Œì´ì§€ ì  ì¸ìŠ¤í„´ìŠ¤ ë“±ë¡
     /// </summary>
     public void RegisterEnemy(YaCht_Enemy enemy)
     {
-        // ±âÁ¸ Àû ÀÌº¥Æ® ±¸µ¶ ÇØÁ¦
+        // í˜„ì¬ ìŠ¤í…Œì´ì§€ ì  ì¸ìŠ¤í„´ìŠ¤ ë“±ë¡ ì œê±°
         if (m_currentEnemyInstance != null)
         {
             m_currentEnemyInstance.OnHealthChanged -= OnEnemyHealthChanged;
@@ -82,20 +79,20 @@ public class YaCht_StageManager : MonoBehaviour
         
         if (enemy != null)
         {
-            // »õ Àû ÀÌº¥Æ® ±¸µ¶
+            // í˜„ì¬ ìŠ¤í…Œì´ì§€ ì  ì¸ìŠ¤í„´ìŠ¤ ë“±ë¡
             m_currentEnemyInstance.OnHealthChanged += OnEnemyHealthChanged;
             m_currentEnemyInstance.OnDeath += OnEnemyDeath;
             
-            Debug.Log($"[StageManager] Àû µî·Ï: {enemy.EnemyName}");
+            Debug.Log($"[StageManager] í˜„ì¬ ìŠ¤í…Œì´ì§€ ì : {enemy.EnemyName}");
         }
     }
     
     /// <summary>
-    /// ÇöÀç Àû ÀÎ½ºÅÏ½º ÇØÁ¦
+    /// í˜„ì¬ ìŠ¤í…Œì´ì§€ ì  ì¸ìŠ¤í„´ìŠ¤ ë“±ë¡ ì œê±°
     /// </summary>
     public void UnregisterEnemy()
     {
-        // ÀÌº¥Æ® ±¸µ¶ ÇØÁ¦
+        // í˜„ì¬ ìŠ¤í…Œì´ì§€ ì  ì¸ìŠ¤í„´ìŠ¤ ë“±ë¡ ì œê±°
         if (m_currentEnemyInstance != null)
         {
             m_currentEnemyInstance.OnHealthChanged -= OnEnemyHealthChanged;
@@ -103,11 +100,11 @@ public class YaCht_StageManager : MonoBehaviour
         }
         
         m_currentEnemyInstance = null;
-        Debug.Log("[StageManager] Àû µî·Ï ÇØÁ¦");
+        Debug.Log("[StageManager] í˜„ì¬ ìŠ¤í…Œì´ì§€ ì  ë“±ë¡ ì œê±°");
     }
     
     /// <summary>
-    /// Àû Ã¼·Â º¯°æ ½Ã È£Ãâ - ÆäÀÌÁî ÀüÈ¯ Ã¼Å©
+    /// í˜„ì¬ ìŠ¤í…Œì´ì§€ ì  ì²´ë ¥ ë³€ê²½ ì´ë²¤íŠ¸
     /// </summary>
     private void OnEnemyHealthChanged(float currentHealth, float maxHealth)
     {
@@ -117,52 +114,52 @@ public class YaCht_StageManager : MonoBehaviour
         float currentPercent = currentHealth / maxHealth;
         YaCht_PhaseData? currentPhase = CurrentStageData.GetPhaseByHealthPercent(currentPercent);
         
-        // ÆäÀÌÁî°¡ º¯°æµÇ¾ú´ÂÁö È®ÀÎ
+        // í˜„ì¬ ìŠ¤í…Œì´ì§€ ì  ì²´ë ¥ ë³€ê²½ ì´ë²¤íŠ¸ ì²˜ë¦¬
         if (currentPhase.HasValue && currentPhase.Value.m_phaseNumber != CurrentPhase)
         {
             CurrentPhase = currentPhase.Value.m_phaseNumber;
-            Debug.Log($"[StageManager] ¡Ú ÆäÀÌÁî ÀüÈ¯! Phase {CurrentPhase} ¡Ú");
+            Debug.Log($"[StageManager] í˜„ì¬ ìŠ¤í…Œì´ì§€ ì  ì²´ë ¥ ë³€ê²½! Phase {CurrentPhase}");
             Debug.Log($"[StageManager] {currentPhase.Value.m_phaseDescription}");
             
-            // ÆäÀÌÁî ÀüÈ¯ ÀÌº¥Æ® ¹ß»ı
+            // í˜„ì¬ ìŠ¤í…Œì´ì§€ ì  ì²´ë ¥ ë³€ê²½ ì´ë²¤íŠ¸ ë°œìƒ
             OnPhaseChanged?.Invoke(CurrentPhase, currentPhase.Value);
         }
     }
     
     /// <summary>
-    /// Àû »ç¸Á ½Ã È£Ãâ
+    /// í˜„ì¬ ìŠ¤í…Œì´ì§€ ì  ì²˜ì¹˜ ì´ë²¤íŠ¸
     /// </summary>
     private void OnEnemyDeath()
     {
-        Debug.Log($"[StageManager] {CurrentEnemy.m_name} Ã³Ä¡! ½ºÅ×ÀÌÁö {CurrentStageNumber} Å¬¸®¾î!");
+        Debug.Log($"[StageManager] {CurrentEnemy.m_name} ì²˜ì¹˜! ìŠ¤í…Œì´ì§€ {CurrentStageNumber} ë³´ìŠ¤!");
 
-        // YaCht_StageDatabase¸¦ »ç¿ëÇÏ¿© º¸½ºÀü È®ÀÎ
+        // YaCht_StageDatabaseì—ì„œ ë³´ìŠ¤ ìŠ¤í…Œì´ì§€ ì—¬ë¶€ í™•ì¸
         if (YaCht_StageDatabase.IsBossStage(CurrentStageNumber))
         {
-            Debug.Log($"º¸½º ½ºÅ×ÀÌÁö Ã³Ä¡! Ã©ÅÍ {CurrentEnemy.m_chapterNumber} Å¬¸®¾î ¿Ï·á");
+            Debug.Log($"ë³´ìŠ¤ ìŠ¤í…Œì´ì§€ ì²˜ì¹˜! ì±•í„° {CurrentEnemy.m_chapterNumber} ë³´ìŠ¤ ì²˜ì¹˜");
             
-            // º¸½º Ã³Ä¡ ÀÌº¥Æ® ¹ß»ı
+            // ë³´ìŠ¤ ìŠ¤í…Œì´ì§€ ì²˜ì¹˜ ì´ë²¤íŠ¸ ë°œìƒ
             OnBossDefeated?.Invoke();
         }
         else
         {
-            // ÀÏ¹İ Àû Ã³Ä¡ ÀÌº¥Æ® ¹ß»ı
+            // ì¼ë°˜ ìŠ¤í…Œì´ì§€ ì²˜ì¹˜ ì´ë²¤íŠ¸ ë°œìƒ
             OnEnemyDefeatedNormal?.Invoke();
         }
 
-        // ´ÙÀ½ ½ºÅ×ÀÌÁö°¡ ÀÖ´ÂÁö È®ÀÎ
+        // ìŠ¤í…Œì´ì§€ ì¢…ë£Œ ì²´í¬
         if (CurrentStageNumber < YaCht_StageDatabase.GetTotalStageCount())
         {
-            Debug.Log("´ÙÀ½ ½ºÅ×ÀÌÁö·Î ÁøÇà °¡´ÉÇÕ´Ï´Ù.");
+            Debug.Log("ìŠ¤í…Œì´ì§€ ì¢…ë£Œ ì²´í¬ ì™„ë£Œ.");
         }
         else
         {
-            Debug.Log("¡Ú¡Ú¡Ú ¸ğµç ½ºÅ×ÀÌÁö Å¬¸®¾î! °ÔÀÓ ¿Ï·á! ¡Ú¡Ú¡Ú");
+            Debug.Log("ë§ˆì§€ë§‰ ìŠ¤í…Œì´ì§€ ì¢…ë£Œ! ê²Œì„ ì¢…ë£Œ!");
         }
     }
 
     /// <summary>
-    /// °ÔÀÓ ½ÃÀÛ - Ã¹ ½ºÅ×ÀÌÁö·Î ÃÊ±âÈ­
+    /// ê²Œì„ ì‹œì‘
     /// </summary>
     public void StartGame()
     {
@@ -171,7 +168,7 @@ public class YaCht_StageManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Æ¯Á¤ ½ºÅ×ÀÌÁö ·Îµå
+    /// ìŠ¤í…Œì´ì§€ ë¡œë“œ
     /// </summary>
     public void LoadStage(int stageNumber)
     {
@@ -181,19 +178,19 @@ public class YaCht_StageManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ´ÙÀ½ ½ºÅ×ÀÌÁö·Î ÀÌµ¿
+    /// ìŠ¤í…Œì´ì§€ ì´ë™
     /// </summary>
     public bool MoveToNextStage()
     {
         if (CurrentEnemyHealth > 0)
         {
-            Debug.LogWarning("ÇöÀç ÀûÀ» Ã³Ä¡ÇÏÁö ¾Ê¾Ò½À´Ï´Ù!");
+            Debug.LogWarning("ìŠ¤í…Œì´ì§€ ì´ë™ ì‹¤íŒ¨! í˜„ì¬ ìŠ¤í…Œì´ì§€ ì  ì²´ë ¥ì´ 0 ì´ìƒì…ë‹ˆë‹¤.");
             return false;
         }
 
         if (CurrentStageNumber >= YaCht_StageDatabase.GetTotalStageCount())
         {
-            Debug.LogWarning("¸¶Áö¸· ½ºÅ×ÀÌÁöÀÔ´Ï´Ù!");
+            Debug.LogWarning("ìŠ¤í…Œì´ì§€ ì´ë™ ì‹¤íŒ¨! ë§ˆì§€ë§‰ ìŠ¤í…Œì´ì§€ì…ë‹ˆë‹¤.");
             return false;
         }
 
@@ -202,7 +199,7 @@ public class YaCht_StageManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ÇöÀç Ã©ÅÍ ¹øÈ£ °¡Á®¿À±â
+    /// í˜„ì¬ ì±•í„° ë²ˆí˜¸ ë°˜í™˜
     /// </summary>
     public int GetCurrentChapterNumber()
     {
@@ -210,7 +207,7 @@ public class YaCht_StageManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ÇöÀç º¸½º ½ºÅ×ÀÌÁöÀÎÁö È®ÀÎ (YaCht_StageDatabase È°¿ë)
+    /// í˜„ì¬ ìŠ¤í…Œì´ì§€ ì  ë³´ìŠ¤ ì—¬ë¶€ í™•ì¸
     /// </summary>
     public bool IsCurrentEnemyBoss()
     {
@@ -218,7 +215,7 @@ public class YaCht_StageManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ÇöÀç Àû Ã¼·Â ÆÛ¼¾Æ® (0~1)
+    /// í˜„ì¬ ìŠ¤í…Œì´ì§€ ì  ì²´ë ¥ í¼ì„¼íŠ¸ ë°˜í™˜
     /// </summary>
     public float GetEnemyHealthPercent()
     {
@@ -229,27 +226,26 @@ public class YaCht_StageManager : MonoBehaviour
     }
 
     /// <summary>
-    /// °ÔÀÓ ¸®¼Â
+    /// ê²Œì„ ì´ˆê¸°í™”
     /// </summary>
     public void ResetGame()
     {
         CurrentStageNumber = 1;
         LoadStage(1);
-        Debug.Log("[StageManager] °ÔÀÓ ¸®¼Â ¿Ï·á");
+        Debug.Log("[StageManager] ê²Œì„ ì´ˆê¸°í™”");
     }
 
     /// <summary>
-    /// ½ºÅ×ÀÌÁö Á¤º¸ UI Ç¥½Ã¿ë ¹®ÀÚ¿­
+    /// ìŠ¤í…Œì´ì§€ ì •ë³´ ë¬¸ìì—´ ë°˜í™˜
     /// </summary>
     public string GetStageInfoString()
     {
-        return $"Ã©ÅÍ {CurrentEnemy.m_chapterNumber} - ½ºÅ×ÀÌÁö {CurrentStageNumber}\n" +
-               $"{CurrentEnemy.m_name}\n" +
-               $"Ã¼·Â: {CurrentEnemyHealth:F0} / {CurrentEnemy.m_maxHealth}";
+        return $"ì±•í„°   \t{CurrentEnemy.m_chapterNumber}\n"+
+               $"ìŠ¤í…Œì´ì§€  {CurrentStageNumber}\n";
     }
 
     /// <summary>
-    /// ÇöÀç ½ºÅ×ÀÌÁö ¼³¸í °¡Á®¿À±â
+    /// í˜„ì¬ ìŠ¤í…Œì´ì§€ ì„¤ëª… ë¬¸ìì—´ ë°˜í™˜
     /// </summary>
     public string GetCurrentStageDescription()
     {
@@ -257,7 +253,7 @@ public class YaCht_StageManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ÇöÀç ½ºÅ×ÀÌÁö ¹è°æ °æ·Î °¡Á®¿À±â
+    /// í˜„ì¬ ìŠ¤í…Œì´ì§€ ë°°ê²½ ê²½ë¡œ ë°˜í™˜
     /// </summary>
     public string GetCurrentBackgroundPath()
     {
@@ -265,7 +261,7 @@ public class YaCht_StageManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ÇöÀç ½ºÅ×ÀÌÁö BGM °æ·Î °¡Á®¿À±â
+    /// í˜„ì¬ ìŠ¤í…Œì´ì§€ BGM ê²½ë¡œ ë°˜í™˜
     /// </summary>
     public string GetCurrentBGMPath()
     {
@@ -273,7 +269,7 @@ public class YaCht_StageManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ÇöÀç ½ºÅ×ÀÌÁö Æ¯¼ö È¿°ú °æ·Î °¡Á®¿À±â
+    /// í˜„ì¬ ìŠ¤í…Œì´ì§€ íŠ¹ìˆ˜ íš¨ê³¼ ê²½ë¡œ ë°˜í™˜
     /// </summary>
     public string GetCurrentSpecialEffectPath()
     {
@@ -281,7 +277,7 @@ public class YaCht_StageManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ÇöÀç ÆäÀÌÁî µ¥ÀÌÅÍ °¡Á®¿À±â
+    /// í˜„ì¬ í˜ì´ì¦ˆ ë°ì´í„° ë°˜í™˜
     /// </summary>
     public YaCht_PhaseData? GetCurrentPhaseData()
     {

@@ -34,7 +34,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: -500, y: -30}
+  m_AnchoredPosition: {x: -300, y: -80}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!222 &591281444605452460
@@ -92,8 +92,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36
-  m_fontSizeBase: 36
+  m_fontSize: 40
+  m_fontSizeBase: 40
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -308,7 +308,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 10}
   m_SizeDelta: {x: 800, y: 100}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &7466419834088933485
@@ -534,7 +534,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: -1
   m_TargetDisplay: 0
 --- !u!114 &1241481352523938541
 MonoBehaviour:
@@ -771,8 +771,8 @@ MonoBehaviour:
   m_highHpColor: {r: 0, g: 1, b: 0, a: 1}
   m_mediumHpColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   m_lowHpColor: {r: 1, g: 0, b: 0, a: 1}
-  m_damageShakeIntensity: 0.1
-  m_damageShakeDuration: 0.2
+  m_damageShakeIntensity: 0.3
+  m_damageShakeDuration: 0.5
   m_deathFadeDuration: 0.5
   m_damageFlashColor: {r: 1, g: 0, b: 0, a: 1}
   m_damageFlashDuration: 0.3

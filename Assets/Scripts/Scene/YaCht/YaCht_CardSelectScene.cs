@@ -4,25 +4,41 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class YaCht_CardSelectScene : MonoBehaviour
-{    
+{
     [SerializeField] private Button m_johnCenaSetButton;
     [SerializeField] private Button m_undertakerSetButton;
-    [SerializeField] private Button m_testSetButton;
 
     [SerializeField] private TextMeshProUGUI m_setNameText;
     [SerializeField] private TextMeshProUGUI m_setDescriptionText;
 
     [SerializeField] private Button m_startGameButton;
-    [SerializeField] private Button m_cancelButton;
     [SerializeField] private Button m_titleButton;
 
     private YaCht_CardSetData m_currentSelectedSet;
 
     void Start()
     {
-        m_johnCenaSetButton.onClick.AddListener(() => SelectCardSet(YaCht_CardSetDatabase.JohnCenaSet));
-        m_undertakerSetButton.onClick.AddListener(() => SelectCardSet(YaCht_CardSetDatabase.UndertakerSet));
-        m_testSetButton.onClick.AddListener(() => SelectCardSet(YaCht_CardSetDatabase.TestSet));
+        m_johnCenaSetButton.onClick.AddListener(() =>
+        {
+            if (m_currentSelectedSet != YaCht_CardSetDatabase.JohnCenaSet)
+            {
+                SelectCardSet(YaCht_CardSetDatabase.JohnCenaSet);
+                m_undertakerSetButton.gameObject.transform.localScale = Vector3.one;
+                m_johnCenaSetButton.gameObject.transform.localScale *= 1.2f;
+            }
+        }
+        );
+
+        m_undertakerSetButton.onClick.AddListener(() =>
+        {
+            if (m_currentSelectedSet != YaCht_CardSetDatabase.UndertakerSet)
+            {
+                SelectCardSet(YaCht_CardSetDatabase.UndertakerSet);
+                m_johnCenaSetButton.gameObject.transform.localScale = Vector3.one;
+                m_undertakerSetButton.gameObject.transform.localScale *= 1.2f;
+            }
+        }
+        );
 
         m_startGameButton.onClick.AddListener(() =>
         {
@@ -32,12 +48,6 @@ public class YaCht_CardSelectScene : MonoBehaviour
                 YaCht_GameManager.SetRelicSceneFromDeckSelection();
                 SceneManager.LoadScene("YaCht_RelicScene");
             }
-        });
-
-        m_cancelButton.onClick.AddListener(() =>
-        {
-             m_currentSelectedSet = null;
-            m_startGameButton.gameObject.SetActive(false);
         });
 
         m_titleButton.onClick.AddListener(() =>
@@ -63,6 +73,8 @@ public class YaCht_CardSelectScene : MonoBehaviour
 
     private void SelectCardSet(YaCht_CardSetData selectedSet)
     {
+        YaCht_BGMManager.Instance.PlayWrestlerSelectBGM(selectedSet.wrestlerType);
+
         YaCht_GameManager.nowPlayerData.SetPlayerDeck(selectedSet.cards, selectedSet.wrestlerType);
         m_currentSelectedSet = selectedSet;
         UpdateSetInfo(selectedSet);

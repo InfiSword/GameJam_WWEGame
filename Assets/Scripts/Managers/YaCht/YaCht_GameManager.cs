@@ -20,11 +20,11 @@ public class YaCht_GameManager : MonoBehaviour
 
     public static YaCht_PlayerData nowPlayerData = new YaCht_PlayerData();
     
-    // °ÔÀÓ »óÅÂ
+    // í˜„ì¬ ë¼ìš´ë“œ
     public static int currentRound = 1;
     public static int totalScore = 0;
     
-    // À¯¹° ¾À ÁøÀÔ - µ¦ ¼±ÅÃ ÈÄÀÎÁö ¿©ºÎ
+    // í˜„ì¬ ë± ì„ íƒ ì—¬ë¶€
     private static bool m_isFromDeckSelection = true;
     
     static void Init()
@@ -80,9 +80,9 @@ public class YaCht_GameManager : MonoBehaviour
     {
         currentRound = 1;
         totalScore = 0;
-        RelicManager.ResetGameEffects();  // °ÔÀÓ ¿ÏÀü Àç½ÃÀÛ
+        RelicManager.ResetGameEffects();  // ì— ë¸”ëŸ¼ ê²Œì„ íš¨ê³¼ ì´ˆê¸°í™”
         
-        // StageManagerµµ »õ °ÔÀÓ ÃÊ±âÈ­
+        // StageManager ìŠ¤í…Œì´ì§€ ì´ˆê¸°í™”
         if (StageManager != null)
         {
             StageManager.ResetGame();            
@@ -92,7 +92,7 @@ public class YaCht_GameManager : MonoBehaviour
     public static void NextRound()
     {
         currentRound++;
-        // ÅÏº° È¿°ú ÃÊ±âÈ­ (RTKO´Â À¯Áö)
+        // ì— ë¸”ëŸ¼ í„´ íš¨ê³¼ ì´ˆê¸°í™” (RKO íš¨ê³¼)
         RelicManager.ResetTurnEffects();
     }
     
@@ -114,7 +114,7 @@ public class YaCht_GameManager : MonoBehaviour
             currentRound = 1;
             totalScore = 0;
             
-            // ½ºÅ×ÀÌÁö ÀüÈ¯ ½Ã ÅÏº° È¿°ú¸¸ ¸®¼Â (RTKO À¯Áö)
+            // ì— ë¸”ëŸ¼ ìŠ¤í…Œì´ì§€ íš¨ê³¼ ì´ˆê¸°í™” (RKO íš¨ê³¼)
             RelicManager.ResetStageEffects();
         }
     }
@@ -129,7 +129,7 @@ public class YaCht_GameManager : MonoBehaviour
                 currentRound = 1;
                 totalScore = 0;
                 
-                // ½ºÅ×ÀÌÁö ÀüÈ¯ ½Ã ÅÏº° È¿°ú¸¸ ¸®¼Â (RTKO À¯Áö)
+                // ì— ë¸”ëŸ¼ ìŠ¤í…Œì´ì§€ íš¨ê³¼ ì´ˆê¸°í™” (RKO íš¨ê³¼)
                 RelicManager.ResetStageEffects();
             }
             return success;
@@ -137,28 +137,28 @@ public class YaCht_GameManager : MonoBehaviour
         return false;
     }
     
-    #region À¯¹° ¾À ÄÁÅØ½ºÆ® °ü¸®
+    #region ì— ë¸”ëŸ¼ ë± ì„ íƒ ì—¬ë¶€ ì²´í¬
     
     /// <summary>
-    /// µ¦ ¼±ÅÃ¿¡¼­ À¯¹° ¾ÀÀ¸·Î ÁøÀÔ
+    /// ì— ë¸”ëŸ¼ ë± ì„ íƒ ì—¬ë¶€ ì„¤ì •
     /// </summary>
     public static void SetRelicSceneFromDeckSelection()
     {
         m_isFromDeckSelection = true;
-        Debug.Log("[GameManager] À¯¹° ¾À: µ¦ ¼±ÅÃ ÈÄ");
+        Debug.Log("[GameManager] ì— ë¸”ëŸ¼ ë± ì„ íƒ ì—¬ë¶€: ì— ë¸”ëŸ¼ ë± ì„ íƒ");
     }
     
     /// <summary>
-    /// º¸½º Ã³Ä¡ ÈÄ À¯¹° ¾ÀÀ¸·Î ÁøÀÔ
+    /// ì— ë¸”ëŸ¼ ë³´ìŠ¤ ì²˜ì¹˜ ì—¬ë¶€ ì„¤ì •
     /// </summary>
     public static void SetRelicSceneFromBossDefeat()
     {
         m_isFromDeckSelection = false;
-        Debug.Log("[GameManager] À¯¹° ¾À: º¸½º Ã³Ä¡ ÈÄ");
+        Debug.Log("[GameManager] ì— ë¸”ëŸ¼ ë± ì„ íƒ ì—¬ë¶€: ì— ë¸”ëŸ¼ ë³´ìŠ¤ ì²˜ì¹˜");
     }
     
     /// <summary>
-    /// µ¦ ¼±ÅÃ¿¡¼­ ¿Â °ÍÀÎÁö È®ÀÎ
+    /// ì— ë¸”ëŸ¼ ë± ì„ íƒ ì—¬ë¶€ ì²´í¬
     /// </summary>
     public static bool IsRelicSceneFromDeckSelection()
     {
@@ -167,10 +167,10 @@ public class YaCht_GameManager : MonoBehaviour
     
     #endregion
 
-    #region ½ºÅ×ÀÌÁö ÇïÆÛ
+    #region ì— ë¸”ëŸ¼ ìŠ¤í…Œì´ì§€ ì´ˆê¸°í™”
 
     /// <summary>
-    /// ÀüÃ¼ ½ºÅ×ÀÌÁö ¼ö °¡Á®¿À±â
+    /// ì— ë¸”ëŸ¼ ìŠ¤í…Œì´ì§€ ì´ˆê¸°í™”
     /// </summary>
     public static int GetTotalStageCount()
     {
@@ -178,7 +178,7 @@ public class YaCht_GameManager : MonoBehaviour
     }
     
     /// <summary>
-    /// ÇöÀç ½ºÅ×ÀÌÁö°¡ º¸½ºÀüÀÎÁö È®ÀÎ
+    /// ì— ë¸”ëŸ¼ ìŠ¤í…Œì´ì§€ ë³´ìŠ¤ ì—¬ë¶€ ì²´í¬
     /// </summary>
     public static bool IsCurrentStageBoss()
     {

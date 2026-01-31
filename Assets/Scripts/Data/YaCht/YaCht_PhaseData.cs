@@ -1,17 +1,17 @@
 using UnityEngine;
 
 /// <summary>
-/// º¸½º ÆäÀÌÁîº° µ¥ÀÌÅÍ (¹è°æ, BGM, È¿°ú, Ã¼·Â ÀÓ°è°ª)
+/// ë³´ìŠ¤ í˜ì´ì¦ˆë³„ ë°ì´í„° (ë°°ê²½, BGM, íš¨ê³¼, ì²´ë ¥ ì„ê³„ê°’)
 /// </summary>
 [System.Serializable]
 public struct YaCht_PhaseData
 {
-    public int m_phaseNumber;                   // ÆäÀÌÁî ¹øÈ£ (1, 2, 3...)
-    public float m_healthThreshold;             // ÆäÀÌÁî ÀüÈ¯ Ã¼·Â ÀÓ°è°ª (0~1, ¿¹: 0.5 = 50%)
-    public string m_backgroundResourcePath;     // ÆäÀÌÁîº° ¹è°æ ÀÌ¹ÌÁö °æ·Î
-    public string m_bgmResourcePath;            // ÆäÀÌÁîº° BGM °æ·Î (¼±ÅÃ»çÇ×, ºó ¹®ÀÚ¿­ÀÌ¸é º¯°æ ¾È ÇÔ)
-    public string m_specialEffectResourcePath;  // ÆäÀÌÁîº° Æ¯¼ö È¿°ú °æ·Î (¼±ÅÃ»çÇ×)
-    public string m_phaseDescription;           // ÆäÀÌÁî ¼³¸í
+    public int m_phaseNumber;                   // í˜ì´ì¦ˆ ë²ˆí˜¸ (1, 2, 3...)
+    public float m_healthThreshold;             // í˜ì´ì¦ˆ ì „í™˜ ì²´ë ¥ ì„ê³„ê°’ (0~1, ì˜ˆ: 0.5 = 50%)
+    public string m_backgroundResourcePath;     // í˜ì´ì¦ˆë³„ ë°°ê²½ ì´ë¯¸ì§€ ê²½ë¡œ
+    public string m_bgmResourcePath;            // í˜ì´ì¦ˆë³„ BGM ê²½ë¡œ (ì„ íƒì‚¬í•­, ë¹ˆ ë¬¸ìì—´ì´ë©´ ë³€ê²½ ì•ˆ í•¨)
+    public string m_specialEffectResourcePath;  // í˜ì´ì¦ˆë³„ íŠ¹ìˆ˜ íš¨ê³¼ ê²½ë¡œ (ì„ íƒì‚¬í•­)
+    public string m_phaseDescription;           // í˜ì´ì¦ˆ ì„¤ëª…
     
     public YaCht_PhaseData(
         int phaseNumber,

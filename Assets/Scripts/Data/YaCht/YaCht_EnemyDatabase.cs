@@ -2,14 +2,14 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// ¸ğµç Ã©ÅÍ¿Í Àû Á¤º¸¸¦ ÀúÀåÇÏ´Â µ¥ÀÌÅÍº£ÀÌ½º
+/// ëª¨ë“  ì±•í„°ì™€ ì  ì •ë³´ë¥¼ ì €ì¥í•˜ëŠ” ë°ì´í„°ë² ì´ìŠ¤
 /// </summary>
 public static class YaCht_EnemyDatabase
 {
     private static List<YaCht_ChapterData> s_chapters = null;
 
     /// <summary>
-    /// µ¥ÀÌÅÍº£ÀÌ½º ÃÊ±âÈ­
+    /// ë°ì´í„°ë² ì´ìŠ¤ ì´ˆê¸°í™”
     /// </summary>
     public static void Initialize()
     {
@@ -19,40 +19,40 @@ public static class YaCht_EnemyDatabase
         s_chapters = new List<YaCht_ChapterData>();
 
         // ====================================
-        // 1Ã©ÅÍ - ÇÑ±¹ (½ºÅ×ÀÌÁö 1~4)
+        // 1ì±•í„° - í•œêµ­ (ìŠ¤í…Œì´ì§€ 1~4)
         // ====================================
-        YaCht_ChapterData chapter1 = new YaCht_ChapterData(1, "ÇÑ±¹");
-        chapter1.AddStage(new YaCht_EnemyData("°ñ¸ñ ½Î¿ò²Û", 100, 1, 1, false, "Sprites/Enemies/Chapter1/1"));
-        chapter1.AddStage(new YaCht_EnemyData("¹è´Ş ¶óÀÌ´õ", 200, 2, 1, false, "Sprites/Enemies/Chapter1/2"));
-        chapter1.AddStage(new YaCht_EnemyData("Ã¼À°°ü °üÀå Á¦ÀÚ", 300, 3, 1, false, "Sprites/Enemies/Chapter1/3"));
-        chapter1.AddStage(new YaCht_EnemyData("ÇÑ±¹ WWE Ã¨ÇÇ¾ğ", 800, 4, 1, true, "Sprites/Enemies/Chapter1/4"));
+        YaCht_ChapterData chapter1 = new YaCht_ChapterData(1, "í•œêµ­");
+        chapter1.AddStage(new YaCht_EnemyData("ê³¨ëª© ì‹¸ì›€ê¾¼", 100, 1, 1, false, "Sprites/Enemies/Chapter1/1"));
+        chapter1.AddStage(new YaCht_EnemyData("ë°°ë‹¬ ë¼ì´ë”", 200, 2, 1, false, "Sprites/Enemies/Chapter1/2"));
+        chapter1.AddStage(new YaCht_EnemyData("ì²´ìœ¡ê´€ ê´€ì¥ ì œì", 300, 3, 1, false, "Sprites/Enemies/Chapter1/3"));
+        chapter1.AddStage(new YaCht_EnemyData("í•œêµ­ WWE ì±”í”¼ì–¸", 800, 4, 1, true, "Sprites/Enemies/Chapter1/4"));
         s_chapters.Add(chapter1);
 
         // ====================================
-        // 2Ã©ÅÍ - Àü¼¼°è (½ºÅ×ÀÌÁö 5~8)
+        // 2ì±•í„° - ì „ì„¸ê³„ (ìŠ¤í…Œì´ì§€ 5~8)
         // ====================================
-        YaCht_ChapterData chapter2 = new YaCht_ChapterData(2, "Àü¼¼°è");
-        chapter2.AddStage(new YaCht_EnemyData("¹«¿¡Å¸ÀÌ ¼±¼ö", 1000, 5, 2, false, "Sprites/Enemies/Chapter2/5"));
-        chapter2.AddStage(new YaCht_EnemyData("´ÑÀÚ ", 1500, 6, 2, false, "Sprites/Enemies/Chapter2/6"));
-        chapter2.AddStage(new YaCht_EnemyData("Áß¼¼±â»ç ", 2000, 7, 2, false, "Sprites/Enemies/Chapter2/7"));
-        chapter2.AddStage(new YaCht_EnemyData("WWE Ã¨ÇÇ¾ğ", 5000, 8, 2, true, "Sprites/Enemies/Chapter2/8"));
+        YaCht_ChapterData chapter2 = new YaCht_ChapterData(2, "ì „ì„¸ê³„");
+        chapter2.AddStage(new YaCht_EnemyData("ë¬´ì—íƒ€ì´ ì„ ìˆ˜", 1000, 5, 2, false, "Sprites/Enemies/Chapter2/5"));
+        chapter2.AddStage(new YaCht_EnemyData("ë‹Œì ", 1500, 6, 2, false, "Sprites/Enemies/Chapter2/6"));
+        chapter2.AddStage(new YaCht_EnemyData("ì¤‘ì„¸ê¸°ì‚¬ ", 2000, 7, 2, false, "Sprites/Enemies/Chapter2/7"));
+        chapter2.AddStage(new YaCht_EnemyData("WWE ì±”í”¼ì–¸", 5000, 8, 2, true, "Sprites/Enemies/Chapter2/8"));
         s_chapters.Add(chapter2);
 
         // ====================================
-        // 3Ã©ÅÍ - ¿ìÁÖ (½ºÅ×ÀÌÁö 9~12)
+        // 3ì±•í„° - ìš°ì£¼ (ìŠ¤í…Œì´ì§€ 9~12)
         // ====================================
-        YaCht_ChapterData chapter3 = new YaCht_ChapterData(3, "¿ìÁÖ");
-        chapter3.AddStage(new YaCht_EnemyData("¿ìÁÖ ÇØÀû", 10000, 9, 3, false, "Sprites/Enemies/Chapter3/9"));
-        chapter3.AddStage(new YaCht_EnemyData("»çÀÌº¸±× ¿ëº´", 12000, 10, 3, false, "Sprites/Enemies/Chapter3/10"));
-        chapter3.AddStage(new YaCht_EnemyData("±º¿ë ¾Èµå·ÎÀÌµå", 20000, 11, 3, false, "Sprites/Enemies/Chapter3/11"));
-        chapter3.AddStage(new YaCht_EnemyData("ÀºÇÏ Ã¨ÇÇ¾ğ", 40000, 12, 3, true, "Sprites/Enemies/Chapter3/12"));
+        YaCht_ChapterData chapter3 = new YaCht_ChapterData(3, "ìš°ì£¼");
+        chapter3.AddStage(new YaCht_EnemyData("ìš°ì£¼ í•´ì ", 10000, 9, 3, false, "Sprites/Enemies/Chapter3/9"));
+        chapter3.AddStage(new YaCht_EnemyData("ì‚¬ì´ë³´ê·¸ ìš©ë³‘", 12000, 10, 3, false, "Sprites/Enemies/Chapter3/10"));
+        chapter3.AddStage(new YaCht_EnemyData("êµ°ìš© ì•ˆë“œë¡œì´ë“œ", 20000, 11, 3, false, "Sprites/Enemies/Chapter3/11"));
+        chapter3.AddStage(new YaCht_EnemyData("ì€í•˜ ì±”í”¼ì–¸", 40000, 12, 3, true, "Sprites/Enemies/Chapter3/12"));
         s_chapters.Add(chapter3);
 
-        Debug.Log("YaCht_EnemyDatabase ÃÊ±âÈ­ ¿Ï·á: ÃÑ 3°³ Ã©ÅÍ, 12°³ ½ºÅ×ÀÌÁö");
+        Debug.Log("YaCht_EnemyDatabase ì´ˆê¸°í™” ì™„ë£Œ: ì´ 3ê°œ ì±•í„°, 12ê°œ ìŠ¤í…Œì´ì§€");
     }
 
     /// <summary>
-    /// Æ¯Á¤ Ã©ÅÍ µ¥ÀÌÅÍ °¡Á®¿À±â
+    /// íŠ¹ì • ì±•í„° ë°ì´í„° ê°€ì ¸ì˜¤ê¸°
     /// </summary>
     public static YaCht_ChapterData GetChapter(int chapterNumber)
     {
@@ -63,12 +63,12 @@ public static class YaCht_EnemyDatabase
             return s_chapters[chapterNumber - 1];
         }
 
-        Debug.LogError($"Àß¸øµÈ Ã©ÅÍ ¹øÈ£: {chapterNumber}");
+        Debug.LogError($"ì˜ëª»ëœ ì±•í„° ë²ˆí˜¸: {chapterNumber}");
         return null;
     }
 
     /// <summary>
-    /// ½ºÅ×ÀÌÁö ¹øÈ£·Î Àû µ¥ÀÌÅÍ °¡Á®¿À±â (1~12)
+    /// ìŠ¤í…Œì´ì§€ ë²ˆí˜¸ë¡œ ì  ë°ì´í„° ê°€ì ¸ì˜¤ê¸° (1~12)
     /// </summary>
     public static YaCht_EnemyData GetEnemyByStage(int stageNumber)
     {
@@ -76,11 +76,11 @@ public static class YaCht_EnemyDatabase
 
         if (stageNumber < 1 || stageNumber > 12)
         {
-            Debug.LogError($"Àß¸øµÈ ½ºÅ×ÀÌÁö ¹øÈ£: {stageNumber}. 1~12 ¹üÀ§¸¸ Áö¿øÇÕ´Ï´Ù.");
+            Debug.LogError($"ì˜ëª»ëœ ìŠ¤í…Œì´ì§€ ë²ˆí˜¸: {stageNumber}. 1~12 ë²”ìœ„ë§Œ ì§€ì›í•©ë‹ˆë‹¤.");
             return default(YaCht_EnemyData);
         }
 
-        // ½ºÅ×ÀÌÁö ¹øÈ£·ÎºÎÅÍ Ã©ÅÍ¿Í Ã©ÅÍ ³» ½ºÅ×ÀÌÁö °è»ê
+        // ìŠ¤í…Œì´ì§€ ë²ˆí˜¸ë¡œë¶€í„° ì±•í„°ì™€ ì±•í„° ë‚´ ìŠ¤í…Œì´ì§€ ê³„ì‚°
         int chapterNumber = ((stageNumber - 1) / 4) + 1;
         int stageInChapter = (stageNumber - 1) % 4;
 
@@ -94,7 +94,7 @@ public static class YaCht_EnemyDatabase
     }
 
     /// <summary>
-    /// ¸ğµç Ã©ÅÍ ¸®½ºÆ® °¡Á®¿À±â
+    /// ëª¨ë“  ì±•í„° ë¦¬ìŠ¤íŠ¸ ê°€ì ¸ì˜¤ê¸°
     /// </summary>
     public static List<YaCht_ChapterData> GetAllChapters()
     {
@@ -103,7 +103,7 @@ public static class YaCht_EnemyDatabase
     }
 
     /// <summary>
-    /// ÃÑ Ã©ÅÍ ¼ö
+    /// ì´ ì±•í„° ìˆ˜
     /// </summary>
     public static int GetTotalChapterCount()
     {
@@ -112,7 +112,7 @@ public static class YaCht_EnemyDatabase
     }
 
     /// <summary>
-    /// ÃÑ ½ºÅ×ÀÌÁö ¼ö (YaCht_StageDatabase¿Í µ¿±âÈ­)
+    /// ì´ ìŠ¤í…Œì´ì§€ ìˆ˜ (YaCht_StageDatabaseì™€ ë™ê¸°í™”)
     /// </summary>
     public static int GetTotalStageCount()
     {

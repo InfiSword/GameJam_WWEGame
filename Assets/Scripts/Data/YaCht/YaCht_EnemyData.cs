@@ -1,17 +1,17 @@
 using UnityEngine;
 
 /// <summary>
-/// Àû Á¤º¸¸¦ ´ã´Â µ¥ÀÌÅÍ ±¸Á¶Ã¼
+/// ì  ì •ë³´ë¥¼ ë‹´ëŠ” ë°ì´í„° êµ¬ì¡°ì²´
 /// </summary>
 [System.Serializable]
 public struct YaCht_EnemyData
 {
-    public string m_name;           // Àû ÀÌ¸§
-    public int m_maxHealth;         // ÃÖ´ë Ã¼·Â
-    public int m_stageNumber;       // ½ºÅ×ÀÌÁö ¹øÈ£ (1~12)
-    public int m_chapterNumber;     // Ã©ÅÍ ¹øÈ£ (1~3)
-    public bool m_isBoss;           // º¸½º ¿©ºÎ
-    public string m_spriteResourcePath; // ½ºÇÁ¶óÀÌÆ® ¸®¼Ò½º °æ·Î (Resources Æú´õ ±âÁØ)
+    public string m_name;           // ì  ì´ë¦„
+    public int m_maxHealth;         // ìµœëŒ€ ì²´ë ¥
+    public int m_stageNumber;       // ìŠ¤í…Œì´ì§€ ë²ˆí˜¸ (1~12)
+    public int m_chapterNumber;     // ì±•í„° ë²ˆí˜¸ (1~3)
+    public bool m_isBoss;           // ë³´ìŠ¤ ì—¬ë¶€
+    public string m_spriteResourcePath; // ìŠ¤í”„ë¼ì´íŠ¸ ë¦¬ì†ŒìŠ¤ ê²½ë¡œ (Resources í´ë” ê¸°ì¤€)
 
     public YaCht_EnemyData(string name, int maxHealth, int stageNumber, int chapterNumber, bool isBoss, string spriteResourcePath = "")
     {

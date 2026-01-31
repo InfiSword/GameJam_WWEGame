@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Ã©ÅÍ¿Í ½ºÅ×ÀÌÁö Á¤º¸¸¦ ´ã´Â µ¥ÀÌÅÍ Å¬·¡½º
+/// ì±•í„°ì™€ ìŠ¤í…Œì´ì§€ ì •ë³´ë¥¼ ë‹´ëŠ” ë°ì´í„° í´ë˜ìŠ¤
 /// </summary>
 public class YaCht_ChapterData
 {
@@ -28,7 +28,7 @@ public class YaCht_ChapterData
         {
             return Stages[stageIndex];
         }
-        Debug.LogError($"Àß¸øµÈ ½ºÅ×ÀÌÁö ÀÎµ¦½º: {stageIndex}");
+        Debug.LogError($"ì˜ëª»ëœ ìŠ¤í…Œì´ì§€ ì¸ë±ìŠ¤: {stageIndex}");
         return default(YaCht_EnemyData);
     }
 

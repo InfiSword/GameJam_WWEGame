@@ -1,19 +1,19 @@
 using UnityEngine;
 
 /// <summary>
-/// ½ºÅ×ÀÌÁöº° ¸®¼Ò½º ¹× È¿°ú µ¥ÀÌÅÍ ±¸Á¶Ã¼
+/// ìŠ¤í…Œì´ì§€ë³„ ë¦¬ì†ŒìŠ¤ ë° íš¨ê³¼ ë°ì´í„° êµ¬ì¡°ì²´
 /// </summary>
 [System.Serializable]
 public struct YaCht_StageData
 {
-    public int m_stageNumber;                   // ½ºÅ×ÀÌÁö ¹øÈ£ (1~12)
-    public int m_chapterNumber;                 // Ã©ÅÍ ¹øÈ£ (1~3)
-    public string m_backgroundResourcePath;     // ¹è°æ ÀÌ¹ÌÁö ¸®¼Ò½º °æ·Î (Resources Æú´õ ±âÁØ)
-    public string m_bgmResourcePath;            // BGM ¸®¼Ò½º °æ·Î (Resources Æú´õ ±âÁØ)
-    public string m_specialEffectResourcePath;  // Æ¯¼ö È¿°ú ¸®¼Ò½º °æ·Î (Resources Æú´õ ±âÁØ, ¼±ÅÃ»çÇ×)
-    public bool m_isBossStage;                  // º¸½º ½ºÅ×ÀÌÁö ¿©ºÎ
-    public string m_stageDescription;           // ½ºÅ×ÀÌÁö ¼³¸í
-    public YaCht_PhaseData[] m_phases;          // ÆäÀÌÁîº° µ¥ÀÌÅÍ (nullÀÌ¸é ´ÜÀÏ ÆäÀÌÁî)
+    public int m_stageNumber;                   // ìŠ¤í…Œì´ì§€ ë²ˆí˜¸ (1~12)
+    public int m_chapterNumber;                 // ì±•í„° ë²ˆí˜¸ (1~3)
+    public string m_backgroundResourcePath;     // ë°°ê²½ ì´ë¯¸ì§€ ë¦¬ì†ŒìŠ¤ ê²½ë¡œ (Resources í´ë” ê¸°ì¤€)
+    public string m_bgmResourcePath;            // BGM ë¦¬ì†ŒìŠ¤ ê²½ë¡œ (Resources í´ë” ê¸°ì¤€)
+    public string m_specialEffectResourcePath;  // íŠ¹ìˆ˜ íš¨ê³¼ ë¦¬ì†ŒìŠ¤ ê²½ë¡œ (Resources í´ë” ê¸°ì¤€, ì„ íƒì‚¬í•­)
+    public bool m_isBossStage;                  // ë³´ìŠ¤ ìŠ¤í…Œì´ì§€ ì—¬ë¶€
+    public string m_stageDescription;           // ìŠ¤í…Œì´ì§€ ì„¤ëª…
+    public YaCht_PhaseData[] m_phases;          // í˜ì´ì¦ˆë³„ ë°ì´í„° (nullì´ë©´ ë‹¨ì¼ í˜ì´ì¦ˆ)
     
     public YaCht_StageData(
         int stageNumber,
@@ -36,19 +36,19 @@ public struct YaCht_StageData
     }
     
     /// <summary>
-    /// ´ÙÁß ÆäÀÌÁî ½ºÅ×ÀÌÁöÀÎÁö È®ÀÎ
+    /// ë‹¤ì¤‘ í˜ì´ì¦ˆ ìŠ¤í…Œì´ì§€ì¸ì§€ í™•ì¸
     /// </summary>
     public bool HasMultiplePhases => m_phases != null && m_phases.Length > 0;
     
     /// <summary>
-    /// Ã¼·Â ÆÛ¼¾Æ®¿¡ µû¸¥ ÇöÀç ÆäÀÌÁî °¡Á®¿À±â
+    /// ì²´ë ¥ í¼ì„¼íŠ¸ì— ë”°ë¥¸ í˜„ì¬ í˜ì´ì¦ˆ ê°€ì ¸ì˜¤ê¸°
     /// </summary>
     public YaCht_PhaseData? GetPhaseByHealthPercent(float healthPercent)
     {
         if (!HasMultiplePhases)
             return null;
         
-        // Ã¼·Â ÆÛ¼¾Æ®¿¡ ¸Â´Â ÆäÀÌÁî Ã£±â (³»¸²Â÷¼ø Á¤·Ä °¡Á¤)
+        // ì²´ë ¥ í¼ì„¼íŠ¸ì— ë§ëŠ” í˜ì´ì¦ˆ ì°¾ê¸° (ë‚´ë¦¼ì°¨ìˆœ ì •ë ¬ ê°€ì •)
         for (int i = 0; i < m_phases.Length; i++)
         {
             if (healthPercent <= m_phases[i].m_healthThreshold)
@@ -57,12 +57,12 @@ public struct YaCht_StageData
             }
         }
         
-        // Ã¹ ¹øÂ° ÆäÀÌÁî ¹İÈ¯ (Ã¼·ÂÀÌ °¡Àå ³ôÀ» ¶§)
+        // ì²« ë²ˆì§¸ í˜ì´ì¦ˆ ë°˜í™˜ (ì²´ë ¥ì´ ê°€ì¥ ë†’ì„ ë•Œ)
         return m_phases[0];
     }
     
     /// <summary>
-    /// ÆäÀÌÁî ¹øÈ£·Î ÆäÀÌÁî µ¥ÀÌÅÍ °¡Á®¿À±â
+    /// í˜ì´ì¦ˆ ë²ˆí˜¸ë¡œ í˜ì´ì¦ˆ ë°ì´í„° ê°€ì ¸ì˜¤ê¸°
     /// </summary>
     public YaCht_PhaseData? GetPhaseByNumber(int phaseNumber)
     {

@@ -1,16 +1,17 @@
 using UnityEngine;
 
-// À¯¹° µ¥ÀÌÅÍ ±¸Á¶Ã¼
+// ìœ ë¬¼ ë°ì´í„° êµ¬ì¡°ì²´
 public struct YaCht_RelicData
 {
     public YaCht_RelicType relicType;
     public string name;
     public string description;
     public YaCht_RelicRarity rarity;
-    public YaCht_WrestlerType requiredWrestler; // NoneÀÌ¸é °ø¿ë
-    public string imageResourcePath; // ÀÌ¹ÌÁö ¸®¼Ò½º °æ·Î Ãß°¡
+    public YaCht_WrestlerType requiredWrestler; // Noneì´ë©´ ê³µìš©
+    public string imageResourcePath; // ì´ë¯¸ì§€ ë¦¬ì†ŒìŠ¤ ê²½ë¡œ ì¶”ê°€
+    public string imageIconResourcePath; // ì•„ì´ì½˜ ì´ë¯¸ì§€ ë¦¬ì†ŒìŠ¤ ê²½ë¡œ ì¶”ê°€
 
-    public YaCht_RelicData(YaCht_RelicType type, string name, string desc, YaCht_RelicRarity rarity, YaCht_WrestlerType wrestler = YaCht_WrestlerType.None, string imagePath = "")
+    public YaCht_RelicData(YaCht_RelicType type, string name, string desc, YaCht_RelicRarity rarity, YaCht_WrestlerType wrestler = YaCht_WrestlerType.None, string imagePath = "", string iconPath = "")
     {
         relicType = type;
         this.name = name;
@@ -18,138 +19,151 @@ public struct YaCht_RelicData
         this.rarity = rarity;
         requiredWrestler = wrestler;
         imageResourcePath = imagePath;
+        imageIconResourcePath = iconPath; 
     }
 }
 
-// À¯¹° µ¥ÀÌÅÍº£ÀÌ½º
+// ìœ ë¬¼ ë°ì´í„°ë² ì´ìŠ¤
 public static class YaCht_RelicDatabase
 {
-    // === Á¸ ½Ã³ª Àü¿ë À¯¹° ===
-    public static YaCht_RelicData AAA = new YaCht_RelicData(
-        YaCht_RelicType.AAA,
-        "AAA",
-        "AA¸¦ »ç¿ëÇÑ ÅÏ¿¡ ÇØ´ç ÅÏÀÇ µ¥¹ÌÁö°¡ 2¹è°¡ µË´Ï´Ù.",
-        YaCht_RelicRarity.Unique,
-        YaCht_WrestlerType.JohnCena,
-        "Sprites/Cards/Relics/AAA"
-    );
-
+    // === ì¡´ ì‹œë‚˜ ì „ìš© ìœ ë¬¼ ===
     public static YaCht_RelicData RTKO = new YaCht_RelicData(
         YaCht_RelicType.RTKO,
         "RTKO",
-        "RKO¸¦ »ç¿ëÇÏ¸é »ç¿ëÈ½¼ö¸¸Å­ ¿µ±¸ÀûÀ¸·Î µ¥¹ÌÁö°¡ 2¹è¾¿ Áõ°¡ÇÕ´Ï´Ù.",
+        "RKO ì¹´ë“œë¥¼ ì‚¬ìš©í•˜ë©´ ë°ë¯¸ì§€ê°€ ì˜êµ¬ì ìœ¼ë¡œ 1.2ë°° ì¦ê°€í•©ë‹ˆë‹¤. ë‹¨, ìŠ¤í…Œì´ì§€ë‹¹ 3ë²ˆì´ ì œí•œë©ë‹ˆë‹¤.",
         YaCht_RelicRarity.Unique,
         YaCht_WrestlerType.JohnCena,
-        "Sprites/Cards/Relics/RTKO"
+        "Sprites/Cards/Relics/RTKO",
+        "Sprites/Cards/Relics/Icons/RTKO"
     );
 
-    public static YaCht_RelicData DiamondKnuckle = new YaCht_RelicData(
-        YaCht_RelicType.DiamondKnuckle,
-        "´ÙÀÌ¾Æ¸óµå ³ÊÅ¬",
-        "±âº» µ¥¹ÌÁö 20% Áõ°¡. ÆÄÀÌºê ³ÊÅ¬ ¼ÅÇÃÀ» »ç¿ëÇÏ¸é 2¹è°¡ µË´Ï´Ù.",
+    public static YaCht_RelicData YouCantSeeMe = new YaCht_RelicData(
+        YaCht_RelicType.YouCantSeeMe,
+        "You Can't See Me",
+        "2í„´ ë™ì•ˆ ì…íŒ ë°ë¯¸ì§€ì˜ ì¡°ê±´ì— ë§ìœ¼ë©´ ë§ˆì§€ë§‰ í„´ì— ì—…ì…‹í•œ ì¹´ë“œ 1ì¥ë‹¹ 3~5ë²ˆ ê³µê²©í•©ë‹ˆë‹¤. (3íšŒ=200+, 4íšŒ=300+, 5íšŒ=400+)",
         YaCht_RelicRarity.Unique,
         YaCht_WrestlerType.JohnCena,
-        "Sprites/Cards/Relics/DiamondKnuckle"
+        "Sprites/Cards/Relics/YouCantSeeMe",
+        "Sprites/Cards/Relics/Icons/YouCantSeeMe"
     );
 
-    // === ¾ğ´õÅ×ÀÌÄ¿ Àü¿ë À¯¹° ===
+    public static YaCht_RelicData IHateS = new YaCht_RelicData(
+        YaCht_RelicType.IHateS,
+        "I Hate S",
+        "ë¦¬ë¡¤ì— ì‚¬ìš©ëœ Aë­í¬ ê¸°ìˆ ë“¤ì˜ ê°œìˆ˜ì— ë”°ë¼ ìµœì†Œ 1.25ë°°ì—ì„œ ë¬´í•œì • ì¦ê°€í•©ë‹ˆë‹¤. (ìŠ¤í…Œì´ì§€ ì´ë™ ì‹œ ì´ˆê¸°í™”, Së­í¬ í™•ë¥  1%, Së­í¬ íšë“ ì‹œ ì¤‘ì²© 0)",
+        YaCht_RelicRarity.Unique,
+        YaCht_WrestlerType.JohnCena,
+        "Sprites/Cards/Relics/IHateS",
+        "Sprites/Cards/Relics/Icons/IHateS"
+    );
+
+    // === ì–¸ë”í…Œì´ì»¤ ì „ìš© ìœ ë¬¼ ===
     public static YaCht_RelicData RestTombstone = new YaCht_RelicData(
         YaCht_RelicType.RestTombstone,
-        "¾È½ÄÀÇ ºñ¼®",
-        "Ã¼·ÂÀÌ 40% ÀÌÇÏÀÎ Àû¿¡°Ô Åù½ºÅæ ÆÄÀÏµå¶óÀÌ¹ö »ç¿ë ½Ã Áï½Ã Ã³Ä¡ÇÕ´Ï´Ù.",
+        "ì•ˆì‹ì˜ ë¹„ì„",
+        "Së­í¬ ê¸°ìˆ ë“¤ì˜ ëŒ€ë¯¸ì§€ê°€ 0.7ë°°ê°€ ë©ë‹ˆë‹¤. HPê°€ 10% ì´í•˜ì¸ ì ì—ê²Œ Së­í¬ ê¸°ìˆ  ì ì¤‘ ì‹œ ì¦‰ì‹œ ì²˜ì¹˜í•©ë‹ˆë‹¤.",
         YaCht_RelicRarity.Unique,
         YaCht_WrestlerType.Undertaker,
-        "Sprites/Cards/Relics/RestTombstone"
+        "Sprites/Cards/Relics/RestTombstone",
+        "Sprites/Cards/Relics/Icons/RestTombstone"
     );
 
     public static YaCht_RelicData SoulBell = new YaCht_RelicData(
         YaCht_RelicType.SoulBell,
-        "¿µÈ¥ÀÇ Á¾",
-        "ÇïÁî °ÔÀÌÆ® »ç¿ë ½Ã ÇØ´ç ÅÏÀÇ ¸ğµç µ¥¹ÌÁö°¡ 2¹è°¡ µË´Ï´Ù.",
+        "ì˜í˜¼ì˜ ì¢…",
+        "ì²˜ì¹˜í•œ ìƒëŒ€ë°©ë“¤ì˜ HPì˜ (20% / 10% / 5%)ê°€ ì¶”ê°€ ëŒ€ë¯¸ì§€ë¡œ ì ìš©ë©ë‹ˆë‹¤. (1ìŠ¤í…Œì´ì§€: 20%, 2ìŠ¤í…Œì´ì§€: 10%, 3ìŠ¤í…Œì´ì§€ ì´ìƒ: 5%)",
         YaCht_RelicRarity.Unique,
         YaCht_WrestlerType.Undertaker,
-        "Sprites/Cards/Relics/SoulBell"
+        "Sprites/Cards/Relics/SoulBell",
+        "Sprites/Cards/Relics/Icons/SoulBell"
     );
 
     public static YaCht_RelicData PurpleGlove = new YaCht_RelicData(
         YaCht_RelicType.PurpleGlove,
-        "º¸¶ó»ö Àå°©",
-        "¿Ãµå ½ºÄğ »ç¿ë ½Ã¸¶´Ù µ¥¹ÌÁö°¡ 30%¾¿ ¿µ±¸ÀûÀ¸·Î Áõ°¡ÇÕ´Ï´Ù.",
+        "ë³´ë¼ìƒ‰ ì¥ê°‘",
+        "Aë­í¬ ê¸°ìˆ  ì ì¤‘ ì‹œë§ˆë‹¤ ì˜êµ¬ì ìœ¼ë¡œ ëŒ€ë¯¸ì§€ 1.1ë°°ì”© ìƒìŠ¹í•©ë‹ˆë‹¤. (ìŠ¤í…Œì´ì§€ ìµœëŒ€ 3ë²ˆ ì¤‘ì²© ê°€ëŠ¥)",
         YaCht_RelicRarity.Unique,
         YaCht_WrestlerType.Undertaker,
-        "Sprites/Cards/Relics/PurpleGlove"
+        "Sprites/Cards/Relics/PurpleGlove",
+        "Sprites/Cards/Relics/Icons/PurpleGlove"
     );
 
-    // === °øÅë À¯¹° ===
+    // === ê³µí†µ ìœ ë¬¼ ===
     public static YaCht_RelicData FixedMask = new YaCht_RelicData(
         YaCht_RelicType.FixedMask,
-        "°íÁ¤ÀÇ °¡¸é",
-        "°¢ ¶ó¿îµå ½ÃÀÛ¸¶´Ù ·£´ıÇÑ Ä«µå 1ÀåÀÌ ÀÚµ¿À¸·Î ¼Â¾÷µË´Ï´Ù.",
+        "ê³ ì •ì˜ ê°€ë©´",
+        "ê° ë¼ìš´ë“œ ì‹œì‘ë§ˆë‹¤ ëœë¤í•œ ì¹´ë“œ 1ì¥ì´ ì…‹ì—…ë©ë‹ˆë‹¤. (ì…‹ì—…ì—ì„œ ë‚´ë¦´ ìˆ˜ ì—†ìŒ)",
         YaCht_RelicRarity.Common,
         YaCht_WrestlerType.None,
-        "Sprites/Cards/Relics/FixedMask"
+        "Sprites/Cards/Relics/FixedMask",
+        "Sprites/Cards/Relics/Icons/FixedMask"
     );
 
     public static YaCht_RelicData HarmonyMask = new YaCht_RelicData(
-        YaCht_RelicType.HarmonyMask,
-        "È­ÇÕÀÇ °¡¸é",
-        "´Ş¼ºÇÑ ÄŞº¸ °³¼ö¸¸Å­ µ¥¹ÌÁö Áõ°¡ (ÄŞº¸´ç 4%, ÃÖ´ë 40%).",
+        YaCht_RelicType.HarmonyMask,  
+        "í™”í•©ì˜ ê°€ë©´",
+        "ë‹¬ì„±í•œ ì½¤ë³´ ê°¯ìˆ˜ ë§Œí¼ ëŒ€ë¯¸ì§€ 4% ìƒìŠ¹ (ìµœëŒ€ 40% ì¤‘ì²©)",
         YaCht_RelicRarity.Common,
         YaCht_WrestlerType.None,
-        "Sprites/Cards/Relics/HarmonyMask"
+        "Sprites/Cards/Relics/HarmonyMask",
+        "Sprites/Cards/Relics/Icons/HarmonyMask"
     );
 
     public static YaCht_RelicData GamblerMask2 = new YaCht_RelicData(
         YaCht_RelicType.GamblerMask2,
-        "µµ¹Ú»çÀÇ °¡¸é II",
-        "S±Ş Ä«µå µå·Î¿ì È®·ü 15% Áõ°¡ (D±Ş È®·ü 15% °¨¼Ò).",
+        "í–‰ìš´ì˜ ê°€ë©´ II",
+        "ê³µê²© ì‹œ ì¼ì • í™•ë¥ ë¡œ í•œ ë²ˆ ë” ê³µê²©í•©ë‹ˆë‹¤. í™•ë¥ ì€ ë­í¬ì— ë”°ë¼ ë‹¤ë¦…ë‹ˆë‹¤. (D:90%, C:75%, B:50%, A:15%, S:3%)",
         YaCht_RelicRarity.Common,
         YaCht_WrestlerType.None,
-        "Sprites/Cards/Relics/GamblerMask2"
-    );
-
-    public static YaCht_RelicData MercyMask = new YaCht_RelicData(
-        YaCht_RelicType.MercyMask,
-        "ÀÚºñÀÇ °¡¸é",
-        "Easy/Normal ³­ÀÌµµ ÄŞº¸ ¼º°ø ½Ã ´ÙÀ½ ÅÏ ¸®·Ñ È½¼ö +1.",
-        YaCht_RelicRarity.Common,
-        YaCht_WrestlerType.None,
-        "Sprites/Cards/Relics/MercyMask"
-    );
-
-    public static YaCht_RelicData RageMask = new YaCht_RelicData(
-        YaCht_RelicType.RageMask,
-        "ºĞ³ëÀÇ °¡¸é",
-        "¸ğµç µ¥¹ÌÁö 20% Áõ°¡.",
-        YaCht_RelicRarity.Common,
-        YaCht_WrestlerType.None,
-        "Sprites/Cards/Relics/RageMask"
+        "Sprites/Cards/Relics/GamblerMask2",
+        "Sprites/Cards/Relics/Icons/GamblerMask2"
     );
 
     public static YaCht_RelicData GamblerMask1 = new YaCht_RelicData(
         YaCht_RelicType.GamblerMask1,
-        "µµ¹Ú»çÀÇ °¡¸é I",
-        "A±Ş Ä«µå µå·Î¿ì È®·ü 10% Áõ°¡ (D±Ş È®·ü 10% °¨¼Ò).",
+        "í–‰ìš´ì˜ ê°€ë©´ I",
+        "Sê¸‰ ì¹´ë“œ í™•ë¥  15% ì¦ê°€ (Dê¸‰ ì¹´ë“œ í™•ë¥  15% ê°ì†Œ)",
         YaCht_RelicRarity.Common,
         YaCht_WrestlerType.None,
-        "Sprites/Cards/Relics/GamblerMask1"
+        "Sprites/Cards/Relics/GamblerMask1",
+        "Sprites/Cards/Relics/Icons/GamblerMask1"
     );
 
-    // ¸ğµç À¯¹° ¸ñ·Ï
+    public static YaCht_RelicData JjolBoy = new YaCht_RelicData(
+        YaCht_RelicType.JjolBoy,
+        "ì«„ë¦¬ëŠ” ë³´ì´",
+        "ë¦¬ë¡¤ì„ ëŒë¦´ ë•Œë§ˆë‹¤ 50% í™•ë¥ ë¡œ ë°ë¯¸ì§€ê°€ 10%/30%/50% ì¦ê°€ í˜¹ì€ ê°ì†Œí•©ë‹ˆë‹¤.",
+        YaCht_RelicRarity.Common,
+        YaCht_WrestlerType.None,
+        "Sprites/Cards/Relics/JjolBoy",
+        "Sprites/Cards/Relics/Icons/JjolBoy"
+    );
+
+    public static YaCht_RelicData UnderDogMask = new YaCht_RelicData(
+        YaCht_RelicType.UnderDogMask,
+        "ì–¸ë”ë…ì˜ ê°€ë©´",
+        "ëª¨ë“  ì¹´ë“œë“¤ì´ C, D ë­í¬ ì¹´ë“œë¡œ ë°”ë€ë‹ˆë‹¤. ê¸°ìˆ ì„ ì‚¬ìš©í•  ë•Œë§ˆë‹¤ ë°ë¯¸ì§€ê°€ ì˜êµ¬ì ìœ¼ë¡œ 1.015ë°°ì”© ì˜¬ë¼ê°‘ë‹ˆë‹¤.",
+        YaCht_RelicRarity.Common,
+        YaCht_WrestlerType.None,
+        "Sprites/Cards/Relics/UnderDogMask",
+        "Sprites/Cards/Relics/Icons/UnderDogMask"
+    );
+
+    // ëª¨ë“  ìœ ë¬¼ ëª©ë¡
     public static YaCht_RelicData[] GetAllRelics()
     {
         return new YaCht_RelicData[]
         {
-            // Á¸ ½Ã³ª
-            AAA, RTKO, DiamondKnuckle,
-            // ¾ğ´õÅ×ÀÌÄ¿
+            // ì¡´ ì‹œë‚˜
+            RTKO, YouCantSeeMe, IHateS,
+            // ì–¸ë”í…Œì´ì»¤
             RestTombstone, SoulBell, PurpleGlove,
-            // °ø¿ë
-            FixedMask, HarmonyMask, GamblerMask2, MercyMask, RageMask, GamblerMask1
+            // ê³µìš©
+            FixedMask, HarmonyMask, GamblerMask2, GamblerMask1, JjolBoy, UnderDogMask
         };
     }
 
-    // À¯¹° Å¸ÀÔÀ¸·Î µ¥ÀÌÅÍ °¡Á®¿À±â
+    // ìœ ë¬¼ íƒ€ì…ìœ¼ë¡œ ë°ì´í„° ê°€ì ¸ì˜¤ê¸°
     public static YaCht_RelicData GetRelicData(YaCht_RelicType type)
     {
         foreach (var relic in GetAllRelics())

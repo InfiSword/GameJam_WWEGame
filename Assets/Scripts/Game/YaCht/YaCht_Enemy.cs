@@ -62,6 +62,9 @@ public class YaCht_Enemy : MonoBehaviour
     private Vector3 m_originalPosition;
     private Coroutine m_shakeCoroutine;
     private Coroutine m_flashCoroutine;
+    public Coroutine GetShakeCoroutine => m_shakeCoroutine;
+    public Coroutine GetFlashCoroutine => m_flashCoroutine;
+
     private Color m_originalSpriteColor;
     #endregion
 
@@ -299,7 +302,7 @@ public class YaCht_Enemy : MonoBehaviour
     /// <summary>
     /// 데미지 애니메이션 재생
     /// </summary>
-    private void PlayDamageAnimation()
+    public void PlayDamageAnimation()
     {
         if (m_enemySprite == null) return;
 
@@ -320,7 +323,7 @@ public class YaCht_Enemy : MonoBehaviour
     /// <summary>
     /// 흔들림 효과 코루틴
     /// </summary>
-    private System.Collections.IEnumerator ShakeCoroutine()
+    public System.Collections.IEnumerator ShakeCoroutine()
     {
         float elapsed = 0f;
 
@@ -342,7 +345,7 @@ public class YaCht_Enemy : MonoBehaviour
     /// <summary>
     /// 데미지 플래시 효과 코루틴 (빨간색 하이라이트)
     /// </summary>
-    private System.Collections.IEnumerator FlashCoroutine()
+    public System.Collections.IEnumerator FlashCoroutine()
     {
         if (m_enemySprite != null)
         {
@@ -391,6 +394,107 @@ public class YaCht_Enemy : MonoBehaviour
             m_enemySprite.color = new Color(originalColor.r, originalColor.g, originalColor.b, alpha);
             yield return null;
         }
+    }
+
+    /// <summary>
+    /// 보스 재등장 연출 (페이드아웃 → 대기 → 페이드인 + HP 차오르기)
+    /// </summary>
+    public System.Collections.IEnumerator RespawnBossCoroutine(float newMaxHealth, float fadeOutDuration = 0.8f, float waitDuration = 0.5f, float fadeInDuration = 1.0f, float hpFillDuration = 1.5f)
+    {
+        Debug.Log($"[Enemy] {m_enemyData.m_name} 재등장 연출 시작!");
+        
+        // 1단계: 페이드아웃 (사라짐)
+        if (m_enemySprite != null)
+        {
+            Color originalColor = m_originalSpriteColor;
+            float elapsed = 0f;
+
+            while (elapsed < fadeOutDuration)
+            {
+                elapsed += Time.deltaTime;
+                float alpha = Mathf.Lerp(1f, 0f, elapsed / fadeOutDuration);
+                m_enemySprite.color = new Color(originalColor.r, originalColor.g, originalColor.b, alpha);
+                yield return null;
+            }
+
+            // 완전히 투명하게
+            m_enemySprite.color = new Color(originalColor.r, originalColor.g, originalColor.b, 0f);
+        }
+
+        // 2단계: 잠깐 대기
+        yield return new WaitForSeconds(waitDuration);
+
+        // 체력 설정 (아직 UI에는 반영 안됨)
+        m_maxHealth = newMaxHealth;
+        m_currentHealth = 0;
+        m_isDead = false;
+        
+        // HP 바를 0으로 리셋
+        if (m_hpBarSlider != null)
+        {
+            m_hpBarSlider.value = 0f;
+        }
+        if (m_hpText != null)
+        {
+            m_hpText.text = $"0 / {m_maxHealth:F0}";
+        }
+
+        // 3단계: 페이드인 (다시 나타남)
+        if (m_enemySprite != null)
+        {
+            Color originalColor = m_originalSpriteColor;
+            float elapsed = 0f;
+
+            while (elapsed < fadeInDuration)
+            {
+                elapsed += Time.deltaTime;
+                float alpha = Mathf.Lerp(0f, 1f, elapsed / fadeInDuration);
+                m_enemySprite.color = new Color(originalColor.r, originalColor.g, originalColor.b, alpha);
+                yield return null;
+            }
+
+            // 완전히 불투명하게
+            m_enemySprite.color = originalColor;
+        }
+
+        // 4단계: HP 차오르기 애니메이션
+        float elapsedHP = 0f;
+        while (elapsedHP < hpFillDuration)
+        {
+            elapsedHP += Time.deltaTime;
+            float t = elapsedHP / hpFillDuration;
+            
+            // Ease-out 효과 (처음엔 빠르게, 나중엔 천천히)
+            float easedT = 1f - Mathf.Pow(1f - t, 3f);
+            
+            m_currentHealth = Mathf.Lerp(0f, m_maxHealth, easedT);
+            
+            // HP 바 업데이트
+            if (m_hpBarSlider != null)
+            {
+                float hpPercentage = m_currentHealth / m_maxHealth;
+                m_hpBarSlider.value = hpPercentage;
+                
+                if (m_hpBarFillImage != null)
+                {
+                    m_hpBarFillImage.color = GetHpColor(hpPercentage);
+                }
+            }
+            
+            if (m_hpText != null)
+            {
+                m_hpText.text = $"{m_currentHealth:F0} / {m_maxHealth:F0}";
+            }
+            
+            yield return null;
+        }
+
+        // 최종 체력 확정
+        m_currentHealth = m_maxHealth;
+        UpdateHealthBar();
+        OnHealthChanged?.Invoke(m_currentHealth, m_maxHealth);
+
+        Debug.Log($"[Enemy] {m_enemyData.m_name} 재등장 완료! HP: {m_currentHealth}/{m_maxHealth}");
     }
     #endregion
 

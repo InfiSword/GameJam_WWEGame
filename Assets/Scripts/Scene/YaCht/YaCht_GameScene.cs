@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class YaCht_GameScene : MonoBehaviour
 {    
@@ -9,10 +10,15 @@ public class YaCht_GameScene : MonoBehaviour
     [SerializeField] private AudioSource bgmAudioSource;
     [SerializeField] private Transform specialEffectSpawnPoint;
     
+    [Header("Debug Settings")]
+    [SerializeField] private bool m_enableDebugKeys = true;
+    
     private GameObject currentSpecialEffect;
     
     void Start()
     {
+        CheckAudioListener();
+        
         if (YaCht_GameManager.StageManager != null)
         {
             if (YaCht_GameManager.StageManager.CurrentStageNumber == 1 && 
@@ -21,20 +27,153 @@ public class YaCht_GameScene : MonoBehaviour
                 YaCht_GameManager.StartNewStage(1);
             }
                                    
-            // 페이즈 전환 이벤트 구독
             YaCht_GameManager.StageManager.OnPhaseChanged += OnPhaseChanged;
         }
         
-        // 스테이지 리소스 로드
         LoadStageResources();
         
-        // 게임 시작
         YaCht_GameManager.CardManager.StartGame();
         wwe.Init();
         
         int currentStage = YaCht_GameManager.StageManager.CurrentStageNumber;
         string stageDesc = YaCht_GameManager.StageManager.GetCurrentStageDescription();
         Debug.Log($"[GameScene] 스테이지 {currentStage} 시작 - {stageDesc}");
+    }
+    
+    void Update()
+    {
+        // 디버그 키 입력 처리
+        if (m_enableDebugKeys)
+        {
+            HandleDebugKeys();
+        }
+    }
+    
+    /// <summary>
+    /// 디버그 키 입력 처리
+    /// </summary>
+    private void HandleDebugKeys()
+    {
+        // Q키: 적 즉사
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            KillCurrentEnemy();
+        }
+        
+        // W키: 다음 스테이지로 이동
+        if (Input.GetKeyDown(KeyCode.W))
+        {
+            MoveToNextStageDebug();
+        }
+        
+        // R키: 스테이지 1로 초기화
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            ResetToStage1();
+        }
+    }
+    
+    /// <summary>
+    /// [디버그] 현재 적을 즉시 처치
+    /// </summary>
+    private void KillCurrentEnemy()
+    {
+        if (wwe != null && wwe.CurrentEnemy != null)
+        {
+            float currentHealth = wwe.CurrentEnemy.CurrentHealth;
+            wwe.CurrentEnemy.TakeDamage(currentHealth, true);
+            Debug.Log($"[DEBUG] Q키 입력: 적 즉사 처리 ({currentHealth} 데미지)");
+        }
+        else
+        {
+            Debug.LogWarning("[DEBUG] 적이 존재하지 않습니다!");
+        }
+    }
+    
+    /// <summary>
+    /// [디버그] 다음 스테이지로 강제 이동
+    /// </summary>
+    private void MoveToNextStageDebug()
+    {
+        if (YaCht_GameManager.StageManager == null)
+        {
+            Debug.LogWarning("[DEBUG] StageManager가 없습니다!");
+            return;
+        }
+        
+        int currentStage = YaCht_GameManager.StageManager.CurrentStageNumber;
+        int totalStages = YaCht_GameManager.GetTotalStageCount();
+        
+        if (currentStage >= totalStages)
+        {
+            Debug.LogWarning($"[DEBUG] 마지막 스테이지입니다! (현재: {currentStage}/{totalStages})");
+            return;
+        }
+        
+        Debug.Log($"[DEBUG] W키 입력: 스테이지 {currentStage} → {currentStage + 1} 이동");
+        
+        // 현재 적이 보스인지 확인
+        bool isBoss = YaCht_GameManager.IsCurrentStageBoss();
+        
+        if (isBoss)
+        {
+            // 보스 스테이지는 유물 선택 후 다음 스테이지
+            YaCht_GameManager.SetRelicSceneFromBossDefeat();
+            SceneManager.LoadScene("YaCht_RelicScene");
+        }
+        else
+        {
+            // 일반 스테이지는 바로 다음 스테이지로
+            bool success = YaCht_GameManager.MoveToNextStage();
+            if (success)
+            {
+                SceneManager.LoadScene("YaCht_GameScene");
+            }
+            else
+            {
+                Debug.LogError("[DEBUG] 다음 스테이지로 이동 실패!");
+            }
+        }
+    }
+    
+    /// <summary>
+    /// [디버그] 스테이지 1로 초기화
+    /// </summary>
+    private void ResetToStage1()
+    {
+        Debug.Log("[DEBUG] R키 입력: 스테이지 1로 초기화");
+        YaCht_GameManager.Clear();
+        YaCht_GameManager.StartNewStage(1);
+        SceneManager.LoadScene("YaCht_GameScene");
+    }
+    
+    /// <summary>
+    /// 씬에 AudioListener가 있는지 확인
+    /// </summary>
+    private void CheckAudioListener()
+    {
+        AudioListener listener = FindFirstObjectByType<AudioListener>();
+        if (listener == null)
+        {
+            Debug.LogError("[GameScene] AudioListener를 찾을 수 없습니다! 오디오가 재생되지 않습니다.");
+            Debug.LogWarning("[GameScene] Main Camera에 AudioListener 컴포넌트를 추가해주세요.");
+            
+            // 자동으로 Camera에 AudioListener 추가 (없을 경우)
+            Camera mainCamera = Camera.main;
+            if (mainCamera != null)
+            {
+                listener = mainCamera.gameObject.AddComponent<AudioListener>();
+                Debug.Log("[GameScene] Main Camera에 AudioListener를 자동으로 추가했습니다.");
+            }
+            else
+            {
+                Debug.LogError("[GameScene] Main Camera를 찾을 수 없습니다!");
+            }
+        }
+        else
+        {
+            Debug.Log($"[GameScene] AudioListener 발견: {listener.gameObject.name}");
+        }
     }
     
     /// <summary>
@@ -48,13 +187,8 @@ public class YaCht_GameScene : MonoBehaviour
             return;
         }
         
-        // 배경 이미지 로드
         LoadBackground();
         
-        // BGM 재생
-        PlayBGM();
-        
-        // 보스 스테이지면 특수 효과 생성
         if (YaCht_GameManager.StageManager.IsCurrentEnemyBoss())
         {
             SpawnSpecialEffect();
@@ -77,9 +211,9 @@ public class YaCht_GameScene : MonoBehaviour
     }
     
     /// <summary>
-    /// 지정된 경로로 배경 이미지 로드
+    /// 지정된 경로로 배경 이미지 로드 (public으로 변경하여 외부에서 호출 가능)
     /// </summary>
-    private void LoadBackgroundFromPath(string backgroundPath)
+    public void LoadBackgroundFromPath(string backgroundPath)
     {
         if (backgroundImage == null)
         {
@@ -107,21 +241,6 @@ public class YaCht_GameScene : MonoBehaviour
     }
     
     /// <summary>
-    /// BGM 재생
-    /// </summary>
-    private void PlayBGM()
-    {
-        if (bgmAudioSource == null)
-        {
-            Debug.LogWarning("[GameScene] bgmAudioSource가 할당되지 않았습니다!");
-            return;
-        }
-        
-        string bgmPath = YaCht_GameManager.StageManager.GetCurrentBGMPath();
-        PlayBGMFromPath(bgmPath);
-    }
-    
-    /// <summary>
     /// 지정된 경로로 BGM 재생
     /// </summary>
     private void PlayBGMFromPath(string bgmPath)
@@ -144,8 +263,11 @@ public class YaCht_GameScene : MonoBehaviour
         {
             bgmAudioSource.clip = bgmClip;
             bgmAudioSource.loop = true;
+            bgmAudioSource.volume = 0.7f; // 볼륨 설정 (70%)
             bgmAudioSource.Play();
+            
             Debug.Log($"[GameScene] BGM 재생 시작: {bgmPath}");
+            Debug.Log($"[GameScene] AudioSource 상태 - isPlaying: {bgmAudioSource.isPlaying}, volume: {bgmAudioSource.volume}, mute: {bgmAudioSource.mute}");
         }
         else
         {
@@ -177,13 +299,11 @@ public class YaCht_GameScene : MonoBehaviour
         
         if (effectPrefab != null)
         {
-            // 기존 특수 효과가 있으면 제거
             if (currentSpecialEffect != null)
             {
                 Destroy(currentSpecialEffect);
             }
             
-            // 새 특수 효과 생성
             if (specialEffectSpawnPoint != null)
             {
                 currentSpecialEffect = Instantiate(effectPrefab, specialEffectSpawnPoint.position, Quaternion.identity);
@@ -204,19 +324,16 @@ public class YaCht_GameScene : MonoBehaviour
     
     private void OnDestroy()
     {
-        // 씬 종료 시 특수 효과 정리
         if (currentSpecialEffect != null)
         {
             Destroy(currentSpecialEffect);
         }
         
-        // BGM 정지
         if (bgmAudioSource != null && bgmAudioSource.isPlaying)
         {
             bgmAudioSource.Stop();
         }
         
-        // 페이즈 전환 이벤트 구독 해제
         if (YaCht_GameManager.StageManager != null)
         {
             YaCht_GameManager.StageManager.OnPhaseChanged -= OnPhaseChanged;
@@ -230,19 +347,16 @@ public class YaCht_GameScene : MonoBehaviour
     {
         Debug.Log($"[GameScene] 페이즈 {phaseNumber} 전환: {phaseData.m_phaseDescription}");
         
-        // 배경 변경
         if (!string.IsNullOrEmpty(phaseData.m_backgroundResourcePath))
         {
             LoadBackgroundFromPath(phaseData.m_backgroundResourcePath);
         }
         
-        // BGM 변경 (지정된 경우)
         if (!string.IsNullOrEmpty(phaseData.m_bgmResourcePath))
         {
             PlayBGMFromPath(phaseData.m_bgmResourcePath);
         }
         
-        // 특수 효과 변경 (지정된 경우)
         if (!string.IsNullOrEmpty(phaseData.m_specialEffectResourcePath))
         {
             SpawnSpecialEffectFromPath(phaseData.m_specialEffectResourcePath);

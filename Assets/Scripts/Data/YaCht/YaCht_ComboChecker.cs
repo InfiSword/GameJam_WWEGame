@@ -33,72 +33,72 @@ public class YaCht_ComboChecker
     }
     
     /// <summary>
-    /// Á¸ ½Ã³ª ¸ğµç ÄŞº¸ Ã¼Å© - µî±Ş ±â¹İ, Á¶ÇÕ Á¶°Ç¸¸ ÃæÁ·µÇ¸é ¹«Á¶°Ç ÀÎÁ¤
+    /// ì¡´ ì‹œë‚˜ ëª¨ë“  ì½¤ë³´ ì²´í¬ - ë“±ê¸‰ ê¸°ë°˜, ì¡°í•© ì¡°ê±´ë§Œ ì¶©ì¡±ë˜ë©´ ë¬´ì¡°ê±´ ì¸ì •
     /// </summary>
     private static List<YaCht_ComboType> CheckAllJohnCenaCombos(List<YaCht_CardData> setupCards, Dictionary<YaCht_CardRarity, int> rarityCount)
     {
         List<YaCht_ComboType> combos = new List<YaCht_ComboType>();
         
-        Debug.Log("=== Á¸ ½Ã³ª ÄŞº¸ Ã¼Å© ½ÃÀÛ (µî±Ş ±â¹İ) ===");
-        Debug.Log($"ÃÑ Ä«µå ¼ö: {setupCards.Count}");
-        Debug.Log("µî±Şº° Ä«¿îÆ®:");
+        Debug.Log("=== ì¡´ ì‹œë‚˜ ì½¤ë³´ ì²´í¬ ì‹œì‘ (ë“±ê¸‰ ê¸°ë°˜) ===");
+        Debug.Log($"ì´ ì¹´ë“œ ìˆ˜: {setupCards.Count}");
+        Debug.Log("ë“±ê¸‰ë³„ ì¹´ìš´íŠ¸:");
         foreach (var kvp in rarityCount)
         {
-            Debug.Log($"  {kvp.Key}±Ş: {kvp.Value}°³");
+            Debug.Log($"  {kvp.Key}ê¸‰: {kvp.Value}ê°œ");
         }
         
-        // ¿ì¼±¼øÀ§: 6 > 5 > 4 > 3 (³ôÀº ÄŞº¸ºÎÅÍ Ã¼Å©)
+        // ìš°ì„ ìˆœìœ„: 6 > 5 > 4 > 3 (ë†’ì€ ì½¤ë³´ë¶€í„° ì²´í¬)
         
-        // 6ÄŞº¸ Ã¼Å©: S±Ş 2Àå + A±Ş 2Àå + B±Ş 2Àå (6Àå ÀÌ»ó)
+        // 6ì½¤ë³´ ì²´í¬: Sê¸‰ 2ì¥ + Aê¸‰ 2ì¥ + Bê¸‰ 2ì¥ (6ì¥ ì´ìƒ)
         if (setupCards.Count >= 6 &&
             HasAtLeast(rarityCount, YaCht_CardRarity.S, 2) &&
             HasAtLeast(rarityCount, YaCht_CardRarity.A, 2) &&
             HasAtLeast(rarityCount, YaCht_CardRarity.B, 2))
         {
             combos.Add(YaCht_ComboDatabase.GetComboType(YaCht_WrestlerType.JohnCena, YaCht_ComboLevel.Combo6));
-            Debug.Log("6ÄŞº¸ ¹ß°ß! (S±Ş 2Àå + A±Ş 2Àå + B±Ş 2Àå)");
-            return combos; // ÃÖ°í ÄŞº¸ ¹ß°ß ½Ã Áï½Ã ¹İÈ¯
+            Debug.Log("6ì½¤ë³´ ë°œê²¬! (Sê¸‰ 2ì¥ + Aê¸‰ 2ì¥ + Bê¸‰ 2ì¥)");
+            return combos; // ìµœê³  ì½¤ë³´ ë°œê²¬ ì‹œ ì¦‰ì‹œ ë°˜í™˜
         }
         
-        // 5ÄŞº¸ Ã¼Å©: B±Ş 2Àå + A±Ş 3Àå (5Àå ÀÌ»ó)
+        // 5ì½¤ë³´ ì²´í¬: Bê¸‰ 2ì¥ + Aê¸‰ 3ì¥ (5ì¥ ì´ìƒ)
         if (setupCards.Count >= 5 &&
             HasAtLeast(rarityCount, YaCht_CardRarity.B, 2) &&
             HasAtLeast(rarityCount, YaCht_CardRarity.A, 3))
         {
             combos.Add(YaCht_ComboDatabase.GetComboType(YaCht_WrestlerType.JohnCena, YaCht_ComboLevel.Combo5));
-            Debug.Log("5ÄŞº¸ ¹ß°ß! (B±Ş 2Àå + A±Ş 3Àå)");
+            Debug.Log("5ì½¤ë³´ ë°œê²¬! (Bê¸‰ 2ì¥ + Aê¸‰ 3ì¥)");
             return combos;
         }
         
-        // 4ÄŞº¸ Ã¼Å©: C±Ş 2Àå + B±Ş 2Àå (4Àå ÀÌ»ó) ¡ç ¼öÁ¤!
+        // 4ì½¤ë³´ ì²´í¬: Cê¸‰ 2ì¥ + Bê¸‰ 2ì¥ (4ì¥ ì´ìƒ) â† ìˆ˜ì •!
         if (setupCards.Count >= 4 &&
             HasAtLeast(rarityCount, YaCht_CardRarity.C, 2) &&
             HasAtLeast(rarityCount, YaCht_CardRarity.B, 2))
         {
             combos.Add(YaCht_ComboDatabase.GetComboType(YaCht_WrestlerType.JohnCena, YaCht_ComboLevel.Combo4));
-            Debug.Log("4ÄŞº¸ ¹ß°ß! (C±Ş 2Àå + B±Ş 2Àå)");
+            Debug.Log("4ì½¤ë³´ ë°œê²¬! (Cê¸‰ 2ì¥ + Bê¸‰ 2ì¥)");
             return combos;
         }
         
-        // 3ÄŞº¸ Ã¼Å© - µî±Şº°·Î ¿©·¯ °³ °¡´É!
+        // 3ì½¤ë³´ ì²´í¬ - ë“±ê¸‰ë³„ë¡œ ì—¬ëŸ¬ ê°œ ê°€ëŠ¥!
         if (setupCards.Count >= 3)
         {
-            Debug.Log("3ÄŞº¸ Ã¼Å© ½ÃÀÛ (µî±Ş ±â¹İ)...");
+            Debug.Log("3ì½¤ë³´ ì²´í¬ ì‹œì‘ (ë“±ê¸‰ ê¸°ë°˜)...");
             
-            // C±Ş°ú D±Ş °¢°¢ 3Àå¾¿ Ã¼Å©
+            // Cê¸‰ê³¼ Dê¸‰ ê°ê° 3ì¥ì”© ì²´í¬
             int cComboCount = 0;
             int dComboCount = 0;
             
             if (rarityCount.ContainsKey(YaCht_CardRarity.C) && rarityCount[YaCht_CardRarity.C] >= 3)
             {
                 cComboCount = rarityCount[YaCht_CardRarity.C] / 3;
-                Debug.Log($"C±Ş Ä«µå·Î {cComboCount}°³ÀÇ 3ÄŞº¸ ¹ß°ß!");
+                Debug.Log($"Cê¸‰ ì¹´ë“œë¡œ {cComboCount}ê°œì˜ 3ì½¤ë³´ ë°œê²¬!");
             }
             
             if (rarityCount.ContainsKey(YaCht_CardRarity.D) && rarityCount[YaCht_CardRarity.D] >= 3)
             {
                 dComboCount = rarityCount[YaCht_CardRarity.D] / 3;
-                Debug.Log($"D±Ş Ä«µå·Î {dComboCount}°³ÀÇ 3ÄŞº¸ ¹ß°ß!");
+                Debug.Log($"Dê¸‰ ì¹´ë“œë¡œ {dComboCount}ê°œì˜ 3ì½¤ë³´ ë°œê²¬!");
             }
             
             int totalComboCount = cComboCount + dComboCount;
@@ -107,76 +107,76 @@ public class YaCht_ComboChecker
                 combos.Add(YaCht_ComboDatabase.GetComboType(YaCht_WrestlerType.JohnCena, YaCht_ComboLevel.Combo3));
             }
             
-            Debug.Log($"ÃÑ {totalComboCount}°³ÀÇ 3ÄŞº¸ Ãß°¡!");
+            Debug.Log($"ì´ {totalComboCount}ê°œì˜ 3ì½¤ë³´ ì¶”ê°€!");
         }
         
-        Debug.Log($"=== ÄŞº¸ Ã¼Å© ¿Ï·á: ÃÑ {combos.Count}°³ ÄŞº¸ ¹ß°ß ===");
+        Debug.Log($"=== ì½¤ë³´ ì²´í¬ ì™„ë£Œ: ì´ {combos.Count}ê°œ ì½¤ë³´ ë°œê²¬ ===");
         return combos;
     }
     
     /// <summary>
-    /// ¾ğ´õÅ×ÀÌÄ¿ ¸ğµç ÄŞº¸ Ã¼Å© - µî±Ş ±â¹İ, Á¶ÇÕ Á¶°Ç¸¸ ÃæÁ·µÇ¸é ¹«Á¶°Ç ÀÎÁ¤
+    /// ì–¸ë”í…Œì´ì»¤ ëª¨ë“  ì½¤ë³´ ì²´í¬ - ë“±ê¸‰ ê¸°ë°˜, ì¡°í•© ì¡°ê±´ë§Œ ì¶©ì¡±ë˜ë©´ ë¬´ì¡°ê±´ ì¸ì •
     /// </summary>
     private static List<YaCht_ComboType> CheckAllUndertakerCombos(List<YaCht_CardData> setupCards, Dictionary<YaCht_CardRarity, int> rarityCount)
     {
         List<YaCht_ComboType> combos = new List<YaCht_ComboType>();
         
-        Debug.Log("=== ¾ğ´õÅ×ÀÌÄ¿ ÄŞº¸ Ã¼Å© ½ÃÀÛ (µî±Ş ±â¹İ) ===");
-        Debug.Log($"ÃÑ Ä«µå ¼ö: {setupCards.Count}");
-        Debug.Log("µî±Şº° Ä«¿îÆ®:");
+        Debug.Log("=== ì–¸ë”í…Œì´ì»¤ ì½¤ë³´ ì²´í¬ ì‹œì‘ (ë“±ê¸‰ ê¸°ë°˜) ===");
+        Debug.Log($"ì´ ì¹´ë“œ ìˆ˜: {setupCards.Count}");
+        Debug.Log("ë“±ê¸‰ë³„ ì¹´ìš´íŠ¸:");
         foreach (var kvp in rarityCount)
         {
-            Debug.Log($"  {kvp.Key}±Ş: {kvp.Value}°³");
+            Debug.Log($"  {kvp.Key}ê¸‰: {kvp.Value}ê°œ");
         }
         
-        // 6ÄŞº¸ Ã¼Å©: S±Ş 2Àå + A±Ş 3Àå + B±Ş 1Àå (6Àå ÀÌ»ó)
+        // 6ì½¤ë³´ ì²´í¬: Sê¸‰ 2ì¥ + Aê¸‰ 3ì¥ + Bê¸‰ 1ì¥ (6ì¥ ì´ìƒ)
         if (setupCards.Count >= 6 &&
             HasAtLeast(rarityCount, YaCht_CardRarity.S, 2) &&
             HasAtLeast(rarityCount, YaCht_CardRarity.A, 3) &&
             HasAtLeast(rarityCount, YaCht_CardRarity.B, 1))
         {
             combos.Add(YaCht_ComboDatabase.GetComboType(YaCht_WrestlerType.Undertaker, YaCht_ComboLevel.Combo6));
-            Debug.Log("6ÄŞº¸ ¹ß°ß! (S±Ş 2Àå + A±Ş 3Àå + B±Ş 1Àå)");
+            Debug.Log("6ì½¤ë³´ ë°œê²¬! (Sê¸‰ 2ì¥ + Aê¸‰ 3ì¥ + Bê¸‰ 1ì¥)");
             return combos;
         }
         
-        // 5ÄŞº¸ Ã¼Å©: A±Ş 4Àå ÀÌ»ó
+        // 5ì½¤ë³´ ì²´í¬: Aê¸‰ 4ì¥ ì´ìƒ
         if (HasAtLeast(rarityCount, YaCht_CardRarity.A, 4))
         {
             combos.Add(YaCht_ComboDatabase.GetComboType(YaCht_WrestlerType.Undertaker, YaCht_ComboLevel.Combo5));
-            Debug.Log("5ÄŞº¸ ¹ß°ß! (A±Ş 4Àå ÀÌ»ó)");
+            Debug.Log("5ì½¤ë³´ ë°œê²¬! (Aê¸‰ 4ì¥ ì´ìƒ)");
             return combos;
         }
         
-        // 4ÄŞº¸ Ã¼Å©: C±Ş 1Àå + B±Ş 3Àå (4Àå ÀÌ»ó) ¡ç ¼öÁ¤!
+        // 4ì½¤ë³´ ì²´í¬: Cê¸‰ 1ì¥ + Bê¸‰ 3ì¥ (4ì¥ ì´ìƒ) â† ìˆ˜ì •!
         if (setupCards.Count >= 4 &&
             HasAtLeast(rarityCount, YaCht_CardRarity.C, 1) &&
             HasAtLeast(rarityCount, YaCht_CardRarity.B, 3))
         {
             combos.Add(YaCht_ComboDatabase.GetComboType(YaCht_WrestlerType.Undertaker, YaCht_ComboLevel.Combo4));
-            Debug.Log("4ÄŞº¸ ¹ß°ß! (C±Ş 1Àå + B±Ş 3Àå)");
+            Debug.Log("4ì½¤ë³´ ë°œê²¬! (Cê¸‰ 1ì¥ + Bê¸‰ 3ì¥)");
             return combos;
         }
         
-        // 3ÄŞº¸ Ã¼Å© - µî±Şº°·Î ¿©·¯ °³ °¡´É!
+        // 3ì½¤ë³´ ì²´í¬ - ë“±ê¸‰ë³„ë¡œ ì—¬ëŸ¬ ê°œ ê°€ëŠ¥!
         if (setupCards.Count >= 3)
         {
-            Debug.Log("3ÄŞº¸ Ã¼Å© ½ÃÀÛ (µî±Ş ±â¹İ)...");
+            Debug.Log("3ì½¤ë³´ ì²´í¬ ì‹œì‘ (ë“±ê¸‰ ê¸°ë°˜)...");
             
-            // C±Ş°ú D±Ş °¢°¢ 3Àå¾¿ Ã¼Å©
+            // Cê¸‰ê³¼ Dê¸‰ ê°ê° 3ì¥ì”© ì²´í¬
             int cComboCount = 0;
             int dComboCount = 0;
             
             if (rarityCount.ContainsKey(YaCht_CardRarity.C) && rarityCount[YaCht_CardRarity.C] >= 3)
             {
                 cComboCount = rarityCount[YaCht_CardRarity.C] / 3;
-                Debug.Log($"C±Ş Ä«µå·Î {cComboCount}°³ÀÇ 3ÄŞº¸ ¹ß°ß!");
+                Debug.Log($"Cê¸‰ ì¹´ë“œë¡œ {cComboCount}ê°œì˜ 3ì½¤ë³´ ë°œê²¬!");
             }
             
             if (rarityCount.ContainsKey(YaCht_CardRarity.D) && rarityCount[YaCht_CardRarity.D] >= 3)
             {
                 dComboCount = rarityCount[YaCht_CardRarity.D] / 3;
-                Debug.Log($"D±Ş Ä«µå·Î {dComboCount}°³ÀÇ 3ÄŞº¸ ¹ß°ß!");
+                Debug.Log($"Dê¸‰ ì¹´ë“œë¡œ {dComboCount}ê°œì˜ 3ì½¤ë³´ ë°œê²¬!");
             }
             
             int totalComboCount = cComboCount + dComboCount;
@@ -185,7 +185,7 @@ public class YaCht_ComboChecker
                 combos.Add(YaCht_ComboDatabase.GetComboType(YaCht_WrestlerType.Undertaker, YaCht_ComboLevel.Combo3));
             }
             
-            // C ¶Ç´Â D°¡ 3Àå ¹Ì¸¸ÀÌÁö¸¸ ÀÖ´Â °æ¿ì 1ÄŞº¸·Î ÀÎÁ¤
+            // C ë˜ëŠ” Dê°€ 3ì¥ ë¯¸ë§Œì´ì§€ë§Œ ìˆëŠ” ê²½ìš° 1ì½¤ë³´ë¡œ ì¸ì •
             if (totalComboCount == 0 && setupCards.Count == 3)
             {
                 bool hasC = rarityCount.ContainsKey(YaCht_CardRarity.C) && rarityCount[YaCht_CardRarity.C] >= 1;
@@ -194,21 +194,21 @@ public class YaCht_ComboChecker
                 if (hasC || hasD)
                 {
                     combos.Add(YaCht_ComboDatabase.GetComboType(YaCht_WrestlerType.Undertaker, YaCht_ComboLevel.Combo3));
-                    Debug.Log("3ÄŞº¸ ¹ß°ß! (C ¶Ç´Â D±Ş Æ÷ÇÔ 3Àå)");
+                    Debug.Log("3ì½¤ë³´ ë°œê²¬! (C ë˜ëŠ” Dê¸‰ í¬í•¨ 3ì¥)");
                 }
             }
             else
             {
-                Debug.Log($"ÃÑ {totalComboCount}°³ÀÇ 3ÄŞº¸ Ãß°¡!");
+                Debug.Log($"ì´ {totalComboCount}ê°œì˜ 3ì½¤ë³´ ì¶”ê°€!");
             }
         }
         
-        Debug.Log($"=== ÄŞº¸ Ã¼Å© ¿Ï·á: ÃÑ {combos.Count}°³ ÄŞº¸ ¹ß°ß ===");
+        Debug.Log($"=== ì½¤ë³´ ì²´í¬ ì™„ë£Œ: ì´ {combos.Count}ê°œ ì½¤ë³´ ë°œê²¬ ===");
         return combos;
     }
     
     /// <summary>
-    /// Æ¯Á¤ µî±ŞÀÌ N°³ ÀÌ»óÀÎÁö Ã¼Å©
+    /// íŠ¹ì • ë“±ê¸‰ì´ Nê°œ ì´ìƒì¸ì§€ ì²´í¬
     /// </summary>
     private static bool HasAtLeast(Dictionary<YaCht_CardRarity, int> rarityCount, YaCht_CardRarity rarity, int count)
     {
@@ -216,7 +216,7 @@ public class YaCht_ComboChecker
     }
     
     /// <summary>
-    /// Æ¯Á¤ µî±ŞÀÌ 2°³ ÀÌ»óÀÎÁö Ã¼Å©
+    /// íŠ¹ì • ë“±ê¸‰ì´ 2ê°œ ì´ìƒì¸ì§€ ì²´í¬
     /// </summary>
     private static bool HasPair(Dictionary<YaCht_CardRarity, int> rarityCount, YaCht_CardRarity rarity)
     {
@@ -224,7 +224,7 @@ public class YaCht_ComboChecker
     }
     
     /// <summary>
-    /// Æ¯Á¤ µî±ŞÀÌ 3°³ ÀÌ»óÀÎÁö Ã¼Å©
+    /// íŠ¹ì • ë“±ê¸‰ì´ 3ê°œ ì´ìƒì¸ì§€ ì²´í¬
     /// </summary>
     private static bool HasThreeOfKind(Dictionary<YaCht_CardRarity, int> rarityCount, YaCht_CardRarity rarity)
     {
@@ -232,80 +232,80 @@ public class YaCht_ComboChecker
     }
     
     /// <summary>
-    /// ÄŞº¸¿¡ µû¸¥ µ¥¹ÌÁö °è»ê - ¸ğµç ÄŞº¸ÀÇ µ¥¹ÌÁö¸¦ ÇÕ»ê
+    /// ì½¤ë³´ì— ë”°ë¥¸ ë°ë¯¸ì§€ ê³„ì‚° - ëª¨ë“  ì½¤ë³´ì˜ ë°ë¯¸ì§€ë¥¼ í•©ì‚°
     /// </summary>
     public static float CalculateComboDamage(List<YaCht_CardData> setupCards, YaCht_WrestlerType wrestlerType, YaCht_ComboType comboType)
     {
-        // ¸ğµç ÄŞº¸¸¦ Ã£À½
+        // ëª¨ë“  ì½¤ë³´ë¥¼ ì°¾ìŒ
         List<YaCht_ComboType> allCombos = CheckAllCombos(setupCards, wrestlerType);
         
         if (allCombos.Count == 0)
         {
-            // ÄŞº¸°¡ ¾øÀ¸¸é ±âº» µ¥¹ÌÁö¸¸ ¹İÈ¯
+            // ì½¤ë³´ê°€ ì—†ìœ¼ë©´ ê¸°ë³¸ ë°ë¯¸ì§€ë§Œ ë°˜í™˜
             float baseDamage = 0f;
             foreach (var card in setupCards)
             {
                 baseDamage += card.m_baseDamage;
             }
-            Debug.Log($"[ÄŞº¸ ¾øÀ½] ±âº» µ¥¹ÌÁö¸¸ Àû¿ë: {baseDamage:F1}");
+            Debug.Log($"[ì½¤ë³´ ì—†ìŒ] ê¸°ë³¸ ë°ë¯¸ì§€ë§Œ ì ìš©: {baseDamage:F1}");
             return baseDamage;
         }
         
-        // ÀüÃ¼ Ä«µåÀÇ ±âº» µ¥¹ÌÁö ÇÕ»ê
+        // ì „ì²´ ì¹´ë“œì˜ ê¸°ë³¸ ë°ë¯¸ì§€ í•©ì‚°
         float totalBaseDamage = 0f;
         foreach (var card in setupCards)
         {
             totalBaseDamage += card.m_baseDamage;
         }
         
-        // °¢ ÄŞº¸¸¶´Ù ¹è¼ö Àû¿ë
+        // ê° ì½¤ë³´ë§ˆë‹¤ ë°°ìˆ˜ ì ìš©
         float totalDamage = 0f;
         
         foreach (var combo in allCombos)
         {
             YaCht_ComboData comboData = YaCht_ComboDatabase.GetComboData(wrestlerType, combo);
             
-            // °¢ ÄŞº¸´ç Ä«µå ¼ö¸¸Å­ÀÇ µ¥¹ÌÁö¸¦ ¹è¼ö Àû¿ë
+            // ê° ì½¤ë³´ë‹¹ ì¹´ë“œ ìˆ˜ë§Œí¼ì˜ ë°ë¯¸ì§€ë¥¼ ë°°ìˆ˜ ì ìš©
             int cardsInCombo = (int)comboData.comboLevel;
             
-            // ÄŞº¸¿¡ »ç¿ëµÈ Ä«µåµéÀÇ Æò±Õ µ¥¹ÌÁö °è»ê
+            // ì½¤ë³´ì— ì‚¬ìš©ëœ ì¹´ë“œë“¤ì˜ í‰ê·  ë°ë¯¸ì§€ ê³„ì‚°
             float avgDamagePerCard = totalBaseDamage / setupCards.Count;
             float comboDamage = avgDamagePerCard * cardsInCombo * comboData.damageMultiplier;
             
             totalDamage += comboDamage;
             
-            Debug.Log($"[ÄŞº¸ {allCombos.IndexOf(combo) + 1}] {comboData.comboName}: Ä«µå {cardsInCombo}Àå (Æò±Õ {avgDamagePerCard:F1}) x {comboData.damageMultiplier} = {comboDamage:F1}");
+            Debug.Log($"[ì½¤ë³´ {allCombos.IndexOf(combo) + 1}] {comboData.comboName}: ì¹´ë“œ {cardsInCombo}ì¥ (í‰ê·  {avgDamagePerCard:F1}) x {comboData.damageMultiplier} = {comboDamage:F1}");
         }
         
-        Debug.Log($"[ÃÑ {allCombos.Count}°³ ÄŞº¸] ÃÖÁ¾ µ¥¹ÌÁö: {totalDamage:F1}");
+        Debug.Log($"[ì´ {allCombos.Count}ê°œ ì½¤ë³´] ìµœì¢… ë°ë¯¸ì§€: {totalDamage:F1}");
         
         return totalDamage;
     }
     
     /// <summary>
-    /// ÄŞº¸ Á¤º¸ ¹®ÀÚ¿­·Î ¹İÈ¯ (µğ¹ö±×/UI¿ë) - »ó¼¼ µ¥¹ÌÁö Á¤º¸ Æ÷ÇÔ
+    /// ì½¤ë³´ ì •ë³´ ë¬¸ìì—´ë¡œ ë°˜í™˜ (ë””ë²„ê·¸/UIìš©) - ìƒì„¸ ë°ë¯¸ì§€ ì •ë³´ í¬í•¨
     /// </summary>
     public static string GetComboInfo(List<YaCht_CardData> setupCards, YaCht_WrestlerType wrestlerType)
     {
         if (setupCards == null || setupCards.Count == 0)
-            return "¼Â¾÷µÈ Ä«µå°¡ ¾ø½À´Ï´Ù.";
+            return "ì…‹ì—…ëœ ì¹´ë“œê°€ ì—†ìŠµë‹ˆë‹¤.";
         
-        // ¸ğµç ÄŞº¸ Ã£±â
+        // ëª¨ë“  ì½¤ë³´ ì°¾ê¸°
         List<YaCht_ComboType> allCombos = CheckAllCombos(setupCards, wrestlerType);
         
-        // Ä«µåº° µ¥¹ÌÁö ÇÕ»ê
+        // ì¹´ë“œë³„ ë°ë¯¸ì§€ í•©ì‚°
         float totalCardDamage = 0f;
-        string cardDamageDetails = "Ä«µåº° µ¥¹ÌÁö:\n";
+        string cardDamageDetails = "ì¹´ë“œë³„ ë°ë¯¸ì§€:\n";
         foreach (var card in setupCards)
         {
             totalCardDamage += card.m_baseDamage;
-            cardDamageDetails += $"  {card.m_name} ({card.m_rarity}±Ş): {card.m_baseDamage}\n";
+            cardDamageDetails += $"  {card.m_name} ({card.m_rarity}ê¸‰): {card.m_baseDamage}\n";
         }
         
-        // ÄŞº¸ µ¥¹ÌÁö °è»ê
+        // ì½¤ë³´ ë°ë¯¸ì§€ ê³„ì‚°
         float comboDamage = CalculateComboDamage(setupCards, wrestlerType, YaCht_ComboType.None);
         
-        // µî±Şº° Ä«µå °³¼ö ¼¼±â
+        // ë“±ê¸‰ë³„ ì¹´ë“œ ê°œìˆ˜ ì„¸ê¸°
         Dictionary<YaCht_CardRarity, int> rarityCount = new Dictionary<YaCht_CardRarity, int>();
         foreach (var card in setupCards)
         {
@@ -314,33 +314,33 @@ public class YaCht_ComboChecker
             rarityCount[card.m_rarity]++;
         }
         
-        string cardInfo = "Ä«µå ±¸¼º:\n";
+        string cardInfo = "ì¹´ë“œ êµ¬ì„±:\n";
         
-        // µî±Şº° Á¤º¸
-        cardInfo += "  [µî±Şº°]\n";
+        // ë“±ê¸‰ë³„ ì •ë³´
+        cardInfo += "  [ë“±ê¸‰ë³„]\n";
         foreach (var kvp in rarityCount.OrderByDescending(x => x.Key))
         {
-            cardInfo += $"    {kvp.Key}±Ş x{kvp.Value}\n";
+            cardInfo += $"    {kvp.Key}ê¸‰ x{kvp.Value}\n";
         }
         
-        // ÄŞº¸ Á¤º¸
+        // ì½¤ë³´ ì •ë³´
         string comboInfoText = "";
         if (allCombos.Count == 0)
         {
-            comboInfoText = $"ÄŞº¸: ÄŞº¸ ¾øÀ½\n±âº» µ¥¹ÌÁö: {totalCardDamage:F1}";
+            comboInfoText = $"ì½¤ë³´: ì½¤ë³´ ì—†ìŒ\nê¸°ë³¸ ë°ë¯¸ì§€: {totalCardDamage:F1}";
         }
         else if (allCombos.Count == 1)
         {
             YaCht_ComboData comboData = YaCht_ComboDatabase.GetComboData(wrestlerType, allCombos[0]);
-            comboInfoText = $"ÄŞº¸: {comboData.comboName} (x{comboData.damageMultiplier}¹è)\n¼³¸í: {comboData.description}";
+            comboInfoText = $"ì½¤ë³´: {comboData.comboName} (x{comboData.damageMultiplier}ë°°)\nì„¤ëª…: {comboData.description}";
         }
         else
         {
-            // ¿©·¯ ÄŞº¸°¡ ÀÖÀ» ¶§
+            // ì—¬ëŸ¬ ì½¤ë³´ê°€ ìˆì„ ë•Œ
             YaCht_ComboData firstCombo = YaCht_ComboDatabase.GetComboData(wrestlerType, allCombos[0]);
-            comboInfoText = $"ÄŞº¸: {firstCombo.comboName} x{allCombos.Count}È¸ (x{firstCombo.damageMultiplier}¹è)\n¼³¸í: {firstCombo.description}";
+            comboInfoText = $"ì½¤ë³´: {firstCombo.comboName} x{allCombos.Count}íšŒ (x{firstCombo.damageMultiplier}ë°°)\nì„¤ëª…: {firstCombo.description}";
         }
         
-        return $"{cardInfo}\n{cardDamageDetails}\n{comboInfoText}\n\nÄ«µå ÇÕ°è: {totalCardDamage:F1}\nÄŞº¸ Àû¿ë: {comboDamage:F1}";
+        return $"{cardInfo}\n{cardDamageDetails}\n{comboInfoText}\n\nì¹´ë“œ í•©ê³„: {totalCardDamage:F1}\nì½¤ë³´ ì ìš©: {comboDamage:F1}";
     }
 }
