@@ -5,15 +5,6 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 0
-    path: Assets/Scenes/TitleScene.unity
-    guid: 99c9720ab356a0642a771bea13969a05
-  - enabled: 0
-    path: Assets/Scenes/CardSelectScene.unity
-    guid: 59178cb7c2122884abdfdd856558c97e
-  - enabled: 0
-    path: Assets/Scenes/GameScene.unity
-    guid: 49652a92d49c17e4db0ba1801749109f
   - enabled: 1
     path: Assets/Scenes/YaCht/YaCht_TitleScene.unity
     guid: 9714e24f0220d8741bb325aaded68a22

@@ -3,31 +3,29 @@ using UnityEngine;
 
 public class YaCht_PlayerData
 {
-    // 플레이어 정보
-    public float maxHealth = 100;
-    public float currentHealth = 100;
-    
-    // 플레이 보유한 카드 덱
+    // 플레이어 소유한 카드 덱
     public List<YaCht_CardData> playerDeck = new List<YaCht_CardData>();
-    public const int MAX_DECK_SIZE = 20;
-    // 생성자
+    public const int MAX_DECK_SIZE = 10;
+    
+    // 플레이어 선택한 레슬러 타입
+    public YaCht_WrestlerType wrestlerType = YaCht_WrestlerType.None;
+
     public YaCht_PlayerData()
     {
-        currentHealth = maxHealth;
-        InitializeDefaultDeck();
     }
     
-    // 기본 덱 초기화 (8장)
-    private void InitializeDefaultDeck()
+    // 카드 세트 설정하면 플레이어 덱 저장
+    public void SetPlayerDeck(List<YaCht_CardData> selectedCards, YaCht_WrestlerType wrestler)
     {
         playerDeck.Clear();
-        playerDeck.Add(YaCht_CardDatabase.Chop);
-        playerDeck.Add(YaCht_CardDatabase.Jab);
-        playerDeck.Add(YaCht_CardDatabase.RearNakedChoke);
-        playerDeck.Add(YaCht_CardDatabase.Headbutt);
-        playerDeck.Add(YaCht_CardDatabase.HeartPunch);
-        playerDeck.Add(YaCht_CardDatabase.Superkick);
-        playerDeck.Add(YaCht_CardDatabase.RKO);
-        playerDeck.Add(YaCht_CardDatabase.LowKick);
+        playerDeck.AddRange(selectedCards);
+        wrestlerType = wrestler;
+        Debug.Log($"플레이어 덱이 설정되었습니다. 총 {playerDeck.Count}장의 카드, 레슬러: {wrestler}");
+    }
+    
+    // 레슬러 타입 가져오기
+    public YaCht_WrestlerType GetWrestlerType()
+    {
+        return wrestlerType;
     }
 }

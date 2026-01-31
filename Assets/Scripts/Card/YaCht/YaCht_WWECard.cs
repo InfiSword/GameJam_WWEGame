@@ -12,7 +12,7 @@ public class YaCht_WWECard : MonoBehaviour, IPointerClickHandler
     public Image m_cardImage;
     public TextMeshProUGUI m_cardDescr;    
     public TextMeshProUGUI m_cardName;
-    public TextMeshProUGUI m_cardCost;
+    public TextMeshProUGUI m_cardDamage;
 
     private bool m_isPreviewCard = false;
     public bool IsPreviewCard => m_isPreviewCard;
@@ -32,9 +32,17 @@ public class YaCht_WWECard : MonoBehaviour, IPointerClickHandler
     {
         m_cardData = _cardData;        
         m_cardCanvas.worldCamera = Camera.main;
-        m_cardDescr.text = m_cardData.m_description;
-        //m_cardName.text = m_cardData.m_name;
-        //m_cardCost.text = m_cardData.m_cost.ToString();
+        
+        // 카드 UI 업데이트
+        if (m_cardName != null)
+            m_cardName.text = m_cardData.m_name;
+        
+        if (m_cardDescr != null)
+            m_cardDescr.text = m_cardData.m_description;
+        
+        if (m_cardDamage != null)
+            m_cardDamage.text = m_cardData.m_baseDamage.ToString();
+        
         m_isPreviewCard = isPreviewCard;
         
         if (m_isPreviewCard)
@@ -51,9 +59,15 @@ public class YaCht_WWECard : MonoBehaviour, IPointerClickHandler
     public void UpdateCardData(YaCht_CardData _cardData)
     {
         m_cardData = _cardData;
-        m_cardDescr.text = m_cardData.m_description;
-        //m_cardName.text = m_cardData.m_name;
-        //m_cardCost.text = m_cardData.m_cost.ToString();
+        
+        if (m_cardName != null)
+            m_cardName.text = m_cardData.m_name;
+        
+        if (m_cardDescr != null)
+            m_cardDescr.text = m_cardData.m_description;
+        
+        if (m_cardDamage != null)
+            m_cardDamage.text = m_cardData.m_baseDamage.ToString();
     }
     
     public void OnPointerClick(PointerEventData eventData)
@@ -61,6 +75,7 @@ public class YaCht_WWECard : MonoBehaviour, IPointerClickHandler
         YaCht_WWEMainGame testGame = FindFirstObjectByType<YaCht_WWEMainGame>();
         if (testGame == null) return;
 
+        // 카드 상태에 따라 적절한 메서드 호출
         if (m_isPreviewCard)
         {
             testGame.OnPreviewCardClicked();
@@ -77,9 +92,14 @@ public class YaCht_WWECard : MonoBehaviour, IPointerClickHandler
     
     public void SetupCard(Transform setupParent, int slotIndex, Vector3 offset)
     {
+        // 부모가 변경될 때만 m_originalParent 저장 (한 번만!)
+        if (!m_isSetup && transform.parent != setupParent)
+        {
+            m_originalParent = transform.parent;
+        }
+        
         m_isSetup = true;
         m_setupSlotIndex = slotIndex;
-        m_originalParent = transform.parent;
                 
         transform.SetParent(setupParent);
         transform.localPosition = offset;
@@ -97,12 +117,5 @@ public class YaCht_WWECard : MonoBehaviour, IPointerClickHandler
         {
             transform.SetParent(m_originalParent);
         }
-    }
-
-    public void UseCard(YaCht_TargetState target)
-    {
-        float finalDamage = m_cardData.m_damageCalculator(m_cardData, target);
-        target.m_currentHealth -= finalDamage;
-        m_cardData.m_abilityTrigger(m_cardData, target);
     }
 }

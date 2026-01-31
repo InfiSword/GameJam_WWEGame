@@ -10,7 +10,7 @@ public class YaCht_TitleScene : MonoBehaviour
     {
         m_startButton.onClick.AddListener(() =>
         {
-            SceneManager.LoadScene("CardSelectScene");
+            SceneManager.LoadScene("YaCht_CardSelectScene");
         });
     }
 

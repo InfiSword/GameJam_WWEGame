@@ -13,6 +13,13 @@ public class YaCht_GameManager : MonoBehaviour
     #endregion
 
     public static YaCht_PlayerData nowPlayerData = new YaCht_PlayerData();
+    
+    // 게임 상태 (GameState 통합)
+    public static int currentRound = 1;
+    public static int totalScore = 0;
+    public static float enemyHealth = 400f;
+    public static float enemyMaxHealth = 400f;
+    
     static void Init()
     {
         if (m_instance == null)
@@ -46,6 +53,30 @@ public class YaCht_GameManager : MonoBehaviour
 
     public static void Clear()
     {
-
+        currentRound = 1;
+        totalScore = 0;
+        enemyHealth = enemyMaxHealth;
+    }
+    
+    public static void NextRound()
+    {
+        currentRound++;
+    }
+    
+    public static bool IsGameOver()
+    {
+        return currentRound > 4 || enemyHealth <= 0;
+    }
+    
+    public static void AddScore(int score)
+    {
+        totalScore += score;
+    }
+    
+    public static void DamageEnemy(float damage)
+    {
+        enemyHealth -= damage;
+        if (enemyHealth < 0)
+            enemyHealth = 0;
     }
 }
