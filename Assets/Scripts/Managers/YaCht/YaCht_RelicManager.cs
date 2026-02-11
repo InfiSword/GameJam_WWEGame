@@ -564,4 +564,120 @@ public class YaCht_RelicManager : MonoBehaviour
             Debug.Log($"[RelicManager] JjolBoy 효과: 리롤 시 효과 미발동 (확률: {roll:F1}%)");
         }
     }
+
+    // ==============================================
+    // 유물 상태 정보 조회
+    // ==============================================
+
+    /// <summary>
+    /// 유물의 현재 상태 정보를 반환합니다.
+    /// </summary>
+    public Dictionary<string, string> GetRelicStatusInfo(YaCht_RelicType relicType)
+    {
+        Dictionary<string, string> statusInfo = new Dictionary<string, string>();
+
+        if (!HasRelic(relicType))
+        {
+            return statusInfo;
+        }
+
+        switch (relicType)
+        {
+            case YaCht_RelicType.RTKO:
+                statusInfo["영구 배율"] = $"x{m_rtkoPermanentMultiplier:F2}";
+                statusInfo["스테이지 사용 횟수"] = $"{m_rtkoStageUseCount}/3";
+                break;
+
+            case YaCht_RelicType.YouCantSeeMe:
+                float totalDamage = 0f;
+                foreach (var damage in m_youCantSeeMeDamageHistory)
+                {
+                    totalDamage += damage;
+                }
+                statusInfo["2턴 총 데미지"] = $"{totalDamage:F1}";
+                int attackCount = GetYouCantSeeMeAttackCount(1);
+                statusInfo["예상 공격 횟수"] = $"{attackCount}회 (4턴 기준)";
+                break;
+
+            case YaCht_RelicType.IHateS:
+                float iHateSMultiplier = m_iHateSACardCount > 0 ? 1.25f * m_iHateSACardCount : 1.0f;
+                statusInfo["A랭크 카드 개수"] = $"{m_iHateSACardCount}개";
+                statusInfo["현재 배율"] = $"x{iHateSMultiplier:F2}";
+                break;
+
+            case YaCht_RelicType.RestTombstone:
+                statusInfo["S랭크 데미지 감소율"] = "0.7배";
+                statusInfo["즉사 조건"] = "HP 10% 이하";
+                break;
+
+            case YaCht_RelicType.SoulBell:
+                int currentStage = YaCht_GameManager.StageManager != null ? YaCht_GameManager.StageManager.CurrentStageNumber : 1;
+                float percentage = 0f;
+                if (currentStage == 1)
+                    percentage = 0.20f;
+                else if (currentStage == 2)
+                    percentage = 0.10f;
+                else
+                    percentage = 0.05f;
+                
+                float additionalDamage = 0f;
+                foreach (var enemyHP in m_soulBellDefeatedEnemyHP)
+                {
+                    additionalDamage += enemyHP * percentage;
+                }
+                statusInfo["처치한 적 수"] = $"{m_soulBellDefeatedEnemyHP.Count}명";
+                statusInfo["추가 데미지"] = $"+{additionalDamage:F1} ({percentage * 100}%)";
+                break;
+
+            case YaCht_RelicType.PurpleGlove:
+                statusInfo["영구 배율"] = $"x{m_purpleGlovePermanentMultiplier:F2}";
+                statusInfo["스테이지 사용 횟수"] = $"{m_purpleGloveStageCount}/3";
+                break;
+
+            case YaCht_RelicType.HarmonyMask:
+                float harmonyBonus = Mathf.Min(m_harmonyMaskComboCount * 0.04f, 0.4f);
+                float harmonyMultiplier = 1.0f + harmonyBonus;
+                statusInfo["콤보 카운트"] = $"{m_harmonyMaskComboCount}회";
+                statusInfo["현재 배율"] = $"x{harmonyMultiplier:F2} (+{harmonyBonus * 100:F0}%)";
+                break;
+
+            case YaCht_RelicType.GamblerMask2:
+                statusInfo["D랭크 추가 공격 확률"] = "90%";
+                statusInfo["C랭크 추가 공격 확률"] = "75%";
+                statusInfo["B랭크 추가 공격 확률"] = "50%";
+                statusInfo["A랭크 추가 공격 확률"] = "15%";
+                statusInfo["S랭크 추가 공격 확률"] = "3%";
+                break;
+
+            case YaCht_RelicType.JjolBoy:
+                string multiplierText = m_jjolBoyDamageMultiplier >= 1.0f 
+                    ? $"+{(m_jjolBoyDamageMultiplier - 1.0f) * 100:F0}%" 
+                    : $"{(m_jjolBoyDamageMultiplier - 1.0f) * 100:F0}%";
+                statusInfo["현재 데미지 배율"] = $"x{m_jjolBoyDamageMultiplier:F2} ({multiplierText})";
+                break;
+
+            case YaCht_RelicType.UnderDogMask:
+                statusInfo["영구 배율"] = $"x{m_underDogMaskPermanentMultiplier:F2}";
+                break;
+
+            case YaCht_RelicType.FixedMask:
+                YaCht_CardData? fixedCard = GetFixedMaskCard(YaCht_GameManager.nowPlayerData.playerDeck);
+                if (fixedCard.HasValue)
+                {
+                    statusInfo["고정 카드"] = fixedCard.Value.m_name;
+                }
+                else
+                {
+                    statusInfo["고정 카드"] = "없음";
+                }
+                break;
+
+            case YaCht_RelicType.GamblerMask1:
+                statusInfo["S랭크 확률 증가"] = "+15%";
+                statusInfo["D랭크 확률 감소"] = "-15%";
+                break;
+        }
+
+        return statusInfo;
+    }
 }

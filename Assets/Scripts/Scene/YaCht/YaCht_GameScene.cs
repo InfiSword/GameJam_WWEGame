@@ -17,6 +17,13 @@ public class YaCht_GameScene : MonoBehaviour
     
     void Start()
     {
+        // ì”¬ ë¡œë“œ ì‹œ ëª¨ë“  ê³µê²© ì´í™íŠ¸ ì •ë¦¬ (WWEMainGameì´ ìˆìœ¼ë©´ í˜¸ì¶œ)
+        YaCht_WWEMainGame wweMainGame = FindFirstObjectByType<YaCht_WWEMainGame>();
+        if (wweMainGame != null)
+        {
+            wweMainGame.ClearAllAttackEffects();
+        }
+        
         CheckAudioListener();
         
         if (YaCht_GameManager.StageManager != null)
@@ -37,12 +44,11 @@ public class YaCht_GameScene : MonoBehaviour
         
         int currentStage = YaCht_GameManager.StageManager.CurrentStageNumber;
         string stageDesc = YaCht_GameManager.StageManager.GetCurrentStageDescription();
-        Debug.Log($"[GameScene] ½ºÅ×ÀÌÁö {currentStage} ½ÃÀÛ - {stageDesc}");
     }
     
     void Update()
     {
-        // µğ¹ö±× Å° ÀÔ·Â Ã³¸®
+        // ë””ë²„ê·¸ í‚¤ ì…ë ¥ ì²˜ë¦¬
         if (m_enableDebugKeys)
         {
             HandleDebugKeys();
@@ -50,23 +56,23 @@ public class YaCht_GameScene : MonoBehaviour
     }
     
     /// <summary>
-    /// µğ¹ö±× Å° ÀÔ·Â Ã³¸®
+    /// ë””ë²„ê·¸ í‚¤ ì…ë ¥ ì²˜ë¦¬
     /// </summary>
     private void HandleDebugKeys()
     {
-        // QÅ°: Àû Áï»ç
+        // Qí‚¤: ì  ì²˜ì¹˜
         if (Input.GetKeyDown(KeyCode.Q))
         {
             KillCurrentEnemy();
         }
         
-        // WÅ°: ´ÙÀ½ ½ºÅ×ÀÌÁö·Î ÀÌµ¿
+        // Wí‚¤: ë‹¤ìŒ ìŠ¤í…Œì´ì§€ë¡œ ì´ë™
         if (Input.GetKeyDown(KeyCode.W))
         {
             MoveToNextStageDebug();
         }
         
-        // RÅ°: ½ºÅ×ÀÌÁö 1·Î ÃÊ±âÈ­
+        // Rí‚¤: ìŠ¤í…Œì´ì§€ë¥¼ 1ë¡œ ì´ˆê¸°í™”
         if (Input.GetKeyDown(KeyCode.R))
         {
             ResetToStage1();
@@ -74,7 +80,7 @@ public class YaCht_GameScene : MonoBehaviour
     }
     
     /// <summary>
-    /// [µğ¹ö±×] ÇöÀç ÀûÀ» Áï½Ã Ã³Ä¡
+    /// [ë””ë²„ê·¸] í˜„ì¬ ì  ì¦‰ì‹œ ì²˜ì¹˜
     /// </summary>
     private void KillCurrentEnemy()
     {
@@ -82,22 +88,22 @@ public class YaCht_GameScene : MonoBehaviour
         {
             float currentHealth = wwe.CurrentEnemy.CurrentHealth;
             wwe.CurrentEnemy.TakeDamage(currentHealth, true);
-            Debug.Log($"[DEBUG] QÅ° ÀÔ·Â: Àû Áï»ç Ã³¸® ({currentHealth} µ¥¹ÌÁö)");
+            Debug.Log($"[DEBUG] Qí‚¤ ì…ë ¥: ì  ì¦‰ì‹œ ì²˜ì¹˜ ({currentHealth} ë°ë¯¸ì§€)");
         }
         else
         {
-            Debug.LogWarning("[DEBUG] ÀûÀÌ Á¸ÀçÇÏÁö ¾Ê½À´Ï´Ù!");
+            Debug.LogWarning("[DEBUG] í˜„ì¬ ì ì´ ì¡´ì¬í•˜ì§€ ì•ŠìŠµë‹ˆë‹¤!");
         }
     }
     
     /// <summary>
-    /// [µğ¹ö±×] ´ÙÀ½ ½ºÅ×ÀÌÁö·Î °­Á¦ ÀÌµ¿
+    /// [ë””ë²„ê·¸] ë‹¤ìŒ ìŠ¤í…Œì´ì§€ë¡œ ê°•ì œ ì´ë™
     /// </summary>
     private void MoveToNextStageDebug()
     {
         if (YaCht_GameManager.StageManager == null)
         {
-            Debug.LogWarning("[DEBUG] StageManager°¡ ¾ø½À´Ï´Ù!");
+            Debug.LogWarning("[DEBUG] StageManagerê°€ ì—†ìŠµë‹ˆë‹¤!");
             return;
         }
         
@@ -106,24 +112,24 @@ public class YaCht_GameScene : MonoBehaviour
         
         if (currentStage >= totalStages)
         {
-            Debug.LogWarning($"[DEBUG] ¸¶Áö¸· ½ºÅ×ÀÌÁöÀÔ´Ï´Ù! (ÇöÀç: {currentStage}/{totalStages})");
+            Debug.LogWarning($"[DEBUG] ì´ë¯¸ ìµœì¢… ìŠ¤í…Œì´ì§€ì…ë‹ˆë‹¤! (í˜„ì¬: {currentStage}/{totalStages})");
             return;
         }
         
-        Debug.Log($"[DEBUG] WÅ° ÀÔ·Â: ½ºÅ×ÀÌÁö {currentStage} ¡æ {currentStage + 1} ÀÌµ¿");
+        Debug.Log($"[DEBUG] Wí‚¤ ì…ë ¥: ìŠ¤í…Œì´ì§€ {currentStage} ì—ì„œ {currentStage + 1} ì´ë™");
         
-        // ÇöÀç ÀûÀÌ º¸½ºÀÎÁö È®ÀÎ
+        // í˜„ì¬ ìŠ¤í…Œì´ì§€ ë³´ìŠ¤ í™•ì¸
         bool isBoss = YaCht_GameManager.IsCurrentStageBoss();
         
         if (isBoss)
         {
-            // º¸½º ½ºÅ×ÀÌÁö´Â À¯¹° ¼±ÅÃ ÈÄ ´ÙÀ½ ½ºÅ×ÀÌÁö
+            // ë³´ìŠ¤ ìŠ¤í…Œì´ì§€ì—ì„œ ì™”ì„ ë•Œ -> ìœ ë¬¼ ì”¬ìœ¼ë¡œ ì´ë™
             YaCht_GameManager.SetRelicSceneFromBossDefeat();
             SceneManager.LoadScene("YaCht_RelicScene");
         }
         else
         {
-            // ÀÏ¹İ ½ºÅ×ÀÌÁö´Â ¹Ù·Î ´ÙÀ½ ½ºÅ×ÀÌÁö·Î
+            // ì¼ë°˜ ìŠ¤í…Œì´ì§€ì—ì„œ ì™”ì„ ë•Œ -> ë°”ë¡œ ë‹¤ìŒ ìŠ¤í…Œì´ì§€ë¡œ
             bool success = YaCht_GameManager.MoveToNextStage();
             if (success)
             {
@@ -131,59 +137,59 @@ public class YaCht_GameScene : MonoBehaviour
             }
             else
             {
-                Debug.LogError("[DEBUG] ´ÙÀ½ ½ºÅ×ÀÌÁö·Î ÀÌµ¿ ½ÇÆĞ!");
+                Debug.LogError("[DEBUG] ë‹¤ìŒ ìŠ¤í…Œì´ì§€ë¡œ ì´ë™ ì‹¤íŒ¨!");
             }
         }
     }
     
     /// <summary>
-    /// [µğ¹ö±×] ½ºÅ×ÀÌÁö 1·Î ÃÊ±âÈ­
+    /// [ë””ë²„ê·¸] ìŠ¤í…Œì´ì§€ë¥¼ 1ë¡œ ì´ˆê¸°í™”
     /// </summary>
     private void ResetToStage1()
     {
-        Debug.Log("[DEBUG] RÅ° ÀÔ·Â: ½ºÅ×ÀÌÁö 1·Î ÃÊ±âÈ­");
+        Debug.Log("[DEBUG] Rí‚¤ ì…ë ¥: ìŠ¤í…Œì´ì§€ë¥¼ 1ë¡œ ì´ˆê¸°í™”");
         YaCht_GameManager.Clear();
         YaCht_GameManager.StartNewStage(1);
         SceneManager.LoadScene("YaCht_GameScene");
     }
     
     /// <summary>
-    /// ¾À¿¡ AudioListener°¡ ÀÖ´ÂÁö È®ÀÎ
+    /// ì”¬ì— AudioListenerê°€ ìˆëŠ”ì§€ í™•ì¸
     /// </summary>
     private void CheckAudioListener()
     {
         AudioListener listener = FindFirstObjectByType<AudioListener>();
         if (listener == null)
         {
-            Debug.LogError("[GameScene] AudioListener¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù! ¿Àµğ¿À°¡ Àç»ıµÇÁö ¾Ê½À´Ï´Ù.");
-            Debug.LogWarning("[GameScene] Main Camera¿¡ AudioListener ÄÄÆ÷³ÍÆ®¸¦ Ãß°¡ÇØÁÖ¼¼¿ä.");
+            Debug.LogError("[GameScene] AudioListenerë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤! ì˜¤ë””ì˜¤ê°€ ì¬ìƒë˜ì§€ ì•ŠìŠµë‹ˆë‹¤.");
+            Debug.LogWarning("[GameScene] Main Cameraì— AudioListener ì»´í¬ë„ŒíŠ¸ë¥¼ ì¶”ê°€í•´ì£¼ì„¸ìš”.");
             
-            // ÀÚµ¿À¸·Î Camera¿¡ AudioListener Ãß°¡ (¾øÀ» °æ¿ì)
+            // ì½”ë“œë¡œ Cameraì— AudioListener ì¶”ê°€ (ì„ì‹œ ì²˜ë¦¬)
             Camera mainCamera = Camera.main;
             if (mainCamera != null)
             {
                 listener = mainCamera.gameObject.AddComponent<AudioListener>();
-                Debug.Log("[GameScene] Main Camera¿¡ AudioListener¸¦ ÀÚµ¿À¸·Î Ãß°¡Çß½À´Ï´Ù.");
+                Debug.Log("[GameScene] Main Cameraì— AudioListenerë¥¼ ì½”ë“œë¡œ ì¶”ê°€í–ˆìŠµë‹ˆë‹¤.");
             }
             else
             {
-                Debug.LogError("[GameScene] Main Camera¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù!");
+                Debug.LogError("[GameScene] Main Cameraë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤!");
             }
         }
         else
         {
-            Debug.Log($"[GameScene] AudioListener ¹ß°ß: {listener.gameObject.name}");
+            Debug.Log($"[GameScene] AudioListener ë°œê²¬: {listener.gameObject.name}");
         }
     }
     
     /// <summary>
-    /// ÇöÀç ½ºÅ×ÀÌÁöÀÇ ¹è°æ, BGM, Æ¯¼öÈ¿°ú ·Îµå
+    /// ìŠ¤í…Œì´ì§€ì— ë§ê²Œ ë°°ê²½, BGM, íŠ¹ìˆ˜íš¨ê³¼ ë¡œë“œ
     /// </summary>
     private void LoadStageResources()
     {
         if (YaCht_GameManager.StageManager == null)
         {
-            Debug.LogWarning("[GameScene] StageManager°¡ ¾ø½À´Ï´Ù!");
+            Debug.LogWarning("[GameScene] StageManagerê°€ ì—†ìŠµë‹ˆë‹¤!");
             return;
         }
         
@@ -196,13 +202,13 @@ public class YaCht_GameScene : MonoBehaviour
     }
     
     /// <summary>
-    /// ¹è°æ ÀÌ¹ÌÁö ·Îµå
+    /// ë°°ê²½ ì´ë¯¸ì§€ ë¡œë“œ
     /// </summary>
     private void LoadBackground()
     {
         if (backgroundImage == null)
         {
-            Debug.LogWarning("[GameScene] backgroundImage°¡ ÇÒ´çµÇÁö ¾Ê¾Ò½À´Ï´Ù!");
+            Debug.LogWarning("[GameScene] backgroundImageê°€ í• ë‹¹ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤!");
             return;
         }
         
@@ -211,19 +217,19 @@ public class YaCht_GameScene : MonoBehaviour
     }
     
     /// <summary>
-    /// ÁöÁ¤µÈ °æ·Î·Î ¹è°æ ÀÌ¹ÌÁö ·Îµå (publicÀ¸·Î º¯°æÇÏ¿© ¿ÜºÎ¿¡¼­ È£Ãâ °¡´É)
+    /// ê²½ë¡œì— ë§ê²Œ ë°°ê²½ ì´ë¯¸ì§€ ë¡œë“œ (publicìœ¼ë¡œ ë§Œë“¤ì–´ì„œ ì™¸ë¶€ì—ì„œ í˜¸ì¶œ ê°€ëŠ¥)
     /// </summary>
     public void LoadBackgroundFromPath(string backgroundPath)
     {
         if (backgroundImage == null)
         {
-            Debug.LogWarning("[GameScene] backgroundImage°¡ ÇÒ´çµÇÁö ¾Ê¾Ò½À´Ï´Ù!");
+            Debug.LogWarning("[GameScene] backgroundImageê°€ í• ë‹¹ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤!");
             return;
         }
         
         if (string.IsNullOrEmpty(backgroundPath))
         {
-            Debug.LogWarning("[GameScene] ¹è°æ °æ·Î°¡ ºñ¾îÀÖ½À´Ï´Ù!");
+            Debug.LogWarning("[GameScene] ë°°ê²½ ê²½ë¡œê°€ ë¹„ì–´ìˆìŠµë‹ˆë‹¤!");
             return;
         }
         
@@ -232,28 +238,28 @@ public class YaCht_GameScene : MonoBehaviour
         if (backgroundSprite != null)
         {
             backgroundImage.sprite = backgroundSprite;
-            Debug.Log($"[GameScene] ¹è°æ ·Îµå ¿Ï·á: {backgroundPath}");
+            Debug.Log($"[GameScene] ë°°ê²½ ë¡œë“œ ì™„ë£Œ: {backgroundPath}");
         }
         else
         {
-            Debug.LogWarning($"[GameScene] ¹è°æÀ» Ã£À» ¼ö ¾ø½À´Ï´Ù: {backgroundPath}");
+            Debug.LogWarning($"[GameScene] ë°°ê²½ì„ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤: {backgroundPath}");
         }
     }
     
     /// <summary>
-    /// ÁöÁ¤µÈ °æ·Î·Î BGM Àç»ı
+    /// ìŠ¤í…Œì´ì§€ì— ë§ê²Œ BGM ì¬ìƒ
     /// </summary>
     private void PlayBGMFromPath(string bgmPath)
     {
         if (bgmAudioSource == null)
         {
-            Debug.LogWarning("[GameScene] bgmAudioSource°¡ ÇÒ´çµÇÁö ¾Ê¾Ò½À´Ï´Ù!");
+            Debug.LogWarning("[GameScene] bgmAudioSourceê°€ í• ë‹¹ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤!");
             return;
         }
         
         if (string.IsNullOrEmpty(bgmPath))
         {
-            Debug.LogWarning("[GameScene] BGM °æ·Î°¡ ºñ¾îÀÖ½À´Ï´Ù!");
+            Debug.LogWarning("[GameScene] BGM ê²½ë¡œê°€ ë¹„ì–´ìˆìŠµë‹ˆë‹¤!");
             return;
         }
         
@@ -263,20 +269,20 @@ public class YaCht_GameScene : MonoBehaviour
         {
             bgmAudioSource.clip = bgmClip;
             bgmAudioSource.loop = true;
-            bgmAudioSource.volume = 0.7f; // º¼·ı ¼³Á¤ (70%)
+            bgmAudioSource.volume = 0.7f; // ê¸°ë³¸ ë³¼ë¥¨ (70%)
             bgmAudioSource.Play();
             
-            Debug.Log($"[GameScene] BGM Àç»ı ½ÃÀÛ: {bgmPath}");
-            Debug.Log($"[GameScene] AudioSource »óÅÂ - isPlaying: {bgmAudioSource.isPlaying}, volume: {bgmAudioSource.volume}, mute: {bgmAudioSource.mute}");
+            Debug.Log($"[GameScene] BGM ì¬ìƒ ì‹œì‘: {bgmPath}");
+            Debug.Log($"[GameScene] AudioSource ìƒíƒœ - isPlaying: {bgmAudioSource.isPlaying}, volume: {bgmAudioSource.volume}, mute: {bgmAudioSource.mute}");
         }
         else
         {
-            Debug.LogWarning($"[GameScene] BGMÀ» Ã£À» ¼ö ¾ø½À´Ï´Ù: {bgmPath}");
+            Debug.LogWarning($"[GameScene] BGMì„ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤: {bgmPath}");
         }
     }
     
     /// <summary>
-    /// Æ¯¼ö È¿°ú »ı¼º (º¸½ºÀü)
+    /// íŠ¹ìˆ˜ íš¨ê³¼ ìƒì„± (ë³´ìŠ¤ì „)
     /// </summary>
     private void SpawnSpecialEffect()
     {
@@ -285,13 +291,13 @@ public class YaCht_GameScene : MonoBehaviour
     }
     
     /// <summary>
-    /// ÁöÁ¤µÈ °æ·Î·Î Æ¯¼ö È¿°ú »ı¼º
+    /// ê²½ë¡œì— ë§ê²Œ íŠ¹ìˆ˜ íš¨ê³¼ ìƒì„±
     /// </summary>
     private void SpawnSpecialEffectFromPath(string effectPath)
     {
         if (string.IsNullOrEmpty(effectPath))
         {
-            Debug.Log("[GameScene] Æ¯¼ö È¿°ú °æ·Î°¡ ºñ¾îÀÖ½À´Ï´Ù. (Á¤»ó: Æ¯¼ö È¿°ú°¡ ¾ø´Â ½ºÅ×ÀÌÁö)");
+            Debug.Log("[GameScene] íŠ¹ìˆ˜ íš¨ê³¼ ê²½ë¡œê°€ ë¹„ì–´ìˆìŠµë‹ˆë‹¤. (ì˜ë¯¸: íŠ¹ìˆ˜ íš¨ê³¼ê°€ ì—†ëŠ” ìŠ¤í…Œì´ì§€)");
             return;
         }
         
@@ -314,11 +320,11 @@ public class YaCht_GameScene : MonoBehaviour
                 currentSpecialEffect = Instantiate(effectPrefab);
             }
             
-            Debug.Log($"[GameScene] Æ¯¼ö È¿°ú »ı¼º: {effectPath}");
+            Debug.Log($"[GameScene] íŠ¹ìˆ˜ íš¨ê³¼ ìƒì„±: {effectPath}");
         }
         else
         {
-            Debug.LogWarning($"[GameScene] Æ¯¼ö È¿°ú¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù: {effectPath}");
+            Debug.LogWarning($"[GameScene] íŠ¹ìˆ˜ íš¨ê³¼ë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤: {effectPath}");
         }
     }
     
@@ -341,11 +347,11 @@ public class YaCht_GameScene : MonoBehaviour
     }
     
     /// <summary>
-    /// ÆäÀÌÁî ÀüÈ¯ ÀÌº¥Æ® ÇÚµé·¯
+    /// ìŠ¤í…Œì´ì§€ í˜ì´ì¦ˆ ë³€ê²½ ì´ë²¤íŠ¸ í•¸ë“¤ëŸ¬
     /// </summary>
     private void OnPhaseChanged(int phaseNumber, YaCht_PhaseData phaseData)
     {
-        Debug.Log($"[GameScene] ÆäÀÌÁî {phaseNumber} ÀüÈ¯: {phaseData.m_phaseDescription}");
+        Debug.Log($"[GameScene] ìŠ¤í…Œì´ì§€ {phaseNumber} í˜ì´ì¦ˆ ë³€ê²½: {phaseData.m_phaseDescription}");
         
         if (!string.IsNullOrEmpty(phaseData.m_backgroundResourcePath))
         {

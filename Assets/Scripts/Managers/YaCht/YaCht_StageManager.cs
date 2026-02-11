@@ -146,16 +146,6 @@ public class YaCht_StageManager : MonoBehaviour
             // 일반 스테이지 처치 이벤트 발생
             OnEnemyDefeatedNormal?.Invoke();
         }
-
-        // 스테이지 종료 체크
-        if (CurrentStageNumber < YaCht_StageDatabase.GetTotalStageCount())
-        {
-            Debug.Log("스테이지 종료 체크 완료.");
-        }
-        else
-        {
-            Debug.Log("마지막 스테이지 종료! 게임 종료!");
-        }
     }
 
     /// <summary>

@@ -40,6 +40,13 @@ public class YaCht_TitleScene : MonoBehaviour
 
     private void Start()
     {
+        // 타이틀 씬 로드 시 모든 공격 이펙트 정리 (WWEMainGame이 있으면 호출)
+        YaCht_WWEMainGame wweMainGame = FindFirstObjectByType<YaCht_WWEMainGame>();
+        if (wweMainGame != null)
+        {
+            wweMainGame.ClearAllAttackEffects();
+        }
+        
         // 타이틀 BGM 재생
         YaCht_BGMManager.Instance.PlayTitleBGM();
 

@@ -202,6 +202,16 @@ public class YaCht_RelicScene : MonoBehaviour
     // 다음 스테이지로 이동
     private void ProceedToNextScene()
     {
+        // S급 기술 사운드 중단
+        YaCht_BGMManager.Instance.StopSSkillSound();
+        
+        // 모든 공격 이펙트 정리 (WWEMainGame이 있으면 호출)
+        YaCht_WWEMainGame wweMainGame = FindFirstObjectByType<YaCht_WWEMainGame>();
+        if (wweMainGame != null)
+        {
+            wweMainGame.ClearAllAttackEffects();
+        }
+        
         if (m_isFromDeckSelection)
         {
             // 덱에서 왔을 때 -> 보스 스테이지 (유물 1개 선택)
@@ -219,11 +229,25 @@ public class YaCht_RelicScene : MonoBehaviour
     // 다음 스테이지로 이동 (보스 스테이지에서 왔을 때)
     private void MoveToNextStage()
     {
+        // S급 기술 사운드 중단
+        YaCht_BGMManager.Instance.StopSSkillSound();
+        
         // 현재 스테이지가 총 스테이지 수보다 크거나 같을 때
         if (YaCht_GameManager.StageManager.CurrentStageNumber >= YaCht_EnemyDatabase.GetTotalStageCount())
         {
             // 최종 스테이지!
             Debug.Log("[RelicScene] 최종 스테이지! 게임 종료! 최종 스테이지!");
+            
+            // 모든 공격 이펙트 정리 (WWEMainGame이 있으면 호출)
+            YaCht_WWEMainGame wweMainGame = FindFirstObjectByType<YaCht_WWEMainGame>();
+            if (wweMainGame != null)
+            {
+                wweMainGame.ClearAllAttackEffects();
+            }
+            
+            // 게임 클리어 시 유물 제거
+            YaCht_GameManager.nowPlayerData.ClearRelics();
+            
             // TODO: 게임 종료
             SceneManager.LoadScene("YaCht_TitleScene"); // 타이틀 씬으로 이동
             return;
@@ -240,6 +264,12 @@ public class YaCht_RelicScene : MonoBehaviour
         else
         {
             Debug.LogError("[RelicScene] 다음 스테이지로 이동 실패!");
+            // 모든 공격 이펙트 정리 (WWEMainGame이 있으면 호출)
+            YaCht_WWEMainGame wweMainGame = FindFirstObjectByType<YaCht_WWEMainGame>();
+            if (wweMainGame != null)
+            {
+                wweMainGame.ClearAllAttackEffects();
+            }
             SceneManager.LoadScene("YaCht_TitleScene");
         }
     }

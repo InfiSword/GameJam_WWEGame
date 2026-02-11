@@ -20,8 +20,8 @@ public class YaCht_GameManager : MonoBehaviour
 
     public static YaCht_PlayerData nowPlayerData = new YaCht_PlayerData();
     
-    // 현재 라운드
-    public static int currentRound = 1;
+    // 현재 라운드 (0부터 시작, 표시는 +1)
+    public static int currentRound = 0;
     public static int totalScore = 0;
     
     // 현재 덱 선택 여부
@@ -78,9 +78,14 @@ public class YaCht_GameManager : MonoBehaviour
 
     public static void Clear()
     {
-        currentRound = 1;
+        currentRound = 0; // 0라운드로 초기화 (표시는 1)
         totalScore = 0;
         RelicManager.ResetGameEffects();  // 엠블럼 게임 효과 초기화
+        
+        // 플레이어 유물 전체 제거
+        nowPlayerData.ClearRelics();
+        
+        // 모든 공격 이펙트 정리는 WWEMainGame에서 관리
         
         // StageManager 스테이지 초기화
         if (StageManager != null)
@@ -88,7 +93,7 @@ public class YaCht_GameManager : MonoBehaviour
             StageManager.ResetGame();            
         }
     }
-    
+
     public static void NextRound()
     {
         currentRound++;
@@ -111,7 +116,7 @@ public class YaCht_GameManager : MonoBehaviour
         if (StageManager != null)
         {
             StageManager.LoadStage(stageNumber);           
-            currentRound = 1;
+            currentRound = 0; // 0라운드로 시작 (표시는 1)
             totalScore = 0;
             
             // 엠블럼 스테이지 효과 초기화 (RKO 효과)
@@ -126,7 +131,7 @@ public class YaCht_GameManager : MonoBehaviour
             bool success = StageManager.MoveToNextStage();
             if (success)
             {               
-                currentRound = 1;
+                currentRound = 0; // 0라운드로 시작 (표시는 1)
                 totalScore = 0;
                 
                 // 엠블럼 스테이지 효과 초기화 (RKO 효과)

@@ -31,7 +31,7 @@ public class YaCht_WWEMainGame : MonoBehaviour
     [SerializeField] private int m_maxRerollCount = 3;
 
     [Header("Victory/Defeat Settings")]
-    [SerializeField] private float m_victoryPanelDelay = 1.5f; 
+    [SerializeField] private float m_victoryPanelDelay = 1.5f;
 
     [Header("Victory Panel")]
     [SerializeField] private GameObject m_victoryPanel;
@@ -59,6 +59,19 @@ public class YaCht_WWEMainGame : MonoBehaviour
     [SerializeField] private GameObject m_relicItemPrefab;
     [SerializeField] private Transform m_relicDetailContainer;
 
+    [Header("Mask Info Panel")]
+    [SerializeField] private Button m_maskInfoButton;
+    [SerializeField] private GameObject m_maskInfoPanel;
+    [SerializeField] private ScrollRect m_maskInfoScrollView;
+    [SerializeField] private Transform m_maskInfoContent;
+    [SerializeField] private GameObject m_relicInfoItemPrefab;
+    [SerializeField] private Button m_maskInfoCloseButton;
+
+    [Header("ESC Menu Panel")]
+    [SerializeField] private GameObject m_escMenuPanel;
+    [SerializeField] private Button m_escMenuTitleButton;
+    [SerializeField] private Button m_escMenuCancelButton;
+
     [SerializeField] private YaCht_ComboGuideUI m_comboGuideUI;
     private YaCht_CardManager m_cardManager;
 
@@ -77,6 +90,12 @@ public class YaCht_WWEMainGame : MonoBehaviour
     private Dictionary<YaCht_RelicType, YaCht_RelicItem> m_relicItems = new Dictionary<YaCht_RelicType, YaCht_RelicItem>();
     private YaCht_RelicItem m_currentActiveRelicItem = null;
 
+    // 마스크 정보 아이템 관리
+    private List<YaCht_RelicInfoItem> m_maskInfoItems = new List<YaCht_RelicInfoItem>();
+
+    // 공격 이펙트 관리
+    private List<GameObject> m_activeAttackEffects = new List<GameObject>();
+
     // 고점수 저장 키
     private const string HIGHSCORE_KEY = "YaCht_HighScore";
 
@@ -86,10 +105,50 @@ public class YaCht_WWEMainGame : MonoBehaviour
         CreateSetupSlots();
         m_currentRerollCount = m_maxRerollCount;
 
+        // 라운드 초기화 (게임 시작 시 0라운드로 시작)
+        if (YaCht_GameManager.currentRound < 0 || YaCht_GameManager.currentRound > 4)
+        {
+            YaCht_GameManager.currentRound = 0;
+        }
+
         m_backgroundButton.onClick.AddListener(OnBackgroundClicked);
         m_fightButton.onClick.AddListener(OnFightButtonClicked);
         m_rerollButton.onClick.AddListener(OnRerollButtonClicked);
         m_backgroundPanel.SetActive(false);
+
+        // 마스크 정보 버튼 이벤트 추가
+        if (m_maskInfoButton != null)
+        {
+            m_maskInfoButton.onClick.AddListener(OnMaskInfoButtonClicked);
+        }
+
+        // 마스크 정보 패널 초기화
+        if (m_maskInfoPanel != null)
+        {
+            m_maskInfoPanel.SetActive(false);
+        }
+
+        // 마스크 정보 닫기 버튼 이벤트 추가
+        if (m_maskInfoCloseButton != null)
+        {
+            m_maskInfoCloseButton.onClick.AddListener(OnMaskInfoCloseButtonClicked);
+        }
+
+        // ESC 메뉴 패널 초기화
+        if (m_escMenuPanel != null)
+        {
+            m_escMenuPanel.SetActive(false);
+        }
+
+        if (m_escMenuTitleButton != null)
+        {
+            m_escMenuTitleButton.onClick.AddListener(OnEscMenuTitleButtonClicked);
+        }
+
+        if (m_escMenuCancelButton != null)
+        {
+            m_escMenuCancelButton.onClick.AddListener(OnEscMenuCancelButtonClicked);
+        }
 
         if (m_victoryPanel != null)
         {
@@ -140,6 +199,15 @@ public class YaCht_WWEMainGame : MonoBehaviour
         UpdateUI();
     }
 
+    private void Update()
+    {
+        // ESC 키 입력 처리
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            HandleEscKey();
+        }
+    }
+
     private void PlayStageBGM()
     {
         if (YaCht_GameManager.StageManager == null) return;
@@ -149,24 +217,19 @@ public class YaCht_WWEMainGame : MonoBehaviour
 
         bool isBossStage = YaCht_GameManager.IsCurrentStageBoss();
 
-        Debug.Log($"[PlayStageBGM] 스테이지: {currentStage}, 보스 스테이지: {isBossStage}");
-
         // 보스 스테이지이고 여러 페이즈인 경우 1번 BGM 재생
         if (isBossStage && YaCht_GameManager.StageManager.CurrentStageData.HasMultiplePhases)
         {
             YaCht_BGMManager.Instance.PlayBossPhaseBGM(currentWrestler, currentStage, 1);
-            Debug.Log($"[PlayStageBGM] 보스 스테이지 - 보스 1번 BGM 재생");
         }
         else if (isBossStage)
         {
             // 보스 스테이지: enemyIndex = 4 재생
             YaCht_BGMManager.Instance.PlayStageBGM(currentWrestler, currentStage, 4);
-            Debug.Log($"[PlayStageBGM] 보스 스테이지 BGM 재생");
         }
         else
         {
             YaCht_BGMManager.Instance.PlayStageBGM(currentWrestler, currentStage, 1);
-            Debug.Log($"[PlayStageBGM] 일반 스테이지 BGM 재생");
         }
     }
 
@@ -195,8 +258,30 @@ public class YaCht_WWEMainGame : MonoBehaviour
             m_endingTitleButton.onClick.RemoveListener(OnTitleButtonClicked);
         }
 
+        if (m_maskInfoButton != null)
+        {
+            m_maskInfoButton.onClick.RemoveListener(OnMaskInfoButtonClicked);
+        }
+
+        if (m_maskInfoCloseButton != null)
+        {
+            m_maskInfoCloseButton.onClick.RemoveListener(OnMaskInfoCloseButtonClicked);
+        }
+
+        if (m_escMenuTitleButton != null)
+        {
+            m_escMenuTitleButton.onClick.RemoveListener(OnEscMenuTitleButtonClicked);
+        }
+
+        if (m_escMenuCancelButton != null)
+        {
+            m_escMenuCancelButton.onClick.RemoveListener(OnEscMenuCancelButtonClicked);
+        }
+
         // 유물 아이콘 버튼들 정리
         ClearRelicIcons();
+        // 마스크 정보 아이템들 정리
+        ClearMaskInfoItems();
     }
 
     private void SpawnEnemy()
@@ -227,7 +312,6 @@ public class YaCht_WWEMainGame : MonoBehaviour
                 if (m_currentEnemy.IsBoss && YaCht_GameManager.StageManager.CurrentStageData.HasMultiplePhases)
                 {
                     m_maxBossPhase = YaCht_GameManager.StageManager.CurrentStageData.m_phases.Length;
-                    Debug.Log($"[SpawnEnemy] 최대 보스 페이즈: {m_maxBossPhase}");
                 }
                 else
                 {
@@ -239,8 +323,9 @@ public class YaCht_WWEMainGame : MonoBehaviour
 
     private void OnBossDefeated()
     {
-        Debug.Log($"[OnBossDefeated] 보스 {m_currentBossPhase} 페이즈 클리어!");
-
+        // S급 기술 사운드 중단
+        YaCht_BGMManager.Instance.StopSSkillSound();
+        
         // SoulBell 효과: 적 처치 시 HP 저장
         if (m_currentEnemy != null)
         {
@@ -255,13 +340,16 @@ public class YaCht_WWEMainGame : MonoBehaviour
         {
             m_isBattleEnded = true;
             YaCht_BGMManager.Instance.StopBGM();
-            
+
             // 최종 보스인지 확인
-            bool isFinalBoss = YaCht_GameManager.StageManager != null && 
+            bool isFinalBoss = YaCht_GameManager.StageManager != null &&
                               YaCht_GameManager.StageManager.CurrentStageNumber >= YaCht_GameManager.GetTotalStageCount();
 
             if (isFinalBoss)
             {
+                // 최종 보스 클리어: 유물 제거
+                YaCht_GameManager.nowPlayerData.ClearRelics();
+                
                 // 최종 보스 클리어: End BGM 재생
                 if (YaCht_GameManager.nowPlayerData.wrestlerType == YaCht_WrestlerType.JohnCena)
                     YaCht_BGMManager.Instance.PlayerJohnCenaEnd();
@@ -291,28 +379,25 @@ public class YaCht_WWEMainGame : MonoBehaviour
     private System.Collections.IEnumerator TransitionToNextBossPhase()
     {
         m_currentBossPhase++;
-        Debug.Log($"[TransitionToNextBossPhase] 보스 {m_currentBossPhase} 페이즈 전환!");
 
-        // 라운드 초기화
-        YaCht_GameManager.currentRound = 1;
+        // 라운드 초기화 (0라운드로 시작, 표시는 1)
+        YaCht_GameManager.currentRound = 0;
 
         // 리롤 초기화
         m_currentRerollCount = m_maxRerollCount;
-        Debug.Log($"[TransitionToNextBossPhase] 보스 페이즈 전환 - 리롤 초기화! (리롤: {m_currentRerollCount}/{m_maxRerollCount})");
 
         // 다음 보스 페이즈 데이터 가져오기
         YaCht_PhaseData? nextPhase = YaCht_GameManager.StageManager.CurrentStageData.GetPhaseByNumber(m_currentBossPhase);
 
         if (!nextPhase.HasValue)
         {
-            Debug.LogError($"[TransitionToNextBossPhase] 보스 {m_currentBossPhase} 페이즈 데이터 없음!");
             yield break;
         }
 
         // 보스 체력 초기화
         YaCht_EnemyData enemyData = YaCht_GameManager.StageManager.CurrentEnemy;
         float nextPhaseMaxHealth = enemyData.m_maxHealth;
-        
+
         // 2페이지 전환 시 추가 체력 적용
         int currentStage = YaCht_GameManager.StageManager.CurrentStageNumber;
         if (m_currentBossPhase == 2)
@@ -321,13 +406,11 @@ public class YaCht_WWEMainGame : MonoBehaviour
             {
                 // 2페이지시 체력 3000 추가 -> 총 8000
                 nextPhaseMaxHealth = enemyData.m_maxHealth + 3000;
-                Debug.Log($"[TransitionToNextBossPhase] 2 챕터 보스 2페이지: 체력 {enemyData.m_maxHealth} + 3000 = {nextPhaseMaxHealth}");
             }
             else if (currentStage == 12) // 3 챕터 마지막 보스
             {
                 // 2페이지시 체력 2배 상승 -> 8만
                 nextPhaseMaxHealth = enemyData.m_maxHealth * 2;
-                Debug.Log($"[TransitionToNextBossPhase] 3 챕터 마지막 보스 2페이지: 체력 {enemyData.m_maxHealth} * 2 = {nextPhaseMaxHealth}");
             }
         }
 
@@ -353,9 +436,24 @@ public class YaCht_WWEMainGame : MonoBehaviour
             Debug.Log($"[TransitionToNextBossPhase] BGM 재생: 보스 {m_currentBossPhase}");
         }
 
-        // 셋업 카드 초기화
+        // 셋업 카드 초기화 (고정 카드 포함 모두 제거 - 다음 라운드에서 고정 카드는 자동으로 다시 생성됨)
         m_cardManager.ClearSetupCards();
-        // 고정 카드가 아닌 카드만 제거
+
+        List<YaCht_WWECard> fixedCardsToRemove = new List<YaCht_WWECard>();
+        foreach (var card in m_setupCards)
+        {
+            if (card != null && card.IsFixedCard)
+            {
+                fixedCardsToRemove.Add(card);
+                Destroy(card.gameObject);
+            }
+        }
+        foreach (var card in fixedCardsToRemove)
+        {
+            m_setupCards.Remove(card);
+        }
+
+        // 일반 카드 제거
         m_setupCards.RemoveAll(card => card == null || !card.IsFixedCard);
 
         yield return new WaitForSeconds(0.5f);
@@ -378,9 +476,6 @@ public class YaCht_WWEMainGame : MonoBehaviour
 
     private void OnStagePhaseChanged(int phaseNumber, YaCht_PhaseData phaseData)
     {
-        Debug.Log($"[OnStagePhaseChanged] HP 초기화: Phase {phaseNumber}");
-        Debug.Log($"[OnStagePhaseChanged] {phaseData.m_phaseDescription}");
-
         m_currentBossPhase = phaseNumber;
 
         if (!string.IsNullOrEmpty(phaseData.m_bgmResourcePath))
@@ -393,6 +488,9 @@ public class YaCht_WWEMainGame : MonoBehaviour
 
     private void OnNormalEnemyDefeated()
     {
+        // S급 기술 사운드 중단
+        YaCht_BGMManager.Instance.StopSSkillSound();
+        
         // SoulBell 효과: 적 처치 시 HP 저장
         if (m_currentEnemy != null)
         {
@@ -401,8 +499,8 @@ public class YaCht_WWEMainGame : MonoBehaviour
 
         m_isBattleEnded = true;
         YaCht_BGMManager.Instance.StopBGM();
-        
-        if(YaCht_GameManager.nowPlayerData.wrestlerType == YaCht_WrestlerType.JohnCena) 
+
+        if (YaCht_GameManager.nowPlayerData.wrestlerType == YaCht_WrestlerType.JohnCena)
             YaCht_BGMManager.Instance.PlayerJohnCenaVictory();
         else
             YaCht_BGMManager.Instance.PlayerUnderTakerVictory();
@@ -423,11 +521,6 @@ public class YaCht_WWEMainGame : MonoBehaviour
         {
             PlayerPrefs.SetInt(HIGHSCORE_KEY, currentScore);
             PlayerPrefs.Save();
-            Debug.Log($"[UpdateAndSaveHighScore] 고점수 갱신! {highScore} -> {currentScore}");
-        }
-        else
-        {
-            Debug.Log($"[UpdateAndSaveHighScore] 고점수: {currentScore}, 최고점수: {highScore}");
         }
     }
 
@@ -444,6 +537,9 @@ public class YaCht_WWEMainGame : MonoBehaviour
     /// </summary>
     private void ShowDefeatPanel()
     {
+        // S급 기술 사운드 중단
+        YaCht_BGMManager.Instance.StopSSkillSound();
+        
         m_isBattleEnded = true;
 
         YaCht_BGMManager.Instance.StopBGM();
@@ -479,8 +575,6 @@ public class YaCht_WWEMainGame : MonoBehaviour
         {
             m_rerollButton.interactable = false;
         }
-
-        Debug.Log("[ShowDefeatPanel] 4턴 동안 데미지를 입히지 못했습니다!");
     }
 
     /// <summary>
@@ -488,7 +582,6 @@ public class YaCht_WWEMainGame : MonoBehaviour
     /// </summary>
     private System.Collections.IEnumerator ShowVictoryPanelDelayed(string message, bool isEnd = false)
     {
-        Debug.Log($"[ShowVictoryPanelDelayed] {m_victoryPanelDelay}초 후 승리 패널 표시");
         yield return new WaitForSeconds(m_victoryPanelDelay);
 
         if (m_victoryPanel != null)
@@ -521,8 +614,6 @@ public class YaCht_WWEMainGame : MonoBehaviour
         {
             m_rerollButton.interactable = false;
         }
-
-        Debug.Log("[ShowVictoryPanelDelayed] 승리 패널 표시");
     }
 
     /// <summary>
@@ -530,7 +621,9 @@ public class YaCht_WWEMainGame : MonoBehaviour
     /// </summary>
     private System.Collections.IEnumerator ShowEndingPanelDelayed(string message)
     {
-        Debug.Log($"[ShowEndingPanelDelayed] {m_victoryPanelDelay}초 후 엔딩 패널 표시");
+        // S급 기술 사운드 중단
+        YaCht_BGMManager.Instance.StopSSkillSound();
+        
         yield return new WaitForSeconds(m_victoryPanelDelay);
 
         if (m_endingPanel != null)
@@ -563,12 +656,16 @@ public class YaCht_WWEMainGame : MonoBehaviour
         {
             m_rerollButton.interactable = false;
         }
-
-        Debug.Log("[ShowEndingPanelDelayed] 엔딩 패널 표시");
     }
 
     private void OnNextStageButtonClicked()
     {
+        // S급 기술 사운드 중단
+        YaCht_BGMManager.Instance.StopSSkillSound();
+        
+        // 모든 공격 이펙트 정리
+        ClearAllAttackEffects();
+        
         bool isBoss = YaCht_GameManager.IsCurrentStageBoss();
 
         if (isBoss)
@@ -591,8 +688,12 @@ public class YaCht_WWEMainGame : MonoBehaviour
     /// </summary>
     private void OnTitleButtonClicked()
     {
-        Debug.Log("[OnTitleButtonClicked] 타이틀 버튼 클릭");
-
+        // S급 기술 사운드 중단
+        YaCht_BGMManager.Instance.StopSSkillSound();
+        
+        // 모든 공격 이펙트 정리
+        ClearAllAttackEffects();
+        
         // 게임 초기화
         YaCht_GameManager.Clear();
 
@@ -637,11 +738,13 @@ public class YaCht_WWEMainGame : MonoBehaviour
         {
             phaseText = $" (보스 {m_currentBossPhase}/{m_maxBossPhase})";
         }
-       
+
         if (m_stageInfoText != null && YaCht_GameManager.StageManager != null)
         {
             m_stageInfoText.text = YaCht_GameManager.StageManager.GetStageInfoString();
-            m_stageInfoText.text += $"라운드: {YaCht_GameManager.currentRound} / 4{phaseText}\n";            
+            // 표시는 currentRound + 1로 (0라운드 -> 1, 1라운드 -> 2, ...)
+            int displayRound = YaCht_GameManager.currentRound + 1;
+            m_stageInfoText.text += $"라운드: {displayRound} / 5{phaseText}\n";
         }
 
         // 유물 아이콘은 UpdateRelicIcons()에서 별도로 관리
@@ -769,11 +872,10 @@ public class YaCht_WWEMainGame : MonoBehaviour
         if (slotIndex < 0 || slotIndex >= m_setupCards.Count) return;
 
         YaCht_WWECard cardToRemove = m_setupCards[slotIndex];
-        
+
         // 고정 카드는 제거할 수 없음
         if (cardToRemove.IsFixedCard)
         {
-            Debug.Log($"[RemoveTopCardFromSlot] 고정 카드는 제거할 수 없습니다: {cardToRemove.GetCardData.m_name}");
             return;
         }
 
@@ -838,7 +940,6 @@ public class YaCht_WWEMainGame : MonoBehaviour
     {
         if (m_currentRerollCount <= 0)
         {
-            Debug.Log("리롤 보너스 소모 완료!");
             return;
         }
 
@@ -849,39 +950,28 @@ public class YaCht_WWEMainGame : MonoBehaviour
 
         if (m_cardManager.IsProcessing)
         {
-            Debug.LogWarning("리롤 처리 중 오류!");
             return;
         }
 
         if (m_isAttacking)
         {
-            Debug.LogWarning("공격 중에는 리롤할 수 없습니다!");
             return;
         }
 
         m_currentRerollCount--;
         StartCoroutine(m_cardManager.RerollHand());
         UpdateUI();
-
-        Debug.Log($"리롤 완료! 리롤 횟수: {m_currentRerollCount}");
     }
 
     private void OnFightButtonClicked()
     {
         if (m_setupCards.Count == 0)
         {
-            Debug.Log("셋업 카드가 없습니다!");
             return;
         }
 
-        if (m_isBattleEnded)
+        if (m_isBattleEnded || m_isAttacking)
         {
-            return;
-        }
-
-        if (m_isAttacking)
-        {
-            Debug.LogWarning("공격 중에는 전투를 시작할 수 없습니다!");
             return;
         }
 
@@ -901,23 +991,11 @@ public class YaCht_WWEMainGame : MonoBehaviour
 
         YaCht_WrestlerType wrestlerType = YaCht_GameManager.nowPlayerData.wrestlerType;
 
-        Debug.Log("=== 전투 시작 ===");
-        Debug.Log($"셋업 카드 개수: {setupCardData.Count}");
-        foreach (var card in setupCardData)
-        {
-            Debug.Log($"  - {card.m_name} ({card.m_rarity}, 데미지: {card.m_baseDamage})");
-        }
-
-        Debug.Log("\n[1턴] 카드 사용 이벤트 (OnCardsUsed)");
         YaCht_GameManager.RelicManager.OnCardsUsed(setupCardData);
 
-        Debug.Log("\n[2턴] 콤보 데미지 계산");
         float baseDamage = YaCht_ComboChecker.CalculateComboDamage(setupCardData, wrestlerType, YaCht_ComboType.None);
-        Debug.Log($"콤보 데미지 기본 데미지: {baseDamage:F1}");
 
-        Debug.Log("\n[3턴] 최종 데미지 계산 (데미지 증가 효과 적용)");
         float finalDamage = YaCht_GameManager.RelicManager.CalculateFinalDamage(baseDamage, setupCardData);
-        Debug.Log($"최종 데미지: {finalDamage:F1}");
 
         float enemyHealthPercent = 0f;
         if (m_currentEnemy != null && m_currentEnemy.MaxHealth > 0)
@@ -953,18 +1031,18 @@ public class YaCht_WWEMainGame : MonoBehaviour
                 // YouCantSeeMe 효과: 각 카드당 3~5번 공격 (조건에 따라)
                 // 유물이 없으면 기본 1회 공격
                 int currentCardAttackCount = hasYouCantSeeMe ? attackCountPerCard : 1;
-                
+
                 for (int attackIndex = 0; attackIndex < currentCardAttackCount; attackIndex++)
                 {
                     yield return StartCoroutine(card.AttackEnemyCoroutine(m_currentEnemy.transform));
                     yield return new WaitForSeconds(0.1f);
-                    
+
                     // GamblerMask2 효과: 랭크별 확률로 한 번 더 공격
                     if (YaCht_GameManager.RelicManager.HasRelic(YaCht_RelicType.GamblerMask2))
                     {
                         float extraAttackChance = YaCht_GameManager.RelicManager.GetGamblerMask2AttackChance(card.GetCardData.m_rarity);
                         float roll = Random.Range(0f, 100f);
-                        
+
                         if (roll < extraAttackChance)
                         {
                             Debug.Log($"[GamblerMask2] 추가 공격 발동! (랭크: {card.GetCardData.m_rarity}, 확률: {extraAttackChance}%, 결과: {roll:F1})");
@@ -1014,11 +1092,34 @@ public class YaCht_WWEMainGame : MonoBehaviour
             }
             YaCht_GameManager.AddScore(totalScore);
             Debug.Log($"[ExecuteSequentialCardAttacks] 콤보 점수 추가: +{totalScore} (점수: {YaCht_GameManager.totalScore})");
+
+            // 콤보 사운드 재생 (콤보 레벨을 사용하여 랜덤 선택)
+            if (YaCht_BGMManager.Instance != null)
+            {
+                int comboLevel = (int)firstComboData.comboLevel;
+                YaCht_BGMManager.Instance.PlayComboSound(comboLevel);
+            }
         }
 
-        // 셋업 카드 초기화 (고정 카드는 유지)
+        // 셋업 카드 초기화 (고정 카드 포함 모두 제거 - 다음 라운드에서 고정 카드는 자동으로 다시 생성됨)
         m_cardManager.ClearSetupCards();
-        // 고정 카드가 아닌 카드만 제거
+
+        // 고정 카드도 제거 (공격에 사용되었으므로 소모됨)
+        List<YaCht_WWECard> fixedCardsToRemove = new List<YaCht_WWECard>();
+        foreach (var card in m_setupCards)
+        {
+            if (card != null && card.IsFixedCard)
+            {
+                fixedCardsToRemove.Add(card);
+                Destroy(card.gameObject);
+            }
+        }
+        foreach (var card in fixedCardsToRemove)
+        {
+            m_setupCards.Remove(card);
+        }
+
+        // 일반 카드 제거
         m_setupCards.RemoveAll(card => card == null || !card.IsFixedCard);
 
         m_isAttacking = false; // 공격 종료
@@ -1029,13 +1130,16 @@ public class YaCht_WWEMainGame : MonoBehaviour
             yield break;
         }
 
-        if (YaCht_GameManager.IsGameOver())
+        // 4라운드(표시: 5)에서 공격 완료 후 적이 살아있으면 패배
+        if (YaCht_GameManager.currentRound >= 4)
         {
             ShowDefeatPanel();
             yield break;
         }
 
+        // 다음 라운드로 진행
         YaCht_GameManager.NextRound();
+        
         yield return StartCoroutine(StartNewRoundCoroutine());
     }
 
@@ -1125,7 +1229,7 @@ public class YaCht_WWEMainGame : MonoBehaviour
         // 유물 아이콘 버튼 및 RelicItem 생성
         foreach (var relicType in playerRelics)
         {
-            YaCht_RelicData relicData = YaCht_RelicDatabase.GetRelicData(relicType);                       
+            YaCht_RelicData relicData = YaCht_RelicDatabase.GetRelicData(relicType);
 
             CreateRelicIconButton(relicData);
             CreateRelicItem(relicData);
@@ -1189,7 +1293,7 @@ public class YaCht_WWEMainGame : MonoBehaviour
         // RelicItem 생성
         GameObject relicItemObj = Instantiate(m_relicItemPrefab, m_relicDetailContainer);
         YaCht_RelicItem relicItem = relicItemObj.GetComponent<YaCht_RelicItem>();
-        
+
         if (relicItem == null)
         {
             Debug.LogWarning("[CreateRelicItem] YaCht_RelicItem 컴포넌트가 없습니다!");
@@ -1198,7 +1302,8 @@ public class YaCht_WWEMainGame : MonoBehaviour
         }
 
         // RelicItem 초기화 (클릭 시 비활성화)
-        relicItem.Init(relicData, () => {
+        relicItem.Init(relicData, () =>
+        {
             Debug.Log($"[CreateRelicItem] RelicItem 클릭: {relicData.name}");
             HideRelicDetail();
         });
@@ -1223,7 +1328,7 @@ public class YaCht_WWEMainGame : MonoBehaviour
         if (m_currentActiveRelicItem != null)
         {
             // 같은 RelicItem이면 비활성화
-            if (m_relicItems.ContainsKey(relicData.relicType) && 
+            if (m_relicItems.ContainsKey(relicData.relicType) &&
                 m_relicItems[relicData.relicType] == m_currentActiveRelicItem)
             {
                 HideRelicDetail();
@@ -1298,5 +1403,259 @@ public class YaCht_WWEMainGame : MonoBehaviour
         }
         m_relicItems.Clear();
         m_currentActiveRelicItem = null;
+    }
+
+    // ==============================================
+    // 마스크 정보 패널
+    // ==============================================
+
+    /// <summary>
+    /// 마스크 정보 버튼 클릭 이벤트
+    /// </summary>
+    private void OnMaskInfoButtonClicked()
+    {
+        if (m_maskInfoPanel != null && m_maskInfoPanel.activeSelf)
+        {
+            HideMaskInfoPanel();
+        }
+        else
+        {
+            ShowMaskInfoPanel();
+        }
+    }
+
+    /// <summary>
+    /// 마스크 정보 닫기 버튼 클릭 이벤트
+    /// </summary>
+    private void OnMaskInfoCloseButtonClicked()
+    {
+        HideMaskInfoPanel();
+    }
+
+    /// <summary>
+    /// 마스크 정보 패널 표시
+    /// </summary>
+    private void ShowMaskInfoPanel()
+    {
+        if (m_maskInfoPanel != null)
+        {
+            m_maskInfoPanel.SetActive(true);
+            UpdateMaskInfoList();
+        }
+    }
+
+    /// <summary>
+    /// 마스크 정보 패널 숨기기
+    /// </summary>
+    private void HideMaskInfoPanel()
+    {
+        if (m_maskInfoPanel != null)
+        {
+            m_maskInfoPanel.SetActive(false);
+        }
+    }
+
+    /// <summary>
+    /// 마스크 정보 리스트 업데이트
+    /// </summary>
+    private void UpdateMaskInfoList()
+    {
+        if (m_maskInfoContent == null)
+        {
+            Debug.LogWarning("[UpdateMaskInfoList] MaskInfoContent가 없습니다!");
+            return;
+        }
+
+        if (m_relicInfoItemPrefab == null)
+        {
+            Debug.LogWarning("[UpdateMaskInfoList] RelicInfoItemPrefab이 없습니다!");
+            return;
+        }
+
+        // 기존 아이템들 제거
+        ClearMaskInfoItems();
+
+        // 현재 보유한 유물 목록 가져오기
+        if (YaCht_GameManager.nowPlayerData == null)
+        {
+            Debug.LogWarning("[UpdateMaskInfoList] PlayerData가 없습니다!");
+            return;
+        }
+
+        List<YaCht_RelicType> playerRelics = YaCht_GameManager.nowPlayerData.playerRelics;
+
+        if (playerRelics == null || playerRelics.Count == 0)
+        {
+            Debug.Log("[UpdateMaskInfoList] 소유한 유물이 없습니다.");
+            return;
+        }
+
+        // 각 유물별로 정보 아이템 생성
+        foreach (var relicType in playerRelics)
+        {
+            YaCht_RelicData relicData = YaCht_RelicDatabase.GetRelicData(relicType);
+
+            // RelicManager에서 현재 상태 정보 가져오기
+            Dictionary<string, string> statusInfo = YaCht_GameManager.RelicManager.GetRelicStatusInfo(relicType);
+
+            // RelicInfoItem 생성
+            GameObject infoItemObj = Instantiate(m_relicInfoItemPrefab, m_maskInfoContent);
+            YaCht_RelicInfoItem infoItem = infoItemObj.GetComponent<YaCht_RelicInfoItem>();
+
+            if (infoItem == null)
+            {
+                Debug.LogWarning($"[UpdateMaskInfoList] YaCht_RelicInfoItem 컴포넌트가 없습니다!");
+                Destroy(infoItemObj);
+                continue;
+            }
+
+            // 정보 초기화
+            infoItem.Init(relicData, statusInfo);
+            m_maskInfoItems.Add(infoItem);
+
+            Debug.Log($"[UpdateMaskInfoList] 마스크 정보 아이템 생성: {relicData.name}");
+        }
+
+        Debug.Log($"[UpdateMaskInfoList] 마스크 정보 아이템 {m_maskInfoItems.Count}개 생성 완료");
+    }
+
+    /// <summary>
+    /// 마스크 정보 아이템들 제거
+    /// </summary>
+    private void ClearMaskInfoItems()
+    {
+        foreach (var infoItem in m_maskInfoItems)
+        {
+            if (infoItem != null && infoItem.gameObject != null)
+            {
+                Destroy(infoItem.gameObject);
+            }
+        }
+        m_maskInfoItems.Clear();
+    }    
+
+    /// <summary>
+    /// ESC 키 입력 처리
+    /// </summary>
+    private void HandleEscKey()
+    {
+        // 전투 종료 상태이거나 공격 중일 때는 ESC 메뉴 표시 안 함
+        if (m_isBattleEnded || m_isAttacking)
+        {
+            return;
+        }
+
+        // 다른 패널이 열려있으면 닫기
+        if (m_maskInfoPanel != null && m_maskInfoPanel.activeSelf)
+        {
+            HideMaskInfoPanel();
+            return;
+        }
+
+        // ESC 메뉴 패널 토글
+        if (m_escMenuPanel != null)
+        {
+            if (m_escMenuPanel.activeSelf)
+            {
+                HideEscMenuPanel();
+            }
+            else
+            {
+                ShowEscMenuPanel();
+            }
+        }
+    }
+
+    /// <summary>
+    /// ESC 메뉴 패널 표시
+    /// </summary>
+    private void ShowEscMenuPanel()
+    {
+        if (m_escMenuPanel != null)
+        {
+            m_escMenuPanel.SetActive(true);
+            Debug.Log("[ESC Menu] 메뉴 패널 표시");
+        }
+    }
+
+    /// <summary>
+    /// ESC 메뉴 패널 숨기기
+    /// </summary>
+    private void HideEscMenuPanel()
+    {
+        if (m_escMenuPanel != null)
+        {
+            m_escMenuPanel.SetActive(false);
+            Debug.Log("[ESC Menu] 메뉴 패널 숨김");
+        }
+    }
+
+    /// <summary>
+    /// ESC 메뉴 - 타이틀 화면으로 이동 버튼 클릭
+    /// </summary>
+    private void OnEscMenuTitleButtonClicked()
+    {
+        Debug.Log("[ESC Menu] 타이틀 화면으로 이동");
+
+        // S급 기술 사운드 중단
+        YaCht_BGMManager.Instance.StopSSkillSound();
+        
+        // 모든 공격 이펙트 정리
+        ClearAllAttackEffects();
+        
+        // 게임 초기화
+        YaCht_GameManager.Clear();
+
+        // ESC 메뉴 패널 숨기기
+        HideEscMenuPanel();
+
+        // 타이틀 씬으로 이동
+        SceneManager.LoadScene("YaCht_TitleScene");
+    }
+
+    /// <summary>
+    /// ESC 메뉴 - 취소 버튼 클릭
+    /// </summary>
+    private void OnEscMenuCancelButtonClicked()
+    {
+        HideEscMenuPanel();
+    }
+
+    /// <summary>
+    /// 공격 이펙트 등록 (카드에서 호출)
+    /// </summary>
+    public void RegisterAttackEffect(GameObject effectObj)
+    {
+        if (effectObj != null && !m_activeAttackEffects.Contains(effectObj))
+        {
+            m_activeAttackEffects.Add(effectObj);
+        }
+    }
+
+    /// <summary>
+    /// 공격 이펙트 제거 등록 해제 (카드에서 호출)
+    /// </summary>
+    public void UnregisterAttackEffect(GameObject effectObj)
+    {
+        if (effectObj != null)
+        {
+            m_activeAttackEffects.Remove(effectObj);
+        }
+    }
+
+    /// <summary>
+    /// 모든 공격 이펙트 정리
+    /// </summary>
+    public void ClearAllAttackEffects()
+    {
+        foreach (var effect in m_activeAttackEffects)
+        {
+            if (effect != null)
+            {
+                Destroy(effect);
+            }
+        }
+        m_activeAttackEffects.Clear();
+        Debug.Log("[WWEMainGame] 모든 공격 이펙트 정리 완료");
     }
 }

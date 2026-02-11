@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using System.Collections;
+using System.Collections.Generic;
 
 public class YaCht_WWECard : MonoBehaviour, IPointerClickHandler
 {
@@ -29,6 +30,9 @@ public class YaCht_WWECard : MonoBehaviour, IPointerClickHandler
     public int DrawOrderId => m_drawOrderId;
 
     private Transform m_originalParent;
+
+    // 생성된 이펙트 오브젝트 추적 리스트
+    private List<GameObject> m_activeEffects = new List<GameObject>();
 
     public void Init(YaCht_CardData _cardData, bool isPreviewCard = false)
     {
@@ -174,11 +178,11 @@ public class YaCht_WWECard : MonoBehaviour, IPointerClickHandler
         transform.localRotation = Quaternion.identity;
         transform.localScale = Vector3.one;
         transform.SetAsLastSibling();
-        
+
         // 고정 카드 하이라이트 업데이트
         UpdateFixedCardHighlight();
     }
-    
+
     /// <summary>
     /// 고정 카드로 설정
     /// </summary>
@@ -187,7 +191,7 @@ public class YaCht_WWECard : MonoBehaviour, IPointerClickHandler
         m_isFixedCard = isFixed;
         UpdateFixedCardHighlight();
     }
-    
+
     /// <summary>
     /// 고정 카드 하이라이트 업데이트
     /// </summary>
@@ -324,11 +328,11 @@ public class YaCht_WWECard : MonoBehaviour, IPointerClickHandler
 
         YaCht_WWEMainGame wweMainGame = FindFirstObjectByType<YaCht_WWEMainGame>();
 
-        if(wweMainGame.CurrentEnemy.GetShakeCoroutine != null)
+        if (wweMainGame.CurrentEnemy.GetShakeCoroutine != null)
             wweMainGame.CurrentEnemy.StopCoroutine(wweMainGame.CurrentEnemy.GetShakeCoroutine);
         if (wweMainGame.CurrentEnemy.GetFlashCoroutine != null)
             wweMainGame.CurrentEnemy.StopCoroutine(wweMainGame.CurrentEnemy.GetFlashCoroutine);
-        
+
         StartCoroutine(wweMainGame.CurrentEnemy.ShakeCoroutine());
         StartCoroutine(wweMainGame.CurrentEnemy.FlashCoroutine());
 
@@ -340,29 +344,168 @@ public class YaCht_WWECard : MonoBehaviour, IPointerClickHandler
     /// </summary>
     private void PlayAttackSound()
     {
-        // 공격 사운드 리소스 경로가 비어있지 않으면 실행
-        if (!string.IsNullOrEmpty(m_cardData.m_soundResourcePath))
-        {
-            Debug.Log($"[Sound] {m_cardData.m_name}: {m_cardData.m_soundResourcePath} 실행");
-            // AudioClip soundClip = Resources.Load<AudioClip>(m_cardData.m_soundResourcePath);
-            // if (soundClip != null)
-            // {
-            //     AudioSource audioSource = GetComponent<AudioSource>();
-            //     if (audioSource != null)
-            //     {
-            //         audioSource.PlayOneShot(soundClip);
-            //     }
-            // }
-        }
+        YaCht_BGMManager.Instance.PlayCardSound(m_cardData.m_rarity, m_cardData.m_name);
     }
 
     /// <summary>
     /// 공격 이펙트 실행
+    /// 레어도에 따라 다른 이펙트를 적 주변 랜덤 위치에 생성
     /// </summary>
     private void PlayAttackEffect(Vector3 targetPosition)
     {
-        // 공격 이펙트 리소스 경로가 비어있지 않으면 실행
-        Debug.Log($"[Effect] {m_cardData.m_name}: 공격 이펙트 실행 - 공격 위치: {targetPosition}");
-        // EffectManager.PlayEffect("CardAttackEffect", targetPosition);
+        YaCht_WWEMainGame wweMainGame = FindFirstObjectByType<YaCht_WWEMainGame>();
+        if (wweMainGame == null || wweMainGame.CurrentEnemy == null)
+        {
+            Debug.LogWarning("[Effect] 적을 찾을 수 없습니다!");
+            return;
+        }
+
+        Transform enemyTransform = wweMainGame.CurrentEnemy.transform;
+        YaCht_CardRarity rarity = m_cardData.m_rarity;
+
+        // 레어도에 따라 이펙트 경로 결정
+        string effectPath = "";
+        if (rarity == YaCht_CardRarity.S)
+        {
+            // S급: 강공격
+            effectPath = "Sprites/UI/타격 이팩트";
+        }
+        else if (rarity == YaCht_CardRarity.A || rarity == YaCht_CardRarity.B)
+        {
+            // A~B급: 중공격
+            effectPath = "Sprites/UI/타격 이팩트 중공격";
+        }
+        else if (rarity == YaCht_CardRarity.C || rarity == YaCht_CardRarity.D)
+        {
+            // C~D급: 약공격
+            effectPath = "Sprites/UI/타격이팩트 약공격";
+        }
+
+        if (string.IsNullOrEmpty(effectPath))
+        {
+            Debug.LogWarning($"[Effect] 레어도 {rarity}에 대한 이펙트 경로가 없습니다!");
+            return;
+        }
+
+        // 이펙트 스프라이트 로드
+        Sprite effectSprite = Resources.Load<Sprite>(effectPath);
+        if (effectSprite == null)
+        {
+            Debug.LogWarning($"[Effect] 이펙트 스프라이트를 찾을 수 없습니다: {effectPath}");
+            return;
+        }
+
+        // 적 주변 랜덤 위치에 이펙트 생성 (3~5개)
+        int effectCount = Random.Range(3, 6);
+        for (int i = 0; i < effectCount; i++)
+        {
+            // 적 위치 주변 랜덤 오프셋 (X: -1.5 ~ 1.5, Y: -1.5 ~ 1.5, Z: 0)
+            float randomX = Random.Range(-1.5f, 1.5f);
+            float randomY = Random.Range(-1.5f, 1.5f);
+            Vector3 randomOffset = new Vector3(randomX, randomY, 0f);
+            Vector3 effectPosition = enemyTransform.position + randomOffset;
+
+            // 이펙트 오브젝트 생성
+            GameObject effectObj = new GameObject($"AttackEffect_{GetInstanceID()}_{i}");
+            effectObj.transform.position = effectPosition;
+            effectObj.transform.rotation = Quaternion.identity;
+
+            // SpriteRenderer 추가
+            SpriteRenderer spriteRenderer = effectObj.AddComponent<SpriteRenderer>();
+            spriteRenderer.sprite = effectSprite;
+            spriteRenderer.sortingOrder = 10; // 적 위에 표시
+
+            // 이펙트 리스트에 추가
+            m_activeEffects.Add(effectObj);
+
+            if (wweMainGame != null)
+            {
+                wweMainGame.RegisterAttackEffect(effectObj);
+            }
+
+            // 페이드아웃 코루틴 시작
+            StartCoroutine(FadeOutEffect(effectObj, 1.0f));
+        }
+
+        Debug.Log($"[Effect] {m_cardData.m_name} ({rarity}): {effectCount}개의 이펙트 생성 - {effectPath}");
+    }
+
+    /// <summary>
+    /// 이펙트 페이드아웃 코루틴
+    /// </summary>
+    private IEnumerator FadeOutEffect(GameObject effectObj, float duration)
+    {
+        if (effectObj == null) yield break;
+
+        SpriteRenderer spriteRenderer = effectObj.GetComponent<SpriteRenderer>();
+        if (spriteRenderer == null)
+        {
+            // 스프라이트 렌더러가 없으면 즉시 제거
+            if (effectObj != null)
+            {
+                m_activeEffects.Remove(effectObj);
+                Destroy(effectObj);
+            }
+            yield break;
+        }
+
+        float elapsed = 0f;
+        Color originalColor = spriteRenderer.color;
+        float maxDuration = duration + 0.5f; // 안전장치: 최대 지속 시간
+
+        while (elapsed < maxDuration)
+        {
+            if (effectObj == null || spriteRenderer == null) break;
+
+            elapsed += Time.deltaTime;
+            
+            if (elapsed < duration)
+            {
+                float t = elapsed / duration;
+                // 알파값을 1에서 0으로 감소
+                Color newColor = originalColor;
+                newColor.a = Mathf.Lerp(1f, 0f, t);
+                spriteRenderer.color = newColor;
+            }
+
+            yield return null;
+        }
+
+        // 완전히 투명해지면 오브젝트 제거
+        if (effectObj != null)
+        {
+            m_activeEffects.Remove(effectObj);
+            Destroy(effectObj);
+        }
+    }
+
+    /// <summary>
+    /// 모든 활성 이펙트 정리
+    /// </summary>
+    private void ClearAllEffects()
+    {
+        YaCht_WWEMainGame wweMainGame = FindFirstObjectByType<YaCht_WWEMainGame>();
+        
+        foreach (var effect in m_activeEffects)
+        {
+            if (effect != null)
+            {
+                // WWEMainGame에서 이펙트 등록 해제
+                if (wweMainGame != null)
+                {
+                    wweMainGame.UnregisterAttackEffect(effect);
+                }
+                Destroy(effect);
+            }
+        }
+        m_activeEffects.Clear();
+    }
+
+    /// <summary>
+    /// 오브젝트 파괴 시 모든 이펙트 정리
+    /// </summary>
+    private void OnDestroy()
+    {
+        ClearAllEffects();
     }
 }

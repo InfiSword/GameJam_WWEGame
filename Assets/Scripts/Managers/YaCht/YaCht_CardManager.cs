@@ -111,6 +111,13 @@ public class YaCht_CardManager : MonoBehaviour
 
     public void StartGame()
     {
+        // 덱이 비어있는지 확인
+        if (YaCht_GameManager.nowPlayerData.playerDeck.Count == 0)
+        {
+            Debug.LogError("[CardManager] 플레이어 덱이 비어있습니다! 덱을 선택하지 않았거나 덱이 초기화되지 않았습니다. 덱 선택 씬에서 덱을 선택해주세요.");
+            return;
+        }
+
         if (m_handTransform == null)
         {
             GameObject handObj = GameObject.Find("HandCardTransform");
@@ -194,6 +201,14 @@ public class YaCht_CardManager : MonoBehaviour
         if (m_currentRepositionCoroutine != null)
             StopCoroutine(m_currentRepositionCoroutine);
 
+        // 덱이 비어있는지 확인
+        if (YaCht_GameManager.nowPlayerData.playerDeck.Count == 0)
+        {
+            Debug.LogError("[CardManager] 플레이어 덱이 비어있습니다! 덱을 선택하지 않았거나 덱이 초기화되지 않았습니다.");
+            IsProcessing = false;
+            yield break;
+        }
+
         if (count > 0)
         {
             float totalLinearWidth = (count - 1) * m_linearSpacing;
@@ -204,10 +219,25 @@ public class YaCht_CardManager : MonoBehaviour
             for (int i = 0; i < count; i++)
             {
                 YaCht_WWECard card = null;
+                int maxAttempts = 100; // 무한 루프 방지를 위한 최대 시도 횟수
+                int attempts = 0;
                 
-                while (card == null)
+                while (card == null && attempts < maxAttempts)
                 {
                     card = CreateCardObjectOnly();
+                    attempts++;
+                    
+                    if (card == null && attempts >= maxAttempts)
+                    {
+                        Debug.LogError($"[CardManager] 카드 생성 실패! {maxAttempts}번 시도했지만 카드를 생성할 수 없습니다. 덱 상태를 확인하세요.");
+                        break;
+                    }
+                }
+                
+                if (card == null)
+                {
+                    Debug.LogError($"[CardManager] 카드를 생성할 수 없어 배분을 중단합니다. (요청: {count}장, 생성: {drawnCards.Count}장)");
+                    break;
                 }
                 
                 drawnCards.Add(card);
